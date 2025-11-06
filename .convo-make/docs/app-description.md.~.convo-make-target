@@ -1,0 +1,1144 @@
+> define
+__makeRoot="../.."
+__makeFile="make.convo"
+__makeOut="docs/app-description.md"
+__model="gpt-5"
+
+> system
+You are generating content that will be directly written to "docs/app-description.md".
+DO NOT include a preamble or postamble.
+
+Always respond with the full content for "docs/app-description.md", even if you are making an
+small or incremental update.
+
+> appendUser
+<app-description>
+# Decisioning Demo
+
+Decisioning Demo allows users to import a customer contact list, enrich the contacts records with appended data, organize contacts into segments, organize messages into category folders, and configure ai agents to manage decision-making with regard to send time, message and channel. 
+
+
+## User Roles
+- guest - A user with view-only permissions
+- default - Default user role for somebody belonging to an account, can edit content and configure agents
+- manager - An account manager, all permissions of default user plus ability to add/remove users from account
+- admin - A user that has all permissions, plus ability to change user roles, manage account billing, and delete account
+
+## Relationships
+- Customer contact records are called "Profiles"
+- Enriching profiles adds new customer properties and attributes to the profile
+- The enrichment process creates "Segments"
+- Messages are emails, text messages (SMS), and push notifications
+- Messages are imported from GardenIQ, they will not be created in the Decisioning Demo
+- Message categories are folders that serve as content libraries for the ai agents
+- Messaging Channels are the medium through which a message is sent, such as email, text message or push notification
+- AI decisioning agents can send messages to profiles
+- AI decisioning agents manage which message to send, the day and time-of-day to send, and the channel through which to send
+- Users can configure the settings for agents, such as send frequency, sending timeframes, and desire outcomes
+- Outcomes are ranked as Worst, Good, Very Good, Best and users can define which events correlate to which rankings
+- Holdout percentage is the percentage of profiles in a segment that will not receive communications from a decisioning agent
+
+## Requirements
+- User can import customer contact records (profiles) in a CSV or Excel file to be stored in the platform
+- User can view a list of stored profiles
+- User can view a profile detail screen that contains customer contact details, properties, attributes and event history
+- User can view a list of segments
+- User can view a segment detail screen containing the properties of the segment and a list of all profiles in the segment
+- User can view a grid of message category folders
+- User can click into a message category folder to view a grid of message thumbnails
+- User can click on a message thumbnail to view a message detail screen that contains three tabs for Email, SMS, and Notification. Each tab displays a preview of the message in the channel format
+- User can create and configure ai decisioning agents
+- Once an agent is configured, user can activate the agent
+- User can view a list of the ai agents they've created
+- User can click into a detail screen for each agent that provides a log of all decisions made by the agent
+</app-description>
+
+> appendUser
+<screen>
+# Account
+Route: /accept-account-invite/[invite-code]
+Seen by roles: (All)
+
+
+## Requirements
+- Should allow the user to accept or decline an invite
+- If the user is not signed-in they should be asked to sign-in first
+</screen>
+
+<screen>
+# Account
+Route: /account
+Seen by roles: (All signed-in users)
+
+## Requirements
+- Shows basic account info including:
+    - name
+    - logo
+    - id - muted
+
+- Users with the admin role can edit account info
+
+- Users Sections: a grid of user cards of users that belong to the account. The cards should include the name
+of the user and their profile picture. The cards should link to the public profile of the user
+
+- link to create a new account
+
+- Account admins should be able to invite users to the account via an invite link: `https://${location.host}/accept-account-invite/${inviteCode}`
+</screen>
+
+<screen>
+# Agent-Detail
+Route: /agent-detail
+Seen by roles: (all signed in users)
+
+A screen for signed in users where they can view a log of all decisions made by the agent
+
+## Requirements
+- Each decision record should include: 
+    - a timestamp
+    - the profile that was engaged
+    - the selected message
+    - the selected channel
+    - the send time chosen
+    - summary of the agent's reasoning for why it chose the message, channel and time for the particular profile
+</screen>
+
+<screen>
+# Create-Agent
+Route: /create-agent
+Seen by roles: (all signed in users)
+
+A 3-step process for signed in users where they can create new ai decisioning agents
+
+## Requirements
+- Step 1:
+    - User can give agents a name and assign a default email address and SMS phone number the agent will use for sending
+    - User can assign one segment and a "Holdout" percentage to each agent
+    - User can assign one message category to each agent
+- Step 2:
+    - User can select sending frequency (ex: daily, 6x/week, 5x/week, etc, Weekly, Every 2 Weeks, Monthly)
+    - User can select sending days (checkboxes for each day of the week)
+    - User can select sending times (morning, afternoon, evening)
+- Step 3:
+    - User can define desired outcomes
+    - User can select an event from a dropdown for each ranking (Worst, Good, Very Good, Best)
+- Once an agent is configured, user can activate the agent
+</screen>
+
+<screen>
+# Dashboard
+Route: /dashboard
+Seen by roles: (all signed in users)
+
+A dashboard for signed in users where they can see analytics and metrics about the performance of their agents and communications.
+
+## Requirements
+- User can view data visualization (charts, graphs) of all aggregated user data. This section requires subpages or tabs to organize web, messaging, ecommerce and attribution analytics 
+    - Web analytics: page views, new and unique sessions, form submissions, etc
+    - Messaging (all channels): sent, opened, clicked, bounced, new subscribers, unsubscribers, etc
+    - Ecommerce: adds-to-cart, favorites or saved products, iniated checkouts, abandoned checkouts, successful checkouts/purchases
+    - Attribution: ROI metrics for messages and agents showing total revenue, total orders, average order value and more attributed to each message or agent. Users should be able to select different messages or agents to analyze.
+</screen>
+
+<screen>
+# Decisioning
+Route: /decisioning
+Seen by roles: (all signed in users)
+
+A list view for signed in users where they can view a list of ai decisioning agents
+
+## Requirements
+- User can view a list of agents they've created and configured
+- User can create new agents
+- User can click into an agent record in the list to view the agent details
+- User can delete agents
+</screen>
+
+<screen>
+# Message-Category
+Route: /message-category
+Seen by roles: (all signed in users)
+
+A grid view for signed in users where they can view all messages stored in a category folder
+
+## Requirements
+- Each message in the category should be displayed as a thumbnail in the grid
+- The message thumbnail should be a preview image of the email contained in the message detail view
+- Below each message thumbnail should be the message name and the date the message was created
+- Each message thumbnail should have an overflow menu (ellipsis icon) that opens a popover menu
+    - The overflow menu should include these actions: duplicate message, move message, delete message
+    - The move message action opens a modal with a dropdown menu where users can select from a list of all message categories. Include a button to confirm the move action. Confirmation should move the message to the selected category folder. It should no longer be included in the original message category.
+- Users can click into a message to view the message variant previews inside
+</screen>
+
+<screen>
+# Message-Detail
+Route: /message-detail
+Seen by roles: (all signed in users)
+
+A tabbed view for signed in users where they can view the three message variants: email, sms, and push notification. These messages will all be consumer marketing messages. Each variant should reflect the same subject with email as the long-form content and sms and notifications as the short-form content.
+
+## Requirements
+- The email tab should display a preview of a branded email
+- The sms tab should display a preview of a branded text message
+- The notification tab should display a preview of a branded push notification
+</screen>
+
+<screen>
+# Messages
+Route: /messages
+Seen by roles: (all signed in users)
+
+A grid view for signed in users where they can view all message categories, which for all intents and purposes are essentially folders within which messages can be stored and organized
+
+## Requirements
+- Each message category is a folder in the grid
+- Each message category should display the category name and number of messages stored in the category folder
+- Users can click into a message category to view the messages inside
+- Users can edit segment category names in a popup modal
+</screen>
+
+<screen>
+# Profile-Detail
+Route: /profile-detail
+Seen by roles: (all signed in users)
+
+A screen for signed in users where they can view profile details such as customer contact details, properties, attributes and event history
+
+## Requirements
+- Each profile detail should display first name, last name, email address, phone number, device ID, street address, city, state, zip code, country
+- Some profiles may also include job title, department, and company
+- Profile can also include other consumer attributes used for marketing purposes (typically found in a crm or marketing database)
+- Each profile should have a list of event history, such as page views, message opens and clicks, products added-to-cart, and checkout events
+- Profile should include high-level metrics for total orders, average order value and lifetime value (total revenue from all orders)
+</screen>
+
+<screen>
+## Profile
+Route: /profile
+Seen by roles: (All signed-in users)
+
+A profile page for the user. This page is only seen by the user.
+
+### Requirements
+- Show user information
+- Show list of all accounts the user belongs to with option to switch to account
+- The user should be able to edit their profile with the exception of their email address.
+</screen>
+
+<screen>
+# Profiles
+Route: /profiles
+Seen by roles: (all signed in users)
+
+A list view for signed in users where they can view a list of stored profiles
+
+## Requirements
+- User can view a list of profiles stored in their database
+- Each profile record in the list should display full name, email address, phone number, device ID, and date added
+- User can click on a profile record in the list to navigate to the profile's detail screen
+- Users can import more profiles via csv file
+- Users can click a button to enrich all or selected profiles
+- User can export all or selected profiles 
+- Each profile record in the list has a checkbox so users can select the specific profiles they want to import, export or enrich
+</screen>
+
+<screen>
+## Public Profile
+Route: /profile/[user-id]
+Seen by roles: (All signed-in users)
+
+A profile page as seen by other users
+
+### Requirements
+- Show user information
+- Account admins can see the user's role
+- Account admins can change the user's role
+- Account admins should not be able to change their own role
+</screen>
+
+<screen>
+# Register
+Route: /register
+Seen by roles: all
+
+Allows a user to register as a new user and create an organizational account.
+
+If the user is already sign-in they should be show a message telling them they are already registered.
+
+Inputs:
+- name
+- email
+- Organization name
+- password
+</screen>
+
+<screen>
+# Segment-Detail
+Route: /segment-detail
+Seen by roles: (all signed in users)
+
+A screen for signed in users where they can view segment details containing the properties of the segment and a list of all profiles in the segment
+
+## Requirements
+- Each segment detail screen should display the segment name, the segment criteria (common demographics or event history shared by all profiles in the segment)
+    - Common demographics include:
+        - age range
+        - gender
+        - geographic location
+        - socioeconomic status
+        - marital status
+        - whether the profile (consumer contact) has children or pets
+    - Common event history includes:
+        - product purchases
+        - product adds-to-cart
+        - message opens
+        - message clicks
+        - page/product views
+- Segment details should include high-level metrics for total aggregate orders, average order value and aggregate lifetime value (total revenue from all orders)
+- Segment details should include a list of all profiles included in the segment, with values for total number of profiles, total number of subscribers broken down by channel (email, sms, notifications)
+</screen>
+
+<screen>
+# Segments
+Route: /segments
+Seen by roles: (all signed in users)
+
+A list view for signed in users where they can view a list of customer segments which are subsets of the profile database
+
+## Requirements
+- User can view a list of segments 
+- Each segment record in the list should display segment name, number of profiles in the segment, number of profiles added to the segment over the last 30 days, number of profiles added to the segment over the last 30 days
+- User can click on a segment record in the list to navigate to the segment's detail screen
+</screen>
+
+<screen>
+# Sign-in
+Route: /sign-in
+Seen by roles: all
+
+Allows a user to sign-in as an exiting user.
+
+If the user is already sign-in they should be show a message telling them they are already signed in.
+
+Inputs:
+- email
+- password
+</screen>
+
+> appendUser
+<component>
+# Global-Navigation
+A navigation menu in a side pane on the left side of the screen.
+
+## Requirements
+- Home: links to Dashboard screen
+- Profiles: links to Profiles screen
+- Segments: links to Segments screen
+- Messages: links to Messages screen
+- Decisioning: links to Decisioning screen
+- Settings: links to Account screen
+</component>
+
+<component>
+# Logo
+An SVG logo with a default size of 1rem
+
+Props:
+``` ts
+export interface LogoProps
+{
+    color?:string;
+    className?:string;
+    size?:string|number;
+}
+```
+</component>
+
+<component>
+# SignInRequired
+A card to display when a user does not have access to a screen with links to sign-in or register.
+
+Props:
+``` ts
+interface SignInRequiredProps
+{
+    /**
+     * A message to display to the user
+     */
+    message?:string;
+    className?:string;
+}
+```
+</component>
+
+<component>
+# Top-Bar
+The header bar at the top of each screen containing the app logo on the far left and a user avatar thumbnail on the far right
+
+## Requirements
+- Clicking the logo links to the Dashboard screen
+- Clicking the user avatar thumbnail links to the Profile screen
+</component>
+
+> appendUser
+<coding-rules>
+## Tech Stack
+- ReactJS
+- NextJS - pages directory and static site generation
+- Tailwinds v4
+- lucide-react - icons
+- Supabase
+
+## Layout
+It is preferred to use stacking layouts using flex-box columns to avoid running out of horizontal
+room. Avoid long names in buttons and prefer to use icons for buttons.
+
+If buttons display text DO NOT give the button a static width.
+
+## Static site generation
+The frontend of the app uses static site generation so no server side rendering should be used. All
+pages are stored in the pages directory and the NextJS app router is NOT used.
+
+## Exports
+Always use named exports unless explicitly told otherwise or required such as when creating NextJS
+pages.
+
+## Multi-tenet Database
+The database is a multi-tenet database where the `account` table represents each tenet. All entities
+that belong to or fall under an account should have an `account_id` property directly linking the
+entity to an account. Entities that can belong to multiple accounts should use a join table to
+link to an account. 
+
+The `user` table is linked to the `account` table through the `account_membership` table.
+
+
+## Required Entities
+The following entities must be represented in the database schema. Additional properties or values
+can be added to the entities
+
+### User
+Represents a signed-in user
+
+Table name: user
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- email: text
+- profile_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### Account
+Represents a company or organization
+
+Table name: account
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- logo_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### AccountMembership
+Links a User to an Account
+
+Table name: account_membership
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- last_accessed_at: timestamptz
+- user_id: uuid
+- account_id: uuid
+- role: UserRole
+
+### UserRole
+An enumeration of different role types.
+- admin: The admin of an account
+- standard: The default role of a user
+- guest: A guest in an account
+Enum name: user_role
+
+
+
+## Schema Utility Types
+The `@/lib/schema` import contains types and objects that map to the database schema.
+
+`@/lib/schema` exports the following:
+- typeDefs: An object of type `Record<string,TypeDef>` containing key value pairs for each table in the database.
+- {type_name}: An interface that represents the structure of a value in a table.
+- {type_name}_insert: An interface that represents the structure of a value to be inserted in the a table.
+- {type_name}Schema: A Zod schema that represents the structure of a value in a table.
+- {type_name}_insertSchema: A Zod schema that represents the structure of a value to be inserted in the a table.
+- TypeDef: An interface that represents a type
+- PropDef: An interface the represents a property of a type
+- TypeMapping: An interface that maps type names to various programming languages.
+
+
+Example:
+``` ts
+import { User, User_insert, UserSchema, User_insertSchema, typeDefs } from "@/lib/schema";
+
+let user:User;
+UserSchema.parse(user);
+
+let newUser:User_insert;
+User_insertSchema.parse(newUser);
+
+const userPrimaryKey=typeDefs.primaryKey;
+```
+
+Schema Utility Interfaces:
+``` ts
+export interface TypeMapping
+{
+    name:string;
+    ts?:string;
+    zod?:string;
+    convo?:string;
+    sql?:string;
+}
+
+export interface PropDef
+{
+    name:string;
+    type:TypeMapping;
+    primary?:boolean;
+    description?:string;
+    sqlDef?:string;
+    optional?:boolean;
+    hasDefault?:boolean;
+    isArray?:boolean;
+    arrayDimensions?:number;
+}
+
+export interface TypeDef<
+    TValue extends Record<string,any>=Record<string,any>,
+    TInsert extends Record<string,any>=Record<string,any>
+\>{
+
+
+    name:string;
+    description?:string;
+    type:'type'|'enum';
+    primaryKey:(keyof TValue) & (keyof TInsert);
+    sqlTable?:string;
+    sqlSchema?:string;
+    zodSchema?:ZodType;
+    zodInsertSchema?:ZodType;
+    props:PropDef[];
+}
+```
+
+## Supabase client
+The `supClient` function imported from "@/lib/supabase" can be used to access an instance of a
+Supabase client.
+
+Supabase Client Example:
+``` ts
+import { supClient } from "@/lib/supabase";
+
+async function signInExampleAsync(){
+    const signInResult=await supClient().auth.signInWithPassword({email,password});
+}
+```
+
+## File Storage
+File should be stored using supabase storage using the `accounts` bucket and use the following pattern for paths.
+
+File path pattern: `{account_id}/users/{user_id}/{REST_OF_PATH}`
+
+Example file path for:
+- account_id: 809f36d5-8549-417e-b89c-7f1cb129b4dc
+- user_id: fe691ceb-ba31-421e-9a51-7fb1207965e8
+- file_name: example-book.pdf
+
+Upload Path: `809f36d5-8549-417e-b89c-7f1cb129b4dc/users/fe691ceb-ba31-421e-9a51-7fb1207965e8/example-book.pdf`
+
+### Storing file path in Database
+When storing file paths in the database only path of uploaded files should be store, the full URL
+will be generated client side using either the `fileStore()` service imported from `@/lib/fileStore`
+or using the `useFileUrl` hook imported from `@/lib/hooks`.
+
+Example of getting full URL for user profile picture using the `fileStore()` service:
+``` ts
+import { fileStore } from "@/lib/fileStore";
+import { User } from "@/lib/schema";
+
+async function exampleFunction(user:User){
+    if(!user.profile_image_path){
+        return;
+    }
+    const profilePictureUrl=await fileStore().getUrlAsync(user.profile_image_path);
+}
+```
+
+Example of getting full URL for user profile picture using the `useFileUrl` hook:
+``` tsx
+import { useFileUrl } from "@/lib/hooks";
+import { User } from "@/lib/schema";
+
+function ExampleComponent({user}:{user:User}){
+    const profilePictureUrl=useFileUrl(user.profile_image_path);
+    return (
+        <div>
+            {profilePictureUrl===null?
+                'loading'
+            :profilePictureUrl===undefined
+                'No profile picture'
+            :
+                <img src={profilePictureUrl}/>
+            }
+        </div>
+    )
+}
+```
+
+fileStore API:
+``` ts
+/**
+ * Utility class for Supabase storage operations. By default the FileStore class uses the `accounts`
+ * bucket.
+ */
+export class FileStore
+{
+    /**
+     * Gets the full URL for a given path. When needed signed URLs will be created. The result of the
+     * function will be cached and future calls for the same path will returned immediately
+     */
+    public async getUrlAsync(path:string):Promise<string|undefined>;
+
+    /**
+     * Attempts to get the cached URL for the path. If a URL has not been cached for the path
+     * undefined will be returned.
+     */
+    public getCachedUrl(path:string):string|undefined;
+}
+```
+
+useFileUrl API
+``` ts
+/**
+ * Gets the full URL to a given path
+ * Return values:
+ * null: URL info is being loaded
+ * undefined: URL not available
+ * {string}: The full URL of the path
+ * @param path The path to get a URL for. If null or undefined then undefined is returned.
+ */
+export const useFileUrl=(path:string|null|undefined):string|null|undefined=>;
+```
+
+
+
+## CRUD
+Common CRUD operations can be handled using the `store()` service imported from `@/lib/store`
+or the `useStore*()` React hooks imported from `@/lib/hooks`.
+
+Store service example:
+``` ts
+import { store } from "@/lib/store";
+import { typeDefs } from "@/lib/schema";
+
+const user=await store().selectFirstMatchesAsync(typeDefs.User,{email:'example@example.com'})
+```
+
+Use store hook example:
+``` ts
+import { useFirstMatchingStoreItem } from "@/lib/hooks";
+import { typeDefs } from "@/lib/schema";
+
+function ExampleComponent()
+{
+    const user=useFirstMatchingStoreItem(typeDefs.User,{email:'example@example.com'});
+}
+```
+
+### Store service API
+
+``` ts
+
+export class Store
+{
+
+    /**
+     * Gets an item from a table by table name and id. Undefined is returned if no item exists
+     * in the table with the given id.
+     * @param table Name of table to get item from
+     * @param id Id of item to get
+     */
+    public async selectFirstAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+
+    /**
+     * Selects all matching items from the given table
+     * @param table Name of table to select from
+     * @param match An object with properties to match against
+     * @param options Options used to control selection
+     */
+    public async selectMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>,options?:SelectOptions):Promise<Record<string,any>[]>;
+
+    /**
+     * Selects the first matching item form the given table
+     * @param table Table to select from
+     * @param match An object with properties to match against
+     */
+    public async selectFirstMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>):Promise<Record<string,any>|undefined>;
+
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async insertAsync<T extends Record<string,any>>(table:string|TypeDef<Record<string,any>,T>,value:T):Promise<T>;
+    
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async updateAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string,value:Partial<T>):Promise<T>;
+    
+    /**
+     * Deletes an item from a table
+     * @param table The name of the table to delete the item from
+     * @param id The Id of the item to delete
+     * @returns The value of the item before being delete or undefined
+     */
+    public async deleteAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+}
+```
+
+### Store hooks
+The store hooks also have the added benefit of automatically receiving updates when changes are made
+by the `store()` service.
+
+``` ts
+
+export interface UseStoreItemOptions
+{
+    /**
+     * If true useStoreItem will return undefined
+     */
+    disabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when disabled. By default the last loaded
+     * value will be returned when disabled.
+     */
+    resetOnDisabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when table or id changes. By default the last loaded
+     * value will be returned until the new value is loaded.
+     */
+    resetOnChange?:boolean;
+}
+
+export type UseStoreItemsOptions = UseStoreItemOptions & SelectOptions;
+
+/**
+ * Returns an item by id from a given table. Any updates made to the item elsewhere in the app
+ * will cause useStoreItem to return the new value.
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T,any>|string|null|undefined,
+    id:string|null|undefined,
+    options?:UseStoreItemOptions
+):T|null|undefined=>;
+
+/**
+ * Returns all matching items
+ *
+ * null is returned while the items are loading.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreMatchingItems=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T[]|null=>;
+
+
+/**
+ * Returns all matching items
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreFirstMatchingItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T|null|undefined=>;
+
+```
+
+## Full screen screens
+The `useFullPage` hook can be used to display a full screen page without the main navigation bar.
+
+example:
+``` tsx
+import { useFullPage } from "@/lib/hooks";
+
+function ExampleComponent(){
+
+    useFullPage();
+
+    return (
+        <div></div>
+    )
+}
+```
+
+## Form Data
+When creating forms store form data in a typed useState variable.
+
+Zod schemas can be imported from `@/lib/schema` to validate types stored in the database.
+
+Form state example:
+``` tsx
+
+interface NewsletterForm
+{
+    name:string
+    email:string;
+}
+function ExampleComponent()
+{
+    const [newsletterData,setNewsletterData]=useState<NewsletterForm>({
+        name:'',
+        email:'',
+    });
+
+    return (
+        <form>
+            <input
+                placeholder="Enter name"
+                value={newsletterData.name}
+                onChange={e=>setNewsletterData({...newsletterData,name:e.target.value})}
+            />
+            <input
+                placeholder="Enter email"
+                value={newsletterData.email}
+                onChange={e=>setNewsletterData({...newsletterData,email:e.target.value})}
+            />
+        </form>
+    )
+}
+```
+
+## Pages
+When creating NextJS pages export the page component as a default function with the function
+name reflecting the name of the page.
+
+Do not use the MainLayout component when creating a page. The Main Layout component will be
+used by the top level App component.
+
+Include the name of the page in the className of the root element of the page component using the
+format of: "page--{PageComponentName}"
+
+Example Page with a route of "/example":
+``` tsx
+
+export default function ExamplePage(){
+
+    return (
+        <div className="page--ExamplePage">
+            Example page content
+        <div>
+    )
+}
+```
+
+## Main Layout
+The `MainLayout` component is used by the top level `App` component to render the main layout of the
+app. By default the MainLayout should render pages in a centered column with a navigation bar.
+
+### Main Layout Display modes
+Pages can use the `useFullPage` and `useNoMargins` hooks to alter the way the page is displayed.
+Implement display modes using css or class names, DO NOT change the render order or do anything
+that would cause the page to be unmounted.
+
+### Main Layout Fullscreen Mode
+Pages can request to enter into fullscreen. Use the `useIsInFullPageMode` hook imported from 
+`@/lib/hooks` to check if the page should be displayed in fullscreen mode. If useIsInFullPageMode
+returns true hide the main navigation and any other UI other than the page content.
+
+### Main Layout No Margins Mode
+Pages can request to remove all page margins so that they can display content edge to edge. Use
+the `useIsNoMarginMode` hook imported from `@/lib/hooks` to check if the page should be displayed
+in no margins mode.
+
+
+## Packages
+This is the package.json file for the project. You can only use libraries based on the dependencies
+of the package.json file.
+
+``` json
+{
+  "dependencies": {
+    "lucide-react": "^0.544.0",
+    "markdown-it": "^14.1.0",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "rxjs": "^7.8.2",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.11",
+    "supabase": "^2.33.9",
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+
+```
+
+## Standard Components
+The following components can be used
+
+### Logo
+Displays the apps logo using an SVG
+
+Import: `import { Logo } from "@/components/Logo";`
+Props:
+``` ts
+interface LogoProps
+{
+    color?:string;
+    /**
+     * @default "w-8 h-8"
+     */ 
+    className?:string;
+    size?:string|number;
+}
+```
+
+### SignInRequired
+A card to display when a user does not have access to a screen with links to sign-in or register.
+Import: `import { Logo } from "@/components/SignInRequired";`
+Props:
+``` ts
+interface SignInRequiredProps
+{
+
+    /**
+     * A message to display to the user
+     */
+    message?:string;
+    className?:string;
+}
+```
+
+
+## User Registration
+
+When registering a new user store the user's name and account name in options.data object
+of the user sign-up options:
+``` ts
+await supClient().auth.signUp({
+    email: form.email.trim(),
+    password: form.password,
+    options: {
+        data: { name: form.name, accountName:form.accountName },
+    },
+});
+```
+
+When registering a new user do not explicitly insert any values into the database.
+User and account setup will be handled by the backend.
+
+
+## Utility Functions
+The following utility functions can be imported from `@/lib/util`
+
+``` ts
+export type ClassNameValue = string | false | number | null | undefined | {
+    [className: string]: any;
+} | ClassNameValue[];
+
+/**
+ * Combines class names and ignores falsy values.
+ */
+export const cn=(...classNames:ClassNameValue[]):string=>;
+```
+
+
+## Hooks
+React components can use the following hooks imported from `@/lib/hooks`
+
+``` ts
+/**
+ * Hides common UI controls such as the main nav bar.
+ * @param enabled If false the hook is disabled
+ */
+export const useFullPage=(enabled=true)=>;
+
+/**
+ * Removes all margins and paddings from the main layout while keeping the main navigation and
+ * other shared UI elements
+ * @param enabled If false the hook is disabled
+ */
+export const useNoMargins=(enabled=true)=>;
+
+/**
+ * Returns true if the page should be displayed in full screen
+ */
+export const useIsInFullPageMode=():boolean=>{
+    const count=useSubject(fullPageSubject);
+    return count>0;
+}
+
+/**
+ * Returns true if the page should remove all margins
+ */
+export const useIsNoMarginMode=():boolean=>;
+
+/**
+ * Returns the current signed-in user.
+ * null === user is being loaded
+ * undefined === user is not signed in
+ */
+export const useCurrentUser=():User|null|undefined=>;
+
+/**
+ * Returns the current account the user is signed into.
+ * null === account is being loaded
+ * undefined === No account found for user
+ */
+export const useAccount=():Account|null|undefined=>;
+
+/**
+ * Returns the role of the user in the current account.
+ * null === role is being loaded
+ * undefined === No role found for user
+ */
+export const useUserRole=():UserRole|null|undefined=>;
+
+/**
+ * Returns the information about the current user, including a user object, account object
+ * and the role the user has for the account.
+ * null === user info is being loaded
+ * undefined === user is not signed in
+ */
+export const useUserInfo=():UserInfo|null|undefined=>;
+```
+
+## Utility types
+The following utility types can be imported from `@/lib/types-util`
+
+``` ts
+export interface UserInfo
+{
+    user:User;
+    role?:UserRole;
+    membership?:AccountMembership;
+    account?:Account;
+}
+
+/**
+ * Options used with select queries
+ */
+export interface SelectOptions
+{
+    offset?:number;
+    limit?:number;
+    orderBy?:string;
+    /**
+     * If true return items will be ordered in descending order
+     */
+    orderByDesc?:boolean;
+}
+```
+
+## App Controller
+The App Controller can be accessed by calling the `app` function imported from `@/lib/app`.
+
+Use can use the App Controller to switch between accounts
+``` ts
+import { app } from `@/lib/app`
+
+async function switchAccountExample(accountId:string){
+    await app().switchAccountAsync(accountId);
+}
+```
+</coding-rules>
+
+> appendUser
+<styling>
+## Styling Framework
+Use Tailwinds for styling
+
+## Look and Feel
+- modern platform design
+- professional
+- dark color palette
+- neutral backgrounds and borders
+- rounded corners
+- pill-shaped buttons
+
+## Custom Color Palette
+``` css
+:root{
+    --blue: #4583F7;
+    --purple: #8E59FF;
+}
+```
+
+Brand color: #4583F7 (--blue)
+Secondary color: #8E59FF (--purple)
+
+
+## Rules
+Use the brand color sparingly. The brand color should only be used for interactive elements, like buttons, links, clickable icons, etc.
+The brand color can be used as a thin border color in situations where an element should be highlighted
+but is not a main CTA.
+The secondary color should be used to highlight important information that is not interactive. Secondary color can also be used as a accent color.
+Brand and secondary colors can also be used with transparency to create color shades
+</styling>
+
+> appendUser
+<editor-config>
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+</editor-config>
+
+> appendUser
+Generate a detailed description of theDecisioning Demo app using the content in the `app-description`
+    and `screen` tags in markdown format. Use H2 and H3 headers to separate sections and
+    subsections.
+    
+    Include the following:
+    - List of features
+    - List of screens with a description and route.
+      - Use the Screens section in the `app-description` tag to create the list of screens
+
+> nop
+//_END_MAKE_TARGET_INPUT_

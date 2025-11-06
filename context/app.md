@@ -36,3 +36,21 @@ Decisioning Demo allows users to import a customer contact list, enrich the cont
 - Once an agent is configured, user can activate the agent
 - User can view a list of the ai agents they've created
 - User can click into a detail screen for each agent that provides a log of all decisions made by the agent
+
+## Global-Navigation
+A navigation menu in a side pane on the left side of the screen.
+- Home: links to Dashboard screen
+- Profiles: links to Profiles screen
+- Segments: links to Segments screen
+- Messages: links to Messages screen
+- Decisioning: links to Decisioning screen
+- Settings: links to Account screen
+
+## Main Layout
+- The header bar at the top of each screen containing the app logo on the far left and a user avatar thumbnail on the far right
+  - Clicking the logo links to the Dashboard screen
+  - Clicking the user avatar thumbnail links to the Profile screen
+- Main content wrapper should have two columns (approximately 80:20 ratio)
+  - Left column should hold the primary content and use most of the screen real estate
+  - Right column should hold secondary content and act as a right rail (narrower side pane)
+  - Right column is optional and can be suppressed/hidden (not displayed) when there is no relevant secondary content, thereby allowing the left column to fill to full screen width
