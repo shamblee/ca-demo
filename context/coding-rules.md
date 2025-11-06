@@ -70,6 +70,7 @@ Required Properties:
 ### UserRole
 An enumeration of different role types.
 - admin: The admin of an account
+- standard: The default role of a user
 - guest: A guest in an account
 Enum name: user_role
 

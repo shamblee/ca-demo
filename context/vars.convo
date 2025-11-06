@@ -1,5 +1,5 @@
 > define
-appName='ExampleApp'
+appName='Decisioning Demo'
 appPort=3000
 appDir='.'
 appHttpRoot='pages'

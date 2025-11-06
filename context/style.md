@@ -2,28 +2,28 @@
 Use Tailwinds for styling
 
 ## Look and Feel
-- minimalistic
-- light hearted
-- good use of negative space
-- gradient backgrounds
-- rounded
+- modern platform design
+- professional
+- dark color palette
+- neutral backgrounds and borders
+- rounded corners
+- pill-shaped buttons
 
 ## Custom Color Palette
 ``` css
 :root{
-    --light-blue: #a8d5e2ff;
-    --orange-web: #f9a620ff;
-    --mustard: #ffd449ff;
-    --forest-green: #548c2fff;
-    --pakistan-green: #104911ff;
+    --blue: #4583F7;
+    --purple: #8E59FF;
 }
 ```
 
-Brand color: #f9a620ff (--orange-web)
-Secondary color: #548c2fff (--forest-green)
+Brand color: #4583F7 (--blue)
+Secondary color: #8E59FF (--purple)
 
 
 ## Rules
-Use the brand color sparingly. The brand color should only use as a background for the most important elements.
+Use the brand color sparingly. The brand color should only be used for interactive elements, like buttons, links, clickable icons, etc.
 The brand color can be used as a thin border color in situations where an element should be highlighted
 but is not a main CTA.
+The secondary color should be used to highlight important information that is not interactive. Secondary color can also be used as a accent color.
+Brand and secondary colors can also be used with transparency to create color shades

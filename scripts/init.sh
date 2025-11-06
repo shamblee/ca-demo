@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -e
-cd "$(dirname "$0/..")"
+cd "$(dirname "$0")/.."
 
 # Install dependencies
 npm install
@@ -13,7 +13,7 @@ PROMPT="Would you like to create a new Supabase project or use an existing one?"
 OPTIONS=('Create new' 'Use existing')
 source scripts/menu.sh
 
-if [ "$SI" == "0" ] then
+if [ "$SI" == "0" ]; then
     npx supabase projects create
 else
     npx supabase link
