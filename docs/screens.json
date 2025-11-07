@@ -1,0 +1,87 @@
+[
+    {
+        "name": "Accept Account Invite",
+        "route": "accept-account-invite/[invite-code]",
+        "description": "Accept or decline invitations to join an account. Prompts sign-in if not authenticated."
+    },
+    {
+        "name": "Account",
+        "route": "account",
+        "description": "View account details and manage membership (admin)."
+    },
+    {
+        "name": "Agent Detail",
+        "route": "agent-detail",
+        "description": "Detailed log of an agent’s decisions."
+    },
+    {
+        "name": "Create Agent",
+        "route": "create-agent",
+        "description": "Three-step wizard to create and configure an AI decisioning agent."
+    },
+    {
+        "name": "Dashboard",
+        "route": "dashboard",
+        "description": "Analytics hub for agents and communications."
+    },
+    {
+        "name": "Decisioning",
+        "route": "decisioning",
+        "description": "List of AI decisioning agents with create, view, and delete actions."
+    },
+    {
+        "name": "Message Category",
+        "route": "message-category",
+        "description": "Grid of messages inside a single category folder."
+    },
+    {
+        "name": "Message Detail",
+        "route": "message-detail",
+        "description": "Tabbed previews of email, SMS, and push notification variants of a single marketing message."
+    },
+    {
+        "name": "Messages",
+        "route": "messages",
+        "description": "Grid of message categories (folders) with counts and management."
+    },
+    {
+        "name": "Profile Detail",
+        "route": "profile-detail",
+        "description": "Detailed view of a single profile with attributes and events."
+    },
+    {
+        "name": "Profile",
+        "route": "profile",
+        "description": "User’s personal profile page."
+    },
+    {
+        "name": "Profiles",
+        "route": "profiles",
+        "description": "List of stored profiles with bulk actions."
+    },
+    {
+        "name": "Public Profile",
+        "route": "profile/[user-id]",
+        "description": "Public view of another user’s profile."
+    },
+    {
+        "name": "Register",
+        "route": "register",
+        "description": "Register a new user and create an organizational account."
+    },
+    {
+        "name": "Segment Detail",
+        "route": "segment-detail",
+        "description": "Segment-level criteria, membership, and metrics."
+    },
+    {
+        "name": "Segments",
+        "route": "segments",
+        "description": "List of customer segments with growth indicators."
+    },
+    {
+        "name": "Sign-in",
+        "route": "sign-in",
+        "description": "Access for existing users."
+    }
+]

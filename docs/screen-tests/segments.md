@@ -1,0 +1,19 @@
+- Open /segments and confirm a dark-themed table with columns: Name, Profiles, Growth 30d.
+- Observe a loading skeleton, then the table populates without errors.
+- If there are no segments, see an empty state with guidance to create or import segments.
+- Verify each row shows segment name, current profile count, and a Growth 30d value (0 allowed).
+- Hover or tap the Growth 30d help/tooltip and read that it’s “profiles added in the last 30 days.”
+- Use the search box to find a segment by partial, case-insensitive name.
+- Clear the search and confirm the full list returns.
+- Click the Name column header to sort A→Z; click again to sort Z→A.
+- Click the Profiles column header and confirm numeric sorting works both directions.
+- Click the Growth 30d column header and confirm numeric sorting works both directions.
+- Click a segment row and navigate to segment-detail?segmentId={id}; verify the name matches.
+- Use the browser Back button to return and confirm the previous search/sort persists (or the list is usable).
+- Click Refresh and confirm the list reloads without errors.
+- If a segment has a type, confirm a small chip displays Dynamic or Static.
+- Optional (role check): If permitted, a Create Segment action is visible; clicking it opens the creation flow; cancel returns to the list.
+- Optional (role check): If not permitted, Create Segment is hidden or disabled.
+- Optional quick action: Start Create Agent from a segment and land on /create-agent with the segment preselected (or segmentId in the URL).
+- Switch to another account/tenant and confirm the segment list changes and only shows that account’s segments.
+- Confirm interactive elements (links, buttons) use the brand color sparingly and have clear hover states.

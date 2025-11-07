@@ -1,0 +1,20 @@
+- Open /account and confirm account name, logo, and a muted account ID are visible.
+- Click the copy icon for the account ID and paste somewhere to confirm it copied.
+- Verify the Members grid shows user cards with names and avatars.
+- Click a member card and confirm it opens their public profile at /profile/[user-id].
+- Click your profile link and confirm it opens /profile.
+- Click “Create a new account” and confirm /register shows “already registered” (if signed in); return.
+- As Admin, edit account info: change the name, save, see the update, then revert.
+- As Admin, update the logo, save, see the new logo, then revert.
+- As Admin, generate an invite link, copy it, and confirm it matches https://[host]/accept-account-invite/[inviteCode].
+- Open the copied invite link and confirm the Accept Account Invite page loads; do not accept.
+- As Admin, revoke the pending invite and confirm it disappears or shows as revoked.
+- As Manager, generate and copy an invite link, and confirm role-change controls are not visible.
+- As Admin, change another member’s role and confirm the role updates in the list.
+- As Admin, verify you cannot change your own role (control hidden or disabled).
+- As Admin or Manager, remove a member, confirm the dialog, and verify the member disappears from the grid.
+- As Standard (or Guest), confirm the page is view-only: no edit, invite, role, remove, billing, or delete controls.
+- Click “Manage billing” (Admin only) and confirm the billing page/modal opens.
+- Click “Delete account” (Admin), confirm the irreversible warning appears, then cancel.
+- Confirm all data shown (info and members) is scoped to the current account only.
+- Ensure all generated invite links resolve to /accept-account-invite/[invite-code] on your host.

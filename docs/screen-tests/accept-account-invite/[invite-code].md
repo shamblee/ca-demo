@@ -1,0 +1,24 @@
+- Load the page with a valid invite code and observe a brief loading skeleton.
+- Verify the invite summary shows account name/logo, role badge, inviter name, target email, status, and expiration.
+- While signed out, confirm the Sign-In Required card appears with Sign in and Register CTAs.
+- Click the Sign in link and confirm navigation to /sign-in.
+- After signing in, return to the invite URL and verify the invite review resumes.
+- Click the Register link and confirm navigation to /register.
+- While signed in with a valid invite, confirm Accept and Decline buttons are visible.
+- Click Accept and verify membership is created, a success confirmation shows, and tenancy switches to the joined account.
+- After Accept, confirm hints/links to visit Account/Profile/Dashboard are shown.
+- Click Decline and verify the invite is marked declined and a confirmation message is shown.
+- Open an invite that is already accepted and verify a non-interactive summary with an Accepted status badge and next steps.
+- Open an invite that is already declined and verify a non-interactive summary with a Declined status badge and guidance.
+- Open a valid invite where you are already a member and verify the message indicating existing membership with a hint to switch/visit the account; no Accept action.
+- Open an expired or invalid invite code and verify an error alert with guidance to contact the inviter.
+- Trigger a temporary network error and use Retry to re-validate the invite successfully.
+- If the targeted email is present and does not match your signed-in email, verify the warning with actions: Continue anyway and Sign out to switch accounts.
+- Click Continue anyway and confirm you can proceed to Accept.
+- Click Sign out and verify you return to the unauthenticated state with the Sign-In Required card.
+- Click the inviter’s name and confirm it opens their public profile (/profile/[user-id]) when available.
+- Verify the role is displayed as a non-interactive badge with the correct label (admin/standard/guest).
+- Use the Copy invite information helper and confirm details are copied to the clipboard.
+- Confirm Accept is styled as primary (brand color), Decline as secondary, both pill-shaped, and disabled during processing.
+- Test keyboard navigation: Tab to links and actions; Enter activates the focused action.
+- Visually confirm dark theme, clear contrast, and neutral borders match the design guidelines.

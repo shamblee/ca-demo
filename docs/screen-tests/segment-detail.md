@@ -1,0 +1,22 @@
+- Open Segment Detail for a known segment; confirm the header shows the segment name and optional description.
+- Verify badges display Dynamic/Static type, member count, and last updated timestamp.
+- Click Edit Criteria; confirm the criteria editor opens with demographics and event history fields.
+- Save a small criteria change; confirm readable filter chips update in the Criteria card.
+- Validate KPIs show Total Orders, AOV, and Aggregate LTV values.
+- Change the KPI timeframe selector (e.g., 30/90 days); confirm KPI numbers update.
+- Verify subscriber counts by channel (email/SMS/push) include subscribed, unsubscribed, and bounced totals.
+- Click Refresh Metrics; confirm a brief loading state and refreshed KPI values.
+- Use Membership search to type a known name/email/phone; confirm results filter accordingly.
+- Apply a channel status filter (e.g., Email: Subscribed); confirm only matching profiles remain.
+- Sort by Name and Date Added; confirm the table order changes as expected.
+- Confirm table columns include Full Name, Email, Phone, Device ID, and Date Added (plus optional attributes when available).
+- Verify each profile shows channel badges (email/SMS/push) with correct statuses (subscribed/unsubscribed/bounced/pending).
+- Select multiple rows; confirm bulk actions enable and Export Selected/Enrich Selected open their dialogs; verify header Export All/Enrich All act on the full segment.
+- Click Clear Selection; confirm all checkboxes clear and bulk actions disable.
+- Use pagination controls to move between pages; confirm row count and page indicators update.
+- Click a member row action or name to open Profile Detail; confirm profile-detail loads for that profile.
+- Click Create Agent; confirm navigation to create-agent with the segment preselected.
+- Confirm the Criteria card shows demographics and behavior filters as readable chips with an entry point to edit.
+- Verify the right rail (if visible) shows channel mix totals and recent activity snapshots.
+- Check permission behavior: as Guest, action buttons are disabled; as Standard/Manager, edit/export/enrich/create agent are enabled; as Admin, Delete Segment is available and prompts confirmation.
+- Using a test segment with empty criteria or no members, confirm the corresponding empty-state guidance appears.

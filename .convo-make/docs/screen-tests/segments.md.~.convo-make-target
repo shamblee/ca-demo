@@ -1,0 +1,586 @@
+> define
+__makeRoot="../../.."
+__makeFile="make.convo"
+__makeOut="docs/screen-tests/segments.md"
+__model="gpt-5"
+
+> system
+You are generating content that will be directly written to "docs/screen-tests/segments.md".
+DO NOT include a preamble or postamble.
+
+Always respond with the full content for "docs/screen-tests/segments.md", even if you are making an
+small or incremental update.
+
+> appendUser
+<app-description>
+## Decisioning Demo
+
+A modern, professional, dark-themed platform for importing and enriching customer profiles, organizing contacts into segments, browsing message content libraries, and configuring AI decisioning agents that determine which message to send, when to send it, and through which channel.
+
+## Feature Summary
+
+- Profile management
+  - Import customer contact records (CSV or Excel)
+  - View list of profiles with key identifiers
+  - View profile details: contact info, attributes, event history
+  - Export and enrich profiles (bulk or selected)
+- Segmentation
+  - View list of segments
+  - View segment details with criteria and membership
+  - Segment-level KPIs (aggregate orders, AOV, LTV; subscriber counts by channel)
+- Messages and categories
+  - Browse message categories as “folders”
+  - View messages in a category as thumbnails with previews
+  - Message detail previews for email, SMS, and push notifications
+  - Manage messages within categories (duplicate, move, delete)
+  - Messages are imported from GardenIQ (no authoring in-app)
+- AI decisioning agents
+  - 3-step agent creation and configuration
+  - Assign segment, holdout, and message category
+  - Configure sending frequency, days, and time windows
+  - Define desired outcomes and map events to rankings (Worst, Good, Very Good, Best)
+  - Activate/deactivate agents
+  - View an agent’s decision log with reasoning
+- Analytics dashboard
+  - Web, messaging, ecommerce, and attribution analytics
+  - Attribution and ROI by message or agent (selectable)
+- Accounts and users
+  - Accept account invites
+  - View and edit account (admin)
+  - Invite users to the account via invite link
+  - User profiles (self and public)
+  - Role-based permissions
+- App shell and layout
+  - Global navigation with pages for Dashboard, Profiles, Segments, Messages, Decisioning, Settings
+  - Two-column main content layout with an optional right rail
+- Multi-tenant data model with Supabase
+  - Account-centric tenancy
+  - File storage using structured paths and signed URLs
+
+## User Roles and Access
+
+- App roles
+  - guest: view-only permissions
+  - default: standard account member; can edit content and configure agents
+  - manager: default permissions plus can add/remove users
+  - admin: all permissions; can change roles, manage billing, delete account
+
+- Database roles (UserRole enum)
+  - admin, standard, guest
+  - Mapping guidance
+    - guest (app) → guest (db)
+    - default (app) → standard (db)
+    - manager (app) → standard (db) plus manager capabilities handled by application logic/permissions checks
+    - admin (app) → admin (db)
+
+## Core Concepts and Relationships
+
+- Profiles: stored customer contact records
+- Enrichment: appends additional properties/attributes to profiles; creates Segments
+- Segments: subsets of profiles based on demographics and/or event history
+- Messages: imported content from GardenIQ; includes email, SMS, and push notification variants for a given subject
+- Message categories: folders/content libraries that agents draw from
+- Channels: the medium used for sending (email, SMS, push notification)
+- AI decisioning agents: select message, channel, send day/time, and execute sends to profiles
+- Agent settings: send frequency, time windows, desired outcomes, holdout percentage
+- Outcomes: ranked as Worst, Good, Very Good, Best; events map to rankings
+- Holdout percentage: portion of the segment excluded from agent sends for testing/control
+
+## Global Navigation
+
+- Left side pane navigation:
+  - Home → Dashboard (/dashboard)
+  - Profiles (/profiles)
+  - Segments (/segments)
+  - Messages (/messages)
+  - Decisioning (/decisioning)
+  - Settings → Account (/account)
+
+## Main Layout
+
+- Header bar with app logo (left) and user avatar (right)
+  - Clicking the logo → Dashboard
+  - Clicking the avatar → Profile (/profile)
+- Two-column responsive content area (approx. 80:20)
+  - Left: primary content
+  - Right: optional secondary content (right rail)
+  - Right rail can be hidden to allow full-width primary content
+
+## Styling Guidelines
+
+- Framework: Tailwind CSS (v4)
+- Look and Feel
+  - Modern, professional, dark palette
+  - Neutral backgrounds and borders
+  - Rounded corners; pill-shaped buttons
+- Color palette
+  - Brand: #4583F7 (var(--blue))
+  - Secondary: #8E59FF (var(--purple))
+- Usage rules
+  - Use brand color sparingly for interactive elements (buttons, links, clickable icons)
+  - Use thin brand-colored borders to highlight non-CTA elements when needed
+  - Use secondary color to highlight non-interactive important information or as an accent
+  - Both colors may be used with transparency for subtle shading and states
+
+## Screens
+
+### Accept Account Invite (/accept-account-invite/[invite-code])
+- Seen by: All
+- Description: Accept or decline invitations to join an account. Prompts sign-in if not authenticated.
+- Requirements
+  - Accept or decline the invite
+  - If not signed in, prompt to sign in first
+
+### Account (/account)
+- Seen by: All signed-in users
+- Description: View account details and manage membership (admin).
+- Requirements
+  - Display basic account info: name, logo, id (muted)
+  - Admins can edit account info
+  - Users section: grid of user cards (name, profile picture), link to public user profile
+  - Link to create a new account
+  - Admins can generate invite links:
+    - https://[location.host]/accept-account-invite/[inviteCode]
+
+### Agent Detail (/agent-detail)
+- Seen by: All signed-in users
+- Description: Detailed log of an agent’s decisions.
+- Requirements
+  - Each decision record includes:
+    - Timestamp
+    - Profile that was engaged
+    - Selected message
+    - Selected channel
+    - Chosen send time
+    - Summary of reasoning for message, channel, and timing
+
+### Create Agent (/create-agent)
+- Seen by: All signed-in users
+- Description: Three-step wizard to create and configure an AI decisioning agent.
+- Requirements
+  - Step 1
+    - Name, default email address, default SMS phone number for sending
+    - Assign one segment and a Holdout percentage
+    - Assign one message category
+  - Step 2
+    - Sending frequency (daily, 6x/week, 5x/week, weekly, every 2 weeks, monthly)
+    - Sending days (Mon–Sun checkboxes)
+    - Sending times (morning, afternoon, evening)
+  - Step 3
+    - Define desired outcomes
+    - Map an event to each ranking (Worst, Good, Very Good, Best)
+  - Activate the agent once configured
+
+### Dashboard (/dashboard)
+- Seen by: All signed-in users
+- Description: Analytics hub for agents and communications.
+- Requirements
+  - Data visualization with tabs/subpages:
+    - Web: page views, new/unique sessions, form submissions
+    - Messaging (all channels): sent, opened, clicked, bounced, new subscribers, unsubscribers
+    - Ecommerce: adds-to-cart, favorites/saves, initiated checkouts, abandoned checkouts, purchases
+    - Attribution: ROI metrics (revenue, orders, average order value) by message or agent; user-selectable comparisons
+
+### Decisioning (/decisioning)
+- Seen by: All signed-in users
+- Description: List of AI decisioning agents with create, view, and delete actions.
+- Requirements
+  - View list of user’s agents
+  - Create new agents
+  - Click into an agent to view details
+  - Delete agents
+
+### Message Category (/message-category)
+- Seen by: All signed-in users
+- Description: Grid of messages inside a single category folder.
+- Requirements
+  - Thumbnail preview grid
+  - Each tile shows message name and creation date
+  - Overflow menu (ellipsis) per message:
+    - Duplicate message
+    - Move message (modal with category dropdown, confirmation moves item and removes it from original category)
+    - Delete message
+  - Click a message to open the message detail view
+
+### Message Detail (/message-detail)
+- Seen by: All signed-in users
+- Description: Tabbed previews of email, SMS, and push notification variants of a single marketing message.
+- Requirements
+  - Email tab: branded email preview
+  - SMS tab: branded text message preview
+  - Notification tab: branded push notification preview
+
+### Messages (/messages)
+- Seen by: All signed-in users
+- Description: Grid of message categories (folders) with counts and management.
+- Requirements
+  - Each category tile shows name and number of messages
+  - Click a category to view messages inside
+  - Edit category names in a modal
+
+### Profile Detail (/profile-detail)
+- Seen by: All signed-in users
+- Description: Detailed view of a single profile with attributes and events.
+- Requirements
+  - Display contact info: first name, last name, email, phone, device ID, address fields (street, city, state, zip, country)
+  - Optional: job title, department, company
+  - Other marketing attributes (CRM-like properties)
+  - Event history: page views, message opens/clicks, add-to-cart, checkout events
+  - KPIs: total orders, average order value, lifetime value
+
+### Profile (/profile)
+- Seen by: All signed-in users (self-only)
+- Description: User’s personal profile page.
+- Requirements
+  - Show user information
+  - List of accounts the user belongs to with option to switch
+  - User can edit their profile (not email address)
+
+### Profiles (/profiles)
+- Seen by: All signed-in users
+- Description: List of stored profiles with bulk actions.
+- Requirements
+  - View list of profiles: full name, email, phone, device ID, date added
+  - Click through to profile detail
+  - Import additional profiles via CSV
+  - Enrich all or selected profiles
+  - Export all or selected profiles
+  - Checkboxes for selecting profiles for actions
+
+### Public Profile (/profile/[user-id])
+- Seen by: All signed-in users
+- Description: Public view of another user’s profile.
+- Requirements
+  - Show user information
+  - Account admins can view and change the user’s role
+  - Admins cannot change their own role
+
+### Register (/register)
+- Seen by: All
+- Description: Register a new user and create an organizational account.
+- Requirements
+  - Inputs: name, email, organization name, password
+  - If already signed in, show a message indicating they are already registered
+
+### Segment Detail (/segment-detail)
+- Seen by: All signed-in users
+- Description: Segment-level criteria, membership, and metrics.
+- Requirements
+  - Display: segment name, segment criteria
+    - Demographics: age range, gender, geography, socioeconomic status, marital status, children/pets
+    - Event history: purchases, add-to-cart, message opens/clicks, page/product views
+  - KPIs: total aggregate orders, AOV, aggregate LTV
+  - Membership: list of profiles with counts, including subscriber counts by channel (email, SMS, notifications)
+
+### Segments (/segments)
+- Seen by: All signed-in users
+- Description: List of customer segments with growth indicators.
+- Requirements
+  - View list with: segment name, number of profiles, profiles added over last 30 days (listed twice in spec; treat as growth metric)
+  - Click through to segment detail
+
+### Sign-in (/sign-in)
+- Seen by: All
+- Description: Access for existing users.
+- Requirements
+  - Inputs: email, password
+  - If already signed in, show a message indicating they are already signed in
+
+## AI Decisioning Agents
+
+- Purpose
+  - Decide which message to send, the best channel, and the optimal day/time window per profile within a segment
+- Configuration
+  - Segment assignment and holdout
+  - Message category selection (content library)
+  - Frequency controls (daily/weekly/biweekly/monthly), days, and time windows (morning/afternoon/evening)
+  - Outcome definitions with event mapping to Worst, Good, Very Good, Best
+- Operation
+  - Log every decision with timestamp, target profile, message, channel, scheduled send time, and concise reasoning
+  - Respect holdout percentage for control groups
+- Governance
+  - Only use messages imported from GardenIQ; no authoring within the app
+
+## Analytics and Attribution
+
+- Web analytics: page views, new/unique sessions, form submissions
+- Messaging: sends, opens, clicks, bounces, new subscribers, unsubscribers across all channels
+- Ecommerce: add-to-cart, favorites/saves, initiated checkout, abandoned checkout, purchases
+- Attribution and ROI
+  - Revenue, orders, AOV attributed to messages and agents
+  - Users can select messages or agents to analyze and compare
+
+## Tech Stack and Architecture
+
+- React, Next.js (pages directory), Tailwind CSS v4, lucide-react, Supabase, Zod, RxJS, uuid
+- Static Site Generation (SSG) only; no server-side rendering (SSR)
+- Pages live in /pages; do not use the Next.js App Router
+- Exports: use named exports unless Next.js pages require default export
+- Icons: lucide-react
+- Forms: typed useState and Zod schemas for validation when persisting to DB
+
+## Multi-Tenancy and Data
+
+- Tenancy model
+  - account table represents a tenant
+  - All tenant-bound entities include account_id
+  - Users link to accounts via account_membership
+- Required base entities
+  - User (id, created_at, name, email, profile_image_path?, hero_image_path?)
+  - Account (id, created_at, name, logo_image_path?, hero_image_path?)
+  - AccountMembership (id, created_at, last_accessed_at, user_id, account_id, role: user_role)
+  - UserRole enum: admin, standard, guest
+- Domain entities (conceptual)
+  - Profile, Segment, Message, MessageCategory, Agent, AgentDecision, OutcomeMapping, ChannelSubscription
+  - Ensure each has account_id for scoping
+- File storage
+  - Supabase Storage bucket: accounts
+  - Path pattern: {account_id}/users/{user_id}/{REST_OF_PATH}
+  - Store only the path in DB; resolve full URLs client-side with fileStore() or useFileUrl
+- CRUD and data access
+  - store() service and useStore*() hooks for reactive CRUD and querying
+  - SelectOptions for pagination and ordering
+
+## Layout and Page Conventions
+
+- Main layout
+  - Navigation bar and centered column content by default
+  - Two-column content area with optional right rail
+- Display modes
+  - useFullPage() to hide main navigation and present a full-screen experience
+  - useNoMargins() to remove margins and allow edge-to-edge designs
+  - useIsInFullPageMode() and useIsNoMarginMode() to read current display state
+- Pages
+  - Next.js pages must export a default function named after the page
+  - Root element className must follow: page--{PageComponentName}
+  - Do not wrap pages with MainLayout directly; the App component handles it
+
+## Authentication and Registration
+
+- Authentication
+  - Sign-in with email/password
+  - If a user visits protected pages without being signed in, show SignInRequired
+- Registration
+  - When registering, store the user’s name and account name in options.data:
+    - { name, accountName }
+  - Do not insert DB rows explicitly during signup; backend handles user and account setup
+- Invites
+  - Accept via /accept-account-invite/[invite-code]
+  - If not signed in, prompt to sign in first
+
+## Permissions and Security
+
+- Role-based access
+  - Admin: full control, can edit account info, manage roles (except cannot change own role), billing, delete account
+  - Manager: can add/remove users (handled by app logic), inherits standard permissions
+  - Default/Standard: can edit content and configure agents
+  - Guest: view-only
+- Data isolation
+  - All queries and mutations constrained by account_id
+
+## Standard Components
+
+- Logo
+  - SVG logo, customizable color and size
+  - import { Logo } from "@/components/Logo";
+- SignInRequired
+  - Card for access-restricted scenarios with sign-in/register links
+  - import { SignInRequired } from "@/components/SignInRequired";
+
+## Supabase, Hooks, and Utilities
+
+- Supabase client
+  - supClient() for auth and data operations
+- Store service and hooks
+  - store().select*/insert/update/delete
+  - useStoreItem(), useStoreMatchingItems(), useStoreFirstMatchingItem()
+- File utilities
+  - fileStore().getUrlAsync(path), getCachedUrl(path)
+  - useFileUrl(path)
+- User/account hooks
+  - useCurrentUser(), useAccount(), useUserRole(), useUserInfo()
+- App controller
+  - app().switchAccountAsync(accountId) to change active tenant
+- Utilities
+  - cn(...) to combine class names
+
+## Interaction and UI Patterns
+
+- Buttons and CTAs
+  - Pill-shaped, no static widths, use brand color for primary interactions
+- Links and icons
+  - Use brand color sparingly; lucide-react icons for clarity with minimal visual noise
+- States and emphasis
+  - Secondary color used for non-interactive emphasis; transparent tints for subtle backgrounds and borders
+- Thumbnails and lists
+  - Compact grid cards with rounded corners, neutral borders, and clear hover states
+- Modals and popovers
+  - For rename, move, duplicate, and delete actions within message categories
+
+## Glossary
+
+- Profile: A customer record with contact info, attributes, and events
+- Segment: A subset of profiles based on shared demographics or behavior
+- Message: A marketing communication with variants (email, SMS, push)
+- Category: A folder that organizes messages
+- Agent: An automated decisioning entity that selects message, channel, and send timing
+- Outcome: Event-to-ranking mapping guiding agent optimization
+- Holdout: Percentage of a segment withheld from agent sends for control and measurement
+</app-description>
+
+> appendUser
+<all-screens>
+[
+    {
+        "name": "Accept Account Invite",
+        "route": "accept-account-invite/[invite-code]",
+        "description": "Accept or decline invitations to join an account. Prompts sign-in if not authenticated."
+    },
+    {
+        "name": "Account",
+        "route": "account",
+        "description": "View account details and manage membership (admin)."
+    },
+    {
+        "name": "Agent Detail",
+        "route": "agent-detail",
+        "description": "Detailed log of an agent’s decisions."
+    },
+    {
+        "name": "Create Agent",
+        "route": "create-agent",
+        "description": "Three-step wizard to create and configure an AI decisioning agent."
+    },
+    {
+        "name": "Dashboard",
+        "route": "dashboard",
+        "description": "Analytics hub for agents and communications."
+    },
+    {
+        "name": "Decisioning",
+        "route": "decisioning",
+        "description": "List of AI decisioning agents with create, view, and delete actions."
+    },
+    {
+        "name": "Message Category",
+        "route": "message-category",
+        "description": "Grid of messages inside a single category folder."
+    },
+    {
+        "name": "Message Detail",
+        "route": "message-detail",
+        "description": "Tabbed previews of email, SMS, and push notification variants of a single marketing message."
+    },
+    {
+        "name": "Messages",
+        "route": "messages",
+        "description": "Grid of message categories (folders) with counts and management."
+    },
+    {
+        "name": "Profile Detail",
+        "route": "profile-detail",
+        "description": "Detailed view of a single profile with attributes and events."
+    },
+    {
+        "name": "Profile",
+        "route": "profile",
+        "description": "User’s personal profile page."
+    },
+    {
+        "name": "Profiles",
+        "route": "profiles",
+        "description": "List of stored profiles with bulk actions."
+    },
+    {
+        "name": "Public Profile",
+        "route": "profile/[user-id]",
+        "description": "Public view of another user’s profile."
+    },
+    {
+        "name": "Register",
+        "route": "register",
+        "description": "Register a new user and create an organizational account."
+    },
+    {
+        "name": "Segment Detail",
+        "route": "segment-detail",
+        "description": "Segment-level criteria, membership, and metrics."
+    },
+    {
+        "name": "Segments",
+        "route": "segments",
+        "description": "List of customer segments with growth indicators."
+    },
+    {
+        "name": "Sign-in",
+        "route": "sign-in",
+        "description": "Access for existing users."
+    }
+]
+</all-screens>
+
+> appendUser
+<screen-description>
+# Screen Description
+
+Name: Segments
+Route: /segments
+
+## Description
+A dark-themed, account-scoped index of customer segments showing size and recent growth. The primary content is a sortable, searchable table listing:
+- Segment name
+- Number of profiles (current membership count)
+- Growth 30d (profiles added in the last 30 days; treat as the growth metric)
+
+Rows are clickable to open Segment Detail. The list respects the current tenant (account_id) and includes common states (loading skeleton, empty state with guidance). Growth indicators should clearly explain their meaning via tooltip or help text. Optional chips can denote segment type (Dynamic or Static) when available.
+
+## Actions
+- Search segments by name
+- Sort by name, profile count, or 30-day growth
+- Refresh the list
+- Open a segment’s detail by clicking a row
+- Optional (role-permitting): Create Segment
+
+## Links
+- segment-detail?segmentId={segmentId}: open details, criteria, KPIs, and membership for a specific segment
+- create-agent?segmentId={segmentId} (optional quick action): start a new agent preselected to this segment
+</screen-description>
+
+> appendUser
+Generate a simple set of tests to test all the features of the screens. The tests should be 
+    should be a smile bullet list of short sentences describing features to test.
+
+    The test should be able to be completed by a human in 10 minutes or less. Do not include more
+    than 25 bullet points.
+
+> nop
+//_END_MAKE_TARGET_INPUT_
+
+
+@time 2025-11-07T09:30:09-05:00
+@tokenUsage 4865 / 1792 / $0.00832125
+@model gpt-5-2025-08-07
+> assistant
+- Open /segments and confirm a dark-themed table with columns: Name, Profiles, Growth 30d.
+- Observe a loading skeleton, then the table populates without errors.
+- If there are no segments, see an empty state with guidance to create or import segments.
+- Verify each row shows segment name, current profile count, and a Growth 30d value (0 allowed).
+- Hover or tap the Growth 30d help/tooltip and read that it’s “profiles added in the last 30 days.”
+- Use the search box to find a segment by partial, case-insensitive name.
+- Clear the search and confirm the full list returns.
+- Click the Name column header to sort A→Z; click again to sort Z→A.
+- Click the Profiles column header and confirm numeric sorting works both directions.
+- Click the Growth 30d column header and confirm numeric sorting works both directions.
+- Click a segment row and navigate to segment-detail?segmentId={id}; verify the name matches.
+- Use the browser Back button to return and confirm the previous search/sort persists (or the list is usable).
+- Click Refresh and confirm the list reloads without errors.
+- If a segment has a type, confirm a small chip displays Dynamic or Static.
+- Optional (role check): If permitted, a Create Segment action is visible; clicking it opens the creation flow; cancel returns to the list.
+- Optional (role check): If not permitted, Create Segment is hidden or disabled.
+- Optional quick action: Start Create Agent from a segment and land on /create-agent with the segment preselected (or segmentId in the URL).
+- Switch to another account/tenant and confirm the segment list changes and only shows that account’s segments.
+- Confirm interactive elements (links, buttons) use the brand color sparingly and have clear hover states.
+
+
+
+> user

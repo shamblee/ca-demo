@@ -1,0 +1,22 @@
+- Open /message-category and verify the header shows the category name and optional description.
+- Confirm the info note states messages are imported from GardenIQ and authoring is disabled.
+- Verify a responsive thumbnail grid renders with hover states.
+- Check that each tile shows a preview/thumbnail (if available), message name, and “Created YYYY-MM-DD” date.
+- Confirm long message names are truncated and show full name via tooltip or on focus.
+- Verify channel indicators (Email, SMS, Push) appear on tiles that have those variants.
+- Hover a tile to see an enlarged preview; on a small screen or narrow window, tap to focus the preview.
+- Click a tile to navigate to the Message Detail page and confirm the Email tab opens by default (if available).
+- Return to the category and open a tile’s overflow menu (ellipsis) to see Duplicate, Move, Delete options.
+- As a guest user, confirm the overflow actions are disabled or hidden (view-only).
+- As a standard/manager/admin user, click Duplicate, edit the name in the prompt, confirm, and verify a cloned message appears in the grid.
+- Open Move, select a different category in the dropdown, confirm, and verify the message disappears here and shows in the target category.
+- Open Delete, read the confirmation text, cancel, and verify the message is still present.
+- Repeat Delete and confirm delete; verify the message is removed from the grid.
+- Use search (if present) to find a message by name and verify results update instantly.
+- Change sort to Created (Newest) and then (Oldest); confirm tile order updates correctly.
+- Change sort to Name (A–Z) and (Z–A); confirm alphabetical ordering.
+- Apply a tag filter (if present) and verify only matching messages remain visible.
+- Scroll to the bottom and verify additional messages load via pagination or infinite scroll (if present).
+- Verify the right rail (if shown) displays metadata: description, total messages, channel mix summary, last updated.
+- Click the “Create Agent” link or CTA in the right rail and confirm the agent creation flow opens with this category preselected.
+- Navigate to an empty category (or create one) and verify the empty state card appears with guidance text.

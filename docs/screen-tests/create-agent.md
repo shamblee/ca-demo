@@ -1,0 +1,25 @@
+- Open /create-agent and confirm a three-step stepper is visible with Step 1 active.
+- Verify fields exist: Agent Name, Default Email From, Default SMS From.
+- Attempt to Continue with empty fields and confirm the button is disabled and errors show.
+- Enter a valid email format and an invalid one to confirm email validation works.
+- Enter a valid phone number and an invalid one to confirm phone validation works.
+- Select exactly one Segment and confirm the list appears scoped to your current account.
+- Set Holdout to 0, 50, and 100 to confirm valid range and clamping; reject negatives or >100.
+- Select exactly one Message Category and confirm an info note explains read-only messages and holdout.
+- Click Continue to Step 2 and confirm Back returns to Step 1 with values preserved.
+- Verify frequency options include: daily, 6x/week, 5x/week, weekly, every 2 weeks, monthly.
+- Select sending days via Mon–Sun checkboxes and confirm at least one day is required.
+- Select time windows (morning, afternoon, evening) and confirm at least one window is required.
+- Confirm Continue is disabled until frequency, at least one day, and at least one time window are set.
+- Proceed to Step 3 and verify four outcome ranks are shown: Worst, Good, Very Good, Best.
+- Map one event type to each rank and confirm all ranks must be mapped before activation is allowed.
+- Try assigning the same event to multiple ranks and confirm duplicates are prevented or flagged.
+- Enter an optional outcome strategy description and confirm it saves.
+- Review the summary and confirm it lists basics, segment, holdout, category, schedule, and outcomes.
+- Use Back from the summary to edit a prior step, then return and confirm the summary updates.
+- Click Activate and confirm the agent is created and activation succeeds.
+- Click the link to Agent Detail and confirm it opens the agent’s decision log page.
+- From Step 1, open the selected Segment link and confirm it navigates to segment-detail.
+- From Step 1, open the selected Message Category link and confirm it navigates to message-category.
+- From the category view, open a Message Detail link and confirm it navigates to message-detail.
+- Click Cancel at any step and confirm you exit the wizard without creating an agent.

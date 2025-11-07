@@ -1,0 +1,3094 @@
+> define
+__makeRoot="../.."
+__makeFile="make.convo"
+__makeOut="docs/style-guide.md"
+__model="gpt-5"
+
+> system
+You are generating content that will be directly written to "docs/style-guide.md".
+DO NOT include a preamble or postamble.
+
+Always respond with the full content for "docs/style-guide.md", even if you are making an
+small or incremental update.
+
+> appendUser
+<app-description>
+## Decisioning Demo
+
+A modern, professional, dark-themed platform for importing and enriching customer profiles, organizing contacts into segments, browsing message content libraries, and configuring AI decisioning agents that determine which message to send, when to send it, and through which channel.
+
+## Feature Summary
+
+- Profile management
+  - Import customer contact records (CSV or Excel)
+  - View list of profiles with key identifiers
+  - View profile details: contact info, attributes, event history
+  - Export and enrich profiles (bulk or selected)
+- Segmentation
+  - View list of segments
+  - View segment details with criteria and membership
+  - Segment-level KPIs (aggregate orders, AOV, LTV; subscriber counts by channel)
+- Messages and categories
+  - Browse message categories as “folders”
+  - View messages in a category as thumbnails with previews
+  - Message detail previews for email, SMS, and push notifications
+  - Manage messages within categories (duplicate, move, delete)
+  - Messages are imported from GardenIQ (no authoring in-app)
+- AI decisioning agents
+  - 3-step agent creation and configuration
+  - Assign segment, holdout, and message category
+  - Configure sending frequency, days, and time windows
+  - Define desired outcomes and map events to rankings (Worst, Good, Very Good, Best)
+  - Activate/deactivate agents
+  - View an agent’s decision log with reasoning
+- Analytics dashboard
+  - Web, messaging, ecommerce, and attribution analytics
+  - Attribution and ROI by message or agent (selectable)
+- Accounts and users
+  - Accept account invites
+  - View and edit account (admin)
+  - Invite users to the account via invite link
+  - User profiles (self and public)
+  - Role-based permissions
+- App shell and layout
+  - Global navigation with pages for Dashboard, Profiles, Segments, Messages, Decisioning, Settings
+  - Two-column main content layout with an optional right rail
+- Multi-tenant data model with Supabase
+  - Account-centric tenancy
+  - File storage using structured paths and signed URLs
+
+## User Roles and Access
+
+- App roles
+  - guest: view-only permissions
+  - default: standard account member; can edit content and configure agents
+  - manager: default permissions plus can add/remove users
+  - admin: all permissions; can change roles, manage billing, delete account
+
+- Database roles (UserRole enum)
+  - admin, standard, guest
+  - Mapping guidance
+    - guest (app) → guest (db)
+    - default (app) → standard (db)
+    - manager (app) → standard (db) plus manager capabilities handled by application logic/permissions checks
+    - admin (app) → admin (db)
+
+## Core Concepts and Relationships
+
+- Profiles: stored customer contact records
+- Enrichment: appends additional properties/attributes to profiles; creates Segments
+- Segments: subsets of profiles based on demographics and/or event history
+- Messages: imported content from GardenIQ; includes email, SMS, and push notification variants for a given subject
+- Message categories: folders/content libraries that agents draw from
+- Channels: the medium used for sending (email, SMS, push notification)
+- AI decisioning agents: select message, channel, send day/time, and execute sends to profiles
+- Agent settings: send frequency, time windows, desired outcomes, holdout percentage
+- Outcomes: ranked as Worst, Good, Very Good, Best; events map to rankings
+- Holdout percentage: portion of the segment excluded from agent sends for testing/control
+
+## Global Navigation
+
+- Left side pane navigation:
+  - Home → Dashboard (/dashboard)
+  - Profiles (/profiles)
+  - Segments (/segments)
+  - Messages (/messages)
+  - Decisioning (/decisioning)
+  - Settings → Account (/account)
+
+## Main Layout
+
+- Header bar with app logo (left) and user avatar (right)
+  - Clicking the logo → Dashboard
+  - Clicking the avatar → Profile (/profile)
+- Two-column responsive content area (approx. 80:20)
+  - Left: primary content
+  - Right: optional secondary content (right rail)
+  - Right rail can be hidden to allow full-width primary content
+
+## Styling Guidelines
+
+- Framework: Tailwind CSS (v4)
+- Look and Feel
+  - Modern, professional, dark palette
+  - Neutral backgrounds and borders
+  - Rounded corners; pill-shaped buttons
+- Color palette
+  - Brand: #4583F7 (var(--blue))
+  - Secondary: #8E59FF (var(--purple))
+- Usage rules
+  - Use brand color sparingly for interactive elements (buttons, links, clickable icons)
+  - Use thin brand-colored borders to highlight non-CTA elements when needed
+  - Use secondary color to highlight non-interactive important information or as an accent
+  - Both colors may be used with transparency for subtle shading and states
+
+## Screens
+
+### Accept Account Invite (/accept-account-invite/[invite-code])
+- Seen by: All
+- Description: Accept or decline invitations to join an account. Prompts sign-in if not authenticated.
+- Requirements
+  - Accept or decline the invite
+  - If not signed in, prompt to sign in first
+
+### Account (/account)
+- Seen by: All signed-in users
+- Description: View account details and manage membership (admin).
+- Requirements
+  - Display basic account info: name, logo, id (muted)
+  - Admins can edit account info
+  - Users section: grid of user cards (name, profile picture), link to public user profile
+  - Link to create a new account
+  - Admins can generate invite links:
+    - https://[location.host]/accept-account-invite/[inviteCode]
+
+### Agent Detail (/agent-detail)
+- Seen by: All signed-in users
+- Description: Detailed log of an agent’s decisions.
+- Requirements
+  - Each decision record includes:
+    - Timestamp
+    - Profile that was engaged
+    - Selected message
+    - Selected channel
+    - Chosen send time
+    - Summary of reasoning for message, channel, and timing
+
+### Create Agent (/create-agent)
+- Seen by: All signed-in users
+- Description: Three-step wizard to create and configure an AI decisioning agent.
+- Requirements
+  - Step 1
+    - Name, default email address, default SMS phone number for sending
+    - Assign one segment and a Holdout percentage
+    - Assign one message category
+  - Step 2
+    - Sending frequency (daily, 6x/week, 5x/week, weekly, every 2 weeks, monthly)
+    - Sending days (Mon–Sun checkboxes)
+    - Sending times (morning, afternoon, evening)
+  - Step 3
+    - Define desired outcomes
+    - Map an event to each ranking (Worst, Good, Very Good, Best)
+  - Activate the agent once configured
+
+### Dashboard (/dashboard)
+- Seen by: All signed-in users
+- Description: Analytics hub for agents and communications.
+- Requirements
+  - Data visualization with tabs/subpages:
+    - Web: page views, new/unique sessions, form submissions
+    - Messaging (all channels): sent, opened, clicked, bounced, new subscribers, unsubscribers
+    - Ecommerce: adds-to-cart, favorites/saves, initiated checkouts, abandoned checkouts, purchases
+    - Attribution: ROI metrics (revenue, orders, average order value) by message or agent; user-selectable comparisons
+
+### Decisioning (/decisioning)
+- Seen by: All signed-in users
+- Description: List of AI decisioning agents with create, view, and delete actions.
+- Requirements
+  - View list of user’s agents
+  - Create new agents
+  - Click into an agent to view details
+  - Delete agents
+
+### Message Category (/message-category)
+- Seen by: All signed-in users
+- Description: Grid of messages inside a single category folder.
+- Requirements
+  - Thumbnail preview grid
+  - Each tile shows message name and creation date
+  - Overflow menu (ellipsis) per message:
+    - Duplicate message
+    - Move message (modal with category dropdown, confirmation moves item and removes it from original category)
+    - Delete message
+  - Click a message to open the message detail view
+
+### Message Detail (/message-detail)
+- Seen by: All signed-in users
+- Description: Tabbed previews of email, SMS, and push notification variants of a single marketing message.
+- Requirements
+  - Email tab: branded email preview
+  - SMS tab: branded text message preview
+  - Notification tab: branded push notification preview
+
+### Messages (/messages)
+- Seen by: All signed-in users
+- Description: Grid of message categories (folders) with counts and management.
+- Requirements
+  - Each category tile shows name and number of messages
+  - Click a category to view messages inside
+  - Edit category names in a modal
+
+### Profile Detail (/profile-detail)
+- Seen by: All signed-in users
+- Description: Detailed view of a single profile with attributes and events.
+- Requirements
+  - Display contact info: first name, last name, email, phone, device ID, address fields (street, city, state, zip, country)
+  - Optional: job title, department, company
+  - Other marketing attributes (CRM-like properties)
+  - Event history: page views, message opens/clicks, add-to-cart, checkout events
+  - KPIs: total orders, average order value, lifetime value
+
+### Profile (/profile)
+- Seen by: All signed-in users (self-only)
+- Description: User’s personal profile page.
+- Requirements
+  - Show user information
+  - List of accounts the user belongs to with option to switch
+  - User can edit their profile (not email address)
+
+### Profiles (/profiles)
+- Seen by: All signed-in users
+- Description: List of stored profiles with bulk actions.
+- Requirements
+  - View list of profiles: full name, email, phone, device ID, date added
+  - Click through to profile detail
+  - Import additional profiles via CSV
+  - Enrich all or selected profiles
+  - Export all or selected profiles
+  - Checkboxes for selecting profiles for actions
+
+### Public Profile (/profile/[user-id])
+- Seen by: All signed-in users
+- Description: Public view of another user’s profile.
+- Requirements
+  - Show user information
+  - Account admins can view and change the user’s role
+  - Admins cannot change their own role
+
+### Register (/register)
+- Seen by: All
+- Description: Register a new user and create an organizational account.
+- Requirements
+  - Inputs: name, email, organization name, password
+  - If already signed in, show a message indicating they are already registered
+
+### Segment Detail (/segment-detail)
+- Seen by: All signed-in users
+- Description: Segment-level criteria, membership, and metrics.
+- Requirements
+  - Display: segment name, segment criteria
+    - Demographics: age range, gender, geography, socioeconomic status, marital status, children/pets
+    - Event history: purchases, add-to-cart, message opens/clicks, page/product views
+  - KPIs: total aggregate orders, AOV, aggregate LTV
+  - Membership: list of profiles with counts, including subscriber counts by channel (email, SMS, notifications)
+
+### Segments (/segments)
+- Seen by: All signed-in users
+- Description: List of customer segments with growth indicators.
+- Requirements
+  - View list with: segment name, number of profiles, profiles added over last 30 days (listed twice in spec; treat as growth metric)
+  - Click through to segment detail
+
+### Sign-in (/sign-in)
+- Seen by: All
+- Description: Access for existing users.
+- Requirements
+  - Inputs: email, password
+  - If already signed in, show a message indicating they are already signed in
+
+## AI Decisioning Agents
+
+- Purpose
+  - Decide which message to send, the best channel, and the optimal day/time window per profile within a segment
+- Configuration
+  - Segment assignment and holdout
+  - Message category selection (content library)
+  - Frequency controls (daily/weekly/biweekly/monthly), days, and time windows (morning/afternoon/evening)
+  - Outcome definitions with event mapping to Worst, Good, Very Good, Best
+- Operation
+  - Log every decision with timestamp, target profile, message, channel, scheduled send time, and concise reasoning
+  - Respect holdout percentage for control groups
+- Governance
+  - Only use messages imported from GardenIQ; no authoring within the app
+
+## Analytics and Attribution
+
+- Web analytics: page views, new/unique sessions, form submissions
+- Messaging: sends, opens, clicks, bounces, new subscribers, unsubscribers across all channels
+- Ecommerce: add-to-cart, favorites/saves, initiated checkout, abandoned checkout, purchases
+- Attribution and ROI
+  - Revenue, orders, AOV attributed to messages and agents
+  - Users can select messages or agents to analyze and compare
+
+## Tech Stack and Architecture
+
+- React, Next.js (pages directory), Tailwind CSS v4, lucide-react, Supabase, Zod, RxJS, uuid
+- Static Site Generation (SSG) only; no server-side rendering (SSR)
+- Pages live in /pages; do not use the Next.js App Router
+- Exports: use named exports unless Next.js pages require default export
+- Icons: lucide-react
+- Forms: typed useState and Zod schemas for validation when persisting to DB
+
+## Multi-Tenancy and Data
+
+- Tenancy model
+  - account table represents a tenant
+  - All tenant-bound entities include account_id
+  - Users link to accounts via account_membership
+- Required base entities
+  - User (id, created_at, name, email, profile_image_path?, hero_image_path?)
+  - Account (id, created_at, name, logo_image_path?, hero_image_path?)
+  - AccountMembership (id, created_at, last_accessed_at, user_id, account_id, role: user_role)
+  - UserRole enum: admin, standard, guest
+- Domain entities (conceptual)
+  - Profile, Segment, Message, MessageCategory, Agent, AgentDecision, OutcomeMapping, ChannelSubscription
+  - Ensure each has account_id for scoping
+- File storage
+  - Supabase Storage bucket: accounts
+  - Path pattern: {account_id}/users/{user_id}/{REST_OF_PATH}
+  - Store only the path in DB; resolve full URLs client-side with fileStore() or useFileUrl
+- CRUD and data access
+  - store() service and useStore*() hooks for reactive CRUD and querying
+  - SelectOptions for pagination and ordering
+
+## Layout and Page Conventions
+
+- Main layout
+  - Navigation bar and centered column content by default
+  - Two-column content area with optional right rail
+- Display modes
+  - useFullPage() to hide main navigation and present a full-screen experience
+  - useNoMargins() to remove margins and allow edge-to-edge designs
+  - useIsInFullPageMode() and useIsNoMarginMode() to read current display state
+- Pages
+  - Next.js pages must export a default function named after the page
+  - Root element className must follow: page--{PageComponentName}
+  - Do not wrap pages with MainLayout directly; the App component handles it
+
+## Authentication and Registration
+
+- Authentication
+  - Sign-in with email/password
+  - If a user visits protected pages without being signed in, show SignInRequired
+- Registration
+  - When registering, store the user’s name and account name in options.data:
+    - { name, accountName }
+  - Do not insert DB rows explicitly during signup; backend handles user and account setup
+- Invites
+  - Accept via /accept-account-invite/[invite-code]
+  - If not signed in, prompt to sign in first
+
+## Permissions and Security
+
+- Role-based access
+  - Admin: full control, can edit account info, manage roles (except cannot change own role), billing, delete account
+  - Manager: can add/remove users (handled by app logic), inherits standard permissions
+  - Default/Standard: can edit content and configure agents
+  - Guest: view-only
+- Data isolation
+  - All queries and mutations constrained by account_id
+
+## Standard Components
+
+- Logo
+  - SVG logo, customizable color and size
+  - import { Logo } from "@/components/Logo";
+- SignInRequired
+  - Card for access-restricted scenarios with sign-in/register links
+  - import { SignInRequired } from "@/components/SignInRequired";
+
+## Supabase, Hooks, and Utilities
+
+- Supabase client
+  - supClient() for auth and data operations
+- Store service and hooks
+  - store().select*/insert/update/delete
+  - useStoreItem(), useStoreMatchingItems(), useStoreFirstMatchingItem()
+- File utilities
+  - fileStore().getUrlAsync(path), getCachedUrl(path)
+  - useFileUrl(path)
+- User/account hooks
+  - useCurrentUser(), useAccount(), useUserRole(), useUserInfo()
+- App controller
+  - app().switchAccountAsync(accountId) to change active tenant
+- Utilities
+  - cn(...) to combine class names
+
+## Interaction and UI Patterns
+
+- Buttons and CTAs
+  - Pill-shaped, no static widths, use brand color for primary interactions
+- Links and icons
+  - Use brand color sparingly; lucide-react icons for clarity with minimal visual noise
+- States and emphasis
+  - Secondary color used for non-interactive emphasis; transparent tints for subtle backgrounds and borders
+- Thumbnails and lists
+  - Compact grid cards with rounded corners, neutral borders, and clear hover states
+- Modals and popovers
+  - For rename, move, duplicate, and delete actions within message categories
+
+## Glossary
+
+- Profile: A customer record with contact info, attributes, and events
+- Segment: A subset of profiles based on shared demographics or behavior
+- Message: A marketing communication with variants (email, SMS, push)
+- Category: A folder that organizes messages
+- Agent: An automated decisioning entity that selects message, channel, and send timing
+- Outcome: Event-to-ranking mapping guiding agent optimization
+- Holdout: Percentage of a segment withheld from agent sends for control and measurement
+</app-description>
+
+> appendUser
+<coding-rules>
+## Tech Stack
+- ReactJS
+- NextJS - pages directory and static site generation
+- Tailwinds v4
+- lucide-react - icons
+- Supabase
+
+## Layout
+It is preferred to use stacking layouts using flex-box columns to avoid running out of horizontal
+room. Avoid long names in buttons and prefer to use icons for buttons.
+
+If buttons display text DO NOT give the button a static width.
+
+## Static site generation
+The frontend of the app uses static site generation so no server side rendering should be used. All
+pages are stored in the pages directory and the NextJS app router is NOT used.
+
+## Exports
+Always use named exports unless explicitly told otherwise or required such as when creating NextJS
+pages.
+
+## Multi-tenet Database
+The database is a multi-tenet database where the `account` table represents each tenet. All entities
+that belong to or fall under an account should have an `account_id` property directly linking the
+entity to an account. Entities that can belong to multiple accounts should use a join table to
+link to an account. 
+
+The `user` table is linked to the `account` table through the `account_membership` table.
+
+
+## Required Entities
+The following entities must be represented in the database schema. Additional properties or values
+can be added to the entities
+
+### User
+Represents a signed-in user
+
+Table name: user
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- email: text
+- profile_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### Account
+Represents a company or organization
+
+Table name: account
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- logo_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### AccountMembership
+Links a User to an Account
+
+Table name: account_membership
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- last_accessed_at: timestamptz
+- user_id: uuid
+- account_id: uuid
+- role: UserRole
+
+### UserRole
+An enumeration of different role types.
+- admin: The admin of an account
+- standard: The default role of a user
+- guest: A guest in an account
+Enum name: user_role
+
+
+
+## Schema Utility Types
+The `@/lib/schema` import contains types and objects that map to the database schema.
+
+`@/lib/schema` exports the following:
+- typeDefs: An object of type `Record<string,TypeDef>` containing key value pairs for each table in the database.
+- {type_name}: An interface that represents the structure of a value in a table.
+- {type_name}_insert: An interface that represents the structure of a value to be inserted in the a table.
+- {type_name}Schema: A Zod schema that represents the structure of a value in a table.
+- {type_name}_insertSchema: A Zod schema that represents the structure of a value to be inserted in the a table.
+- TypeDef: An interface that represents a type
+- PropDef: An interface the represents a property of a type
+- TypeMapping: An interface that maps type names to various programming languages.
+
+
+Example:
+``` ts
+import { User, User_insert, UserSchema, User_insertSchema, typeDefs } from "@/lib/schema";
+
+let user:User;
+UserSchema.parse(user);
+
+let newUser:User_insert;
+User_insertSchema.parse(newUser);
+
+const userPrimaryKey=typeDefs.primaryKey;
+```
+
+Schema Utility Interfaces:
+``` ts
+export interface TypeMapping
+{
+    name:string;
+    ts?:string;
+    zod?:string;
+    convo?:string;
+    sql?:string;
+}
+
+export interface PropDef
+{
+    name:string;
+    type:TypeMapping;
+    primary?:boolean;
+    description?:string;
+    sqlDef?:string;
+    optional?:boolean;
+    hasDefault?:boolean;
+    isArray?:boolean;
+    arrayDimensions?:number;
+}
+
+export interface TypeDef<
+    TValue extends Record<string,any>=Record<string,any>,
+    TInsert extends Record<string,any>=Record<string,any>
+\>{
+
+
+    name:string;
+    description?:string;
+    type:'type'|'enum';
+    primaryKey:(keyof TValue) & (keyof TInsert);
+    sqlTable?:string;
+    sqlSchema?:string;
+    zodSchema?:ZodType;
+    zodInsertSchema?:ZodType;
+    props:PropDef[];
+}
+```
+
+## Supabase client
+The `supClient` function imported from "@/lib/supabase" can be used to access an instance of a
+Supabase client.
+
+Supabase Client Example:
+``` ts
+import { supClient } from "@/lib/supabase";
+
+async function signInExampleAsync(){
+    const signInResult=await supClient().auth.signInWithPassword({email,password});
+}
+```
+
+## File Storage
+File should be stored using supabase storage using the `accounts` bucket and use the following pattern for paths.
+
+File path pattern: `{account_id}/users/{user_id}/{REST_OF_PATH}`
+
+Example file path for:
+- account_id: 809f36d5-8549-417e-b89c-7f1cb129b4dc
+- user_id: fe691ceb-ba31-421e-9a51-7fb1207965e8
+- file_name: example-book.pdf
+
+Upload Path: `809f36d5-8549-417e-b89c-7f1cb129b4dc/users/fe691ceb-ba31-421e-9a51-7fb1207965e8/example-book.pdf`
+
+### Storing file path in Database
+When storing file paths in the database only path of uploaded files should be store, the full URL
+will be generated client side using either the `fileStore()` service imported from `@/lib/fileStore`
+or using the `useFileUrl` hook imported from `@/lib/hooks`.
+
+Example of getting full URL for user profile picture using the `fileStore()` service:
+``` ts
+import { fileStore } from "@/lib/fileStore";
+import { User } from "@/lib/schema";
+
+async function exampleFunction(user:User){
+    if(!user.profile_image_path){
+        return;
+    }
+    const profilePictureUrl=await fileStore().getUrlAsync(user.profile_image_path);
+}
+```
+
+Example of getting full URL for user profile picture using the `useFileUrl` hook:
+``` tsx
+import { useFileUrl } from "@/lib/hooks";
+import { User } from "@/lib/schema";
+
+function ExampleComponent({user}:{user:User}){
+    const profilePictureUrl=useFileUrl(user.profile_image_path);
+    return (
+        <div>
+            {profilePictureUrl===null?
+                'loading'
+            :profilePictureUrl===undefined
+                'No profile picture'
+            :
+                <img src={profilePictureUrl}/>
+            }
+        </div>
+    )
+}
+```
+
+fileStore API:
+``` ts
+/**
+ * Utility class for Supabase storage operations. By default the FileStore class uses the `accounts`
+ * bucket.
+ */
+export class FileStore
+{
+    /**
+     * Gets the full URL for a given path. When needed signed URLs will be created. The result of the
+     * function will be cached and future calls for the same path will returned immediately
+     */
+    public async getUrlAsync(path:string):Promise<string|undefined>;
+
+    /**
+     * Attempts to get the cached URL for the path. If a URL has not been cached for the path
+     * undefined will be returned.
+     */
+    public getCachedUrl(path:string):string|undefined;
+}
+```
+
+useFileUrl API
+``` ts
+/**
+ * Gets the full URL to a given path
+ * Return values:
+ * null: URL info is being loaded
+ * undefined: URL not available
+ * {string}: The full URL of the path
+ * @param path The path to get a URL for. If null or undefined then undefined is returned.
+ */
+export const useFileUrl=(path:string|null|undefined):string|null|undefined=>;
+```
+
+
+
+## CRUD
+Common CRUD operations can be handled using the `store()` service imported from `@/lib/store`
+or the `useStore*()` React hooks imported from `@/lib/hooks`.
+
+Store service example:
+``` ts
+import { store } from "@/lib/store";
+import { typeDefs } from "@/lib/schema";
+
+const user=await store().selectFirstMatchesAsync(typeDefs.User,{email:'example@example.com'})
+```
+
+Use store hook example:
+``` ts
+import { useFirstMatchingStoreItem } from "@/lib/hooks";
+import { typeDefs } from "@/lib/schema";
+
+function ExampleComponent()
+{
+    const user=useFirstMatchingStoreItem(typeDefs.User,{email:'example@example.com'});
+}
+```
+
+### Store service API
+
+``` ts
+
+export class Store
+{
+
+    /**
+     * Gets an item from a table by table name and id. Undefined is returned if no item exists
+     * in the table with the given id.
+     * @param table Name of table to get item from
+     * @param id Id of item to get
+     */
+    public async selectFirstAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+
+    /**
+     * Selects all matching items from the given table
+     * @param table Name of table to select from
+     * @param match An object with properties to match against
+     * @param options Options used to control selection
+     */
+    public async selectMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>,options?:SelectOptions):Promise<Record<string,any>[]>;
+
+    /**
+     * Selects the first matching item form the given table
+     * @param table Table to select from
+     * @param match An object with properties to match against
+     */
+    public async selectFirstMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>):Promise<Record<string,any>|undefined>;
+
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async insertAsync<T extends Record<string,any>>(table:string|TypeDef<Record<string,any>,T>,value:T):Promise<T>;
+    
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async updateAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string,value:Partial<T>):Promise<T>;
+    
+    /**
+     * Deletes an item from a table
+     * @param table The name of the table to delete the item from
+     * @param id The Id of the item to delete
+     * @returns The value of the item before being delete or undefined
+     */
+    public async deleteAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+}
+```
+
+### Store hooks
+The store hooks also have the added benefit of automatically receiving updates when changes are made
+by the `store()` service.
+
+``` ts
+
+export interface UseStoreItemOptions
+{
+    /**
+     * If true useStoreItem will return undefined
+     */
+    disabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when disabled. By default the last loaded
+     * value will be returned when disabled.
+     */
+    resetOnDisabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when table or id changes. By default the last loaded
+     * value will be returned until the new value is loaded.
+     */
+    resetOnChange?:boolean;
+}
+
+export type UseStoreItemsOptions = UseStoreItemOptions & SelectOptions;
+
+/**
+ * Returns an item by id from a given table. Any updates made to the item elsewhere in the app
+ * will cause useStoreItem to return the new value.
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T,any>|string|null|undefined,
+    id:string|null|undefined,
+    options?:UseStoreItemOptions
+):T|null|undefined=>;
+
+/**
+ * Returns all matching items
+ *
+ * null is returned while the items are loading.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreMatchingItems=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T[]|null=>;
+
+
+/**
+ * Returns all matching items
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreFirstMatchingItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T|null|undefined=>;
+
+```
+
+## Full screen screens
+The `useFullPage` hook can be used to display a full screen page without the main navigation bar.
+
+example:
+``` tsx
+import { useFullPage } from "@/lib/hooks";
+
+function ExampleComponent(){
+
+    useFullPage();
+
+    return (
+        <div></div>
+    )
+}
+```
+
+## Form Data
+When creating forms store form data in a typed useState variable.
+
+Zod schemas can be imported from `@/lib/schema` to validate types stored in the database.
+
+Form state example:
+``` tsx
+
+interface NewsletterForm
+{
+    name:string
+    email:string;
+}
+function ExampleComponent()
+{
+    const [newsletterData,setNewsletterData]=useState<NewsletterForm>({
+        name:'',
+        email:'',
+    });
+
+    return (
+        <form>
+            <input
+                placeholder="Enter name"
+                value={newsletterData.name}
+                onChange={e=>setNewsletterData({...newsletterData,name:e.target.value})}
+            />
+            <input
+                placeholder="Enter email"
+                value={newsletterData.email}
+                onChange={e=>setNewsletterData({...newsletterData,email:e.target.value})}
+            />
+        </form>
+    )
+}
+```
+
+## Pages
+When creating NextJS pages export the page component as a default function with the function
+name reflecting the name of the page.
+
+Do not use the MainLayout component when creating a page. The Main Layout component will be
+used by the top level App component.
+
+Include the name of the page in the className of the root element of the page component using the
+format of: "page--{PageComponentName}"
+
+Example Page with a route of "/example":
+``` tsx
+
+export default function ExamplePage(){
+
+    return (
+        <div className="page--ExamplePage">
+            Example page content
+        <div>
+    )
+}
+```
+
+## Main Layout
+The `MainLayout` component is used by the top level `App` component to render the main layout of the
+app. By default the MainLayout should render pages in a centered column with a navigation bar.
+
+### Main Layout Display modes
+Pages can use the `useFullPage` and `useNoMargins` hooks to alter the way the page is displayed.
+Implement display modes using css or class names, DO NOT change the render order or do anything
+that would cause the page to be unmounted.
+
+### Main Layout Fullscreen Mode
+Pages can request to enter into fullscreen. Use the `useIsInFullPageMode` hook imported from 
+`@/lib/hooks` to check if the page should be displayed in fullscreen mode. If useIsInFullPageMode
+returns true hide the main navigation and any other UI other than the page content.
+
+### Main Layout No Margins Mode
+Pages can request to remove all page margins so that they can display content edge to edge. Use
+the `useIsNoMarginMode` hook imported from `@/lib/hooks` to check if the page should be displayed
+in no margins mode.
+
+
+## Packages
+This is the package.json file for the project. You can only use libraries based on the dependencies
+of the package.json file.
+
+``` json
+{
+  "dependencies": {
+    "lucide-react": "^0.544.0",
+    "markdown-it": "^14.1.0",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "rxjs": "^7.8.2",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.11",
+    "supabase": "^2.33.9",
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+
+```
+
+## Standard Components
+The following components can be used
+
+### Logo
+Displays the apps logo using an SVG
+
+Import: `import { Logo } from "@/components/Logo";`
+Props:
+``` ts
+interface LogoProps
+{
+    color?:string;
+    /**
+     * @default "w-8 h-8"
+     */ 
+    className?:string;
+    size?:string|number;
+}
+```
+
+### SignInRequired
+A card to display when a user does not have access to a screen with links to sign-in or register.
+Import: `import { Logo } from "@/components/SignInRequired";`
+Props:
+``` ts
+interface SignInRequiredProps
+{
+
+    /**
+     * A message to display to the user
+     */
+    message?:string;
+    className?:string;
+}
+```
+
+
+## User Registration
+
+When registering a new user store the user's name and account name in options.data object
+of the user sign-up options:
+``` ts
+await supClient().auth.signUp({
+    email: form.email.trim(),
+    password: form.password,
+    options: {
+        data: { name: form.name, accountName:form.accountName },
+    },
+});
+```
+
+When registering a new user do not explicitly insert any values into the database.
+User and account setup will be handled by the backend.
+
+
+## Utility Functions
+The following utility functions can be imported from `@/lib/util`
+
+``` ts
+export type ClassNameValue = string | false | number | null | undefined | {
+    [className: string]: any;
+} | ClassNameValue[];
+
+/**
+ * Combines class names and ignores falsy values.
+ */
+export const cn=(...classNames:ClassNameValue[]):string=>;
+```
+
+
+## Hooks
+React components can use the following hooks imported from `@/lib/hooks`
+
+``` ts
+/**
+ * Hides common UI controls such as the main nav bar.
+ * @param enabled If false the hook is disabled
+ */
+export const useFullPage=(enabled=true)=>;
+
+/**
+ * Removes all margins and paddings from the main layout while keeping the main navigation and
+ * other shared UI elements
+ * @param enabled If false the hook is disabled
+ */
+export const useNoMargins=(enabled=true)=>;
+
+/**
+ * Returns true if the page should be displayed in full screen
+ */
+export const useIsInFullPageMode=():boolean=>{
+    const count=useSubject(fullPageSubject);
+    return count>0;
+}
+
+/**
+ * Returns true if the page should remove all margins
+ */
+export const useIsNoMarginMode=():boolean=>;
+
+/**
+ * Returns the current signed-in user.
+ * null === user is being loaded
+ * undefined === user is not signed in
+ */
+export const useCurrentUser=():User|null|undefined=>;
+
+/**
+ * Returns the current account the user is signed into.
+ * null === account is being loaded
+ * undefined === No account found for user
+ */
+export const useAccount=():Account|null|undefined=>;
+
+/**
+ * Returns the role of the user in the current account.
+ * null === role is being loaded
+ * undefined === No role found for user
+ */
+export const useUserRole=():UserRole|null|undefined=>;
+
+/**
+ * Returns the information about the current user, including a user object, account object
+ * and the role the user has for the account.
+ * null === user info is being loaded
+ * undefined === user is not signed in
+ */
+export const useUserInfo=():UserInfo|null|undefined=>;
+```
+
+## Utility types
+The following utility types can be imported from `@/lib/types-util`
+
+``` ts
+export interface UserInfo
+{
+    user:User;
+    role?:UserRole;
+    membership?:AccountMembership;
+    account?:Account;
+}
+
+/**
+ * Options used with select queries
+ */
+export interface SelectOptions
+{
+    offset?:number;
+    limit?:number;
+    orderBy?:string;
+    /**
+     * If true return items will be ordered in descending order
+     */
+    orderByDesc?:boolean;
+}
+```
+
+## App Controller
+The App Controller can be accessed by calling the `app` function imported from `@/lib/app`.
+
+Use can use the App Controller to switch between accounts
+``` ts
+import { app } from `@/lib/app`
+
+async function switchAccountExample(accountId:string){
+    await app().switchAccountAsync(accountId);
+}
+```
+</coding-rules>
+
+> appendUser
+<styling>
+## Styling Framework
+Use Tailwinds for styling
+
+## Look and Feel
+- modern platform design
+- professional
+- dark color palette
+- neutral backgrounds and borders
+- rounded corners
+- pill-shaped buttons
+
+## Custom Color Palette
+``` css
+:root{
+    --blue: #4583F7;
+    --purple: #8E59FF;
+}
+```
+
+Brand color: #4583F7 (--blue)
+Secondary color: #8E59FF (--purple)
+
+
+## Rules
+Use the brand color sparingly. The brand color should only be used for interactive elements, like buttons, links, clickable icons, etc.
+The brand color can be used as a thin border color in situations where an element should be highlighted
+but is not a main CTA.
+The secondary color should be used to highlight important information that is not interactive. Secondary color can also be used as a accent color.
+Brand and secondary colors can also be used with transparency to create color shades
+</styling>
+
+> appendUser
+<tailwind-rules>
+# Tailwind
+Always be sure to use Tailwind v4 syntax
+
+## Top level imports
+The top of the globals.css file should be formatted as the following:
+``` css
+@import url("https://fonts.googleapis.com/css2?{QUEREY_PARAMS_HERE}");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+```
+
+Additional plugins may be added after the `@tailwindcss/typography` plugin.
+
+## Utility classes
+Tailwind utility classes must be defined using `@utility` directive instead of the older v3 method
+of using `@layer utility`. Any class used in an `@apply` directive must be defined as a utility
+class, classed defined in `@layer components` can not be used in the `@apply` directive.
+
+Utility classes can not use Pseudo-class or Pseudo-element selectors. Pseudo selectors should be
+apply in the class name of the element using the utility class or in the components applying the
+utility
+
+Example of how NOT to use pseudo classes and pseudo elements with utility classes selectors:
+<bad-examples>
+@utility input-base:hover{
+    outline:1px solid var(--color-brand);
+}
+@utility input-base::placeholder{
+    color:var(--muted);
+}
+</bad-examples>
+
+Example of how to use pseudo classes and pseudo elements with utility classes selectors:
+<good-examples>
+@utility input-base-hover{
+    outline:1px solid var(--color-brand);
+}
+@utility input-base-placeholder{
+    color:var(--muted);
+}
+
+@layer components{
+    .input:hover{
+        @apply input-base-hover;
+    }
+    .input::placeholder{
+        @apply input-base-placeholder;
+    }
+}
+</good-examples>
+
+## Utility class values with spaces
+When using utility classes that define arbitrary values and the values contain a space remember to
+replace the spaces with underscores.
+
+Utility class value with space example:
+``` css
+.example{
+    @apply bg-[url("data:image/svg+xml,%3Csvg_width='12'_height='8'_viewBox='0_0_12_8'_xmlns='http://www.w3.org/2000/svg'%3E%3Cpath_d='M1_1.5L6_6.5L11_1.5'_stroke='%236b7280'_stroke-width='1.5'_stroke-linecap='round'_stroke-linejoin='round'/%3E%3C/svg%3E")];
+}
+```
+
+## Components
+If a component has multiple variants with shared styles define a "base" utility class to apply to
+the variants.
+
+Utility and component class example:
+``` css
+@utility btn-base{
+    border:1px solid var(--border-color);
+}
+
+@layer components{
+    .btn{
+        @apply btn-base;
+    }
+}
+```
+</tailwind-rules>
+
+> appendUser
+<editor-config>
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+</editor-config>
+
+> appendUser
+<tailwind-theme>
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Public+Sans:wght@300..800&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* CSS Variables for brand and theme */
+:root{
+    color-scheme: dark;
+
+    /* Brand colors */
+    --blue:#4583F7;
+    --purple:#8E59FF;
+
+    /* Brand tints (for subtle states) */
+    --blue-12: rgb(69 131 247 / 0.12);
+    --blue-16: rgb(69 131 247 / 0.16);
+    --blue-24: rgb(69 131 247 / 0.24);
+    --purple-12: rgb(142 89 255 / 0.12);
+    --purple-16: rgb(142 89 255 / 0.16);
+    --purple-24: rgb(142 89 255 / 0.24);
+
+    /* Dark neutral system */
+    --bg:#0b0f16;
+    --surface:#0f1623;
+    --surface-2:#0c1422;
+    --elev:#131b2a;
+    --muted:#0b1220;
+    --border:#20293a;
+    --border-2:#1b2433;
+    --text:#e6e7eb;
+    --text-2:#c8ccd4;
+    --text-3:#9aa3b2;
+
+    /* Status colors */
+    --success:#22c55e;
+    --success-12:rgb(34 197 94 / 0.12);
+    --warning:#f59e0b;
+    --warning-12:rgb(245 158 11 / 0.12);
+    --danger:#ef4444;
+    --danger-12:rgb(239 68 68 / 0.12);
+
+    /* Shadows and radii */
+    --radius-2:6px;
+    --radius-3:10px;
+    --radius-4:12px;
+    --radius-5:16px;
+    --radius-pill:9999px;
+
+    --shadow-sm:0 1px 0 rgba(0,0,0,.45), 0 2px 6px rgba(0,0,0,.35);
+    --shadow:0 2px 0 rgba(0,0,0,.45), 0 6px 20px rgba(0,0,0,.35);
+    --shadow-lg:0 8px 24px rgba(0,0,0,.55);
+
+    /* Chart Palette (Analytics) */
+    --chart-1:#7dd3fc; /* sky-300 */
+    --chart-2:#60a5fa; /* blue-400 */
+    --chart-3:#c084fc; /* purple-400 */
+    --chart-4:#34d399; /* emerald-400 */
+    --chart-5:#f472b6; /* pink-400 */
+
+    /* Focus ring */
+    --ring:0 0 0 2px var(--bg), 0 0 0 4px var(--blue);
+
+    /* Scrollbar */
+    --scrollbar-thumb:#1c2433;
+    --scrollbar-track:#0b0f16;
+}
+
+/* Tailwind v4 Theme Tokens */
+@theme {
+    --font-sans:"Inter","Public Sans",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue","Noto Sans","Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol",sans-serif;
+    --font-mono:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+
+    --color-brand: var(--blue);
+    --color-secondary: var(--purple);
+
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-elev: var(--elev);
+    --color-muted: var(--muted);
+    --color-border: var(--border);
+    --color-border-2: var(--border-2);
+    --color-text: var(--text);
+    --color-text-2: var(--text-2);
+    --color-text-3: var(--text-3);
+
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-danger: var(--danger);
+
+    --radius-sm: var(--radius-2);
+    --radius: var(--radius-3);
+    --radius-lg: var(--radius-4);
+    --radius-xl: var(--radius-5);
+    --radius-full: var(--radius-pill);
+
+    --shadow-sm: var(--shadow-sm);
+    --shadow: var(--shadow);
+    --shadow-lg: var(--shadow-lg);
+}
+
+/* Base Resets */
+*,
+*::before,
+*::after{
+    box-sizing:border-box;
+}
+
+html, body, #__next{
+    height:100%;
+}
+
+html{
+    -webkit-tap-highlight-color: transparent;
+}
+
+body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::selection{
+    background: var(--blue-24);
+    color: var(--text);
+}
+
+img, svg, video, canvas, audio, iframe, embed, object{
+    display:block;
+    max-width:100%;
+}
+
+a{
+    color: var(--blue);
+    text-decoration: none;
+}
+a:hover{
+    text-decoration: underline;
+    text-decoration-color: color-mix(in oklab, var(--blue) 82%, white 0%);
+}
+
+button{
+    background: none;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+input, textarea, select{
+    font: inherit;
+    color: var(--text);
+    background: transparent;
+}
+
+:root{
+    accent-color: var(--blue);
+}
+
+/* Scrollbars (Chromium/Edge/Safari) */
+*{
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+*::-webkit-scrollbar{
+    height: 12px;
+    width: 12px;
+}
+*::-webkit-scrollbar-track{
+    background: var(--scrollbar-track);
+}
+*::-webkit-scrollbar-thumb{
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+    border: 2px solid var(--scrollbar-track);
+}
+
+/* Utilities */
+@utility container-page{
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    width: 100%;
+}
+
+@utility content-2col{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 1.25rem;
+}
+@utility content-2col-xl{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 1.5rem;
+}
+@utility rail-hidden{
+    grid-template-columns: minmax(0,1fr);
+}
+
+@utility card-base{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+@utility section-title{
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--text);
+}
+
+@utility subtle{
+    color: var(--text-3);
+}
+
+@utility kpi{
+    display:flex;
+    flex-direction:column;
+    gap:.25rem;
+    padding: .75rem 1rem;
+    background: var(--muted);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius);
+}
+
+@utility focus-ring{
+    outline: none;
+    box-shadow: var(--ring);
+}
+
+@utility ring-brand{
+    box-shadow: var(--ring);
+}
+
+@utility border-brand-subtle{
+    border-color: color-mix(in oklab, var(--blue) 50%, var(--border) 50%);
+}
+
+@utility hover-scale-sm{
+    transform: translateY(0);
+    transition: transform .16s ease, box-shadow .16s ease, background-color .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease;
+}
+@utility hover-scale-sm-on{
+    transform: translateY(-1px);
+}
+
+@utility btn-base{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:.5rem;
+    padding-inline: 0.9rem;
+    height: 2.25rem;
+    border-radius: var(--radius-full);
+    border:1px solid transparent;
+    font-weight: 600;
+    font-size: .925rem;
+    line-height: 1;
+    letter-spacing:.01em;
+    user-select:none;
+    -webkit-user-select:none;
+    white-space: nowrap;
+    transition: background-color .16s ease, border-color .16s ease, color .16s ease, box-shadow .16s ease, transform .16s ease, opacity .16s ease;
+}
+
+@utility btn-icon{
+    width: 2.25rem;
+    padding-inline: 0;
+}
+
+@utility btn-primary{
+    background: var(--blue);
+    color: #0b1020;
+    border-color: color-mix(in oklab, var(--blue) 70%, #000 0%);
+}
+@utility btn-primary-ghost{
+    background: transparent;
+    color: var(--blue);
+    border-color: var(--blue-24);
+}
+@utility btn-secondary{
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border);
+}
+@utility btn-danger{
+    background: var(--danger);
+    color: #0b0f16;
+    border-color: color-mix(in oklab, var(--danger) 70%, #000 0%);
+}
+
+@utility input-base{
+    width: 100%;
+    background: var(--muted);
+    color: var(--text);
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    height: 2.4rem;
+    padding: .5rem .75rem;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease, color .16s ease;
+}
+@utility input-sm{
+    height: 2rem;
+    padding: .35rem .6rem;
+    border-radius: var(--radius-sm);
+    font-size: .9rem;
+}
+@utility input-lg{
+    height: 2.8rem;
+    padding: .6rem .9rem;
+    border-radius: var(--radius-lg);
+    font-size: 1rem;
+}
+@utility input-focus{
+    border-color: color-mix(in oklab, var(--blue) 54%, var(--border) 46%);
+    box-shadow: var(--ring);
+}
+@utility input-invalid{
+    border-color: var(--danger);
+    box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--danger);
+}
+@utility input-disabled{
+    opacity:.6;
+    cursor:not-allowed;
+}
+
+@utility label-muted{
+    color: var(--text-3);
+    font-size:.85rem;
+}
+
+@utility badge{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.25rem .5rem;
+    border-radius: var(--radius-full);
+    border:1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-weight:600;
+    font-size:.75rem;
+    line-height:1;
+}
+@utility badge-accent{
+    background: var(--purple-12);
+    border-color: color-mix(in oklab, var(--purple) 35%, var(--border) 65%);
+    color: color-mix(in oklab, var(--purple) 85%, white 0%);
+}
+@utility badge-brand{
+    background: var(--blue-12);
+    border-color: color-mix(in oklab, var(--blue) 35%, var(--border) 65%);
+    color: color-mix(in oklab, var(--blue) 85%, white 0%);
+}
+@utility badge-success{
+    background: var(--success-12);
+    border-color: color-mix(in oklab, var(--success) 35%, var(--border) 65%);
+    color: var(--success);
+}
+@utility badge-warning{
+    background: var(--warning-12);
+    border-color: color-mix(in oklab, var(--warning) 35%, var(--border) 65%);
+    color: var(--warning);
+}
+@utility badge-danger{
+    background: var(--danger-12);
+    border-color: color-mix(in oklab, var(--danger) 35%, var(--border) 65%);
+    color: var(--danger);
+}
+
+@utility chip{
+    display:inline-flex;
+    align-items:center;
+    gap:.35rem;
+    padding:.25rem .625rem;
+    border-radius: 9999px;
+    background: var(--muted);
+    border:1px solid var(--border);
+    color: var(--text-2);
+    font-size:.8rem;
+}
+
+@utility tile{
+    background: var(--surface);
+    border:1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background-color .16s ease;
+}
+
+@utility table-wrap{
+    width: 100%;
+    border:1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+}
+@utility table-base{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+@utility th-base{
+    text-align: left;
+    font-weight: 600;
+    font-size:.85rem;
+    color: var(--text-3);
+    background: var(--muted);
+    border-bottom:1px solid var(--border);
+}
+@utility tr-divide{
+    border-bottom:1px solid var(--border);
+}
+@utility td-base{
+    font-size:.95rem;
+    color: var(--text-2);
+}
+
+@utility navlink{
+    display:flex;
+    align-items:center;
+    gap:.6rem;
+    padding:.5rem .625rem;
+    border-radius: 10px;
+    color: var(--text-2);
+    border:1px solid transparent;
+    transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+@utility navlink-active{
+    background: linear-gradient(180deg, var(--blue-12), transparent);
+    color: var(--text);
+    border-color: var(--blue-24);
+}
+
+@utility tab{
+    display:inline-flex;
+    align-items:center;
+    gap:.5rem;
+    height: 2.25rem;
+    padding: 0 .875rem;
+    border-radius: 9999px;
+    border:1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-weight:600;
+    transition: color .16s ease, background-color .16s ease, border-color .16s ease;
+}
+@utility tab-active{
+    background: var(--muted);
+    color: var(--text);
+    border-color: color-mix(in oklab, var(--blue) 35%, var(--border) 65%);
+    box-shadow: inset 0 0 0 1px var(--blue-12);
+}
+
+@utility tooltip{
+    position: absolute;
+    z-index: 50;
+    padding:.35rem .5rem;
+    border-radius: 8px;
+    font-size:.75rem;
+    color: var(--text);
+    background: #0b0f16;
+    border:1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+@utility skeleton{
+    background: linear-gradient(90deg, #0e1522 25%, #121a29 37%, #0e1522 63%);
+    background-size: 400% 100%;
+    animation: skeleton-loading 1.4s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+@utility divider{
+    height:1px;
+    width:100%;
+    background: var(--border);
+}
+
+/* Components (using utilities and pseudo selectors) */
+@layer components{
+    /* App Shell */
+    .app-shell{
+        display:grid;
+        grid-template-columns: 264px minmax(0,1fr);
+        min-height: 100dvh;
+        gap: 0;
+        background: var(--bg);
+    }
+    .app-shell.fullscreen{
+        grid-template-columns: minmax(0,1fr);
+    }
+
+    .app-sidebar{
+        position: sticky;
+        top: 0;
+        align-self: start;
+        height: 100dvh;
+        background: linear-gradient(180deg, var(--surface), var(--muted));
+        border-right: 1px solid var(--border);
+        padding: .875rem;
+    }
+
+    .app-header{
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        height: 60px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:.75rem;
+        padding: .5rem 1rem;
+        background: linear-gradient(180deg, rgba(11,15,22,.75), rgba(11,15,22,.35));
+        backdrop-filter: blur(6px);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .page{
+        display:flex;
+        flex-direction:column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .right-rail{
+        position: sticky;
+        top: 72px;
+        align-self: start;
+        height: calc(100dvh - 84px);
+        overflow: auto;
+    }
+
+    /* Cards */
+    .card{
+        @apply card-base;
+        padding: 1rem;
+    }
+    .card.hoverable{
+        @apply hover-scale-sm;
+    }
+    .card.hoverable:hover{
+        @apply hover-scale-sm-on;
+        box-shadow: var(--shadow);
+        border-color: color-mix(in oklab, var(--blue) 30%, var(--border) 70%);
+    }
+    .card-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:.75rem;
+        padding-bottom:.5rem;
+        margin-bottom:.5rem;
+        border-bottom:1px solid var(--border);
+    }
+    .card-title{
+        @apply section-title;
+        font-size: 1rem;
+    }
+    .card-subtitle{
+        color: var(--text-3);
+        font-size: .85rem;
+    }
+    .card-footer{
+        padding-top:.75rem;
+        margin-top:.75rem;
+        border-top:1px solid var(--border);
+        display:flex;
+        gap:.5rem;
+        justify-content:flex-end;
+    }
+
+    /* Buttons */
+    .btn{
+        @apply btn-base hover-scale-sm;
+    }
+    .btn:hover{
+        @apply hover-scale-sm-on;
+    }
+    .btn:focus-visible{
+        @apply focus-ring;
+    }
+    .btn:disabled{
+        opacity:.6;
+        cursor:not-allowed;
+        transform:none;
+        box-shadow:none;
+    }
+
+    .btn-primary{
+        @apply btn-base btn-primary;
+    }
+    .btn-primary:hover{
+        filter: brightness(1.05);
+    }
+    .btn-primary.ghost{
+        @apply btn-primary-ghost;
+    }
+    .btn-secondary{
+        @apply btn-base btn-secondary;
+    }
+    .btn-secondary:hover{
+        border-color: var(--border-2);
+        background: color-mix(in oklab, var(--surface-2) 80%, white 0%);
+    }
+    .btn-danger{
+        @apply btn-base btn-danger;
+    }
+    .btn-icon{
+        @apply btn-base btn-icon;
+    }
+
+    /* Inputs */
+    .input, .select, .textarea{
+        @apply input-base;
+    }
+    .input-sm{
+        @apply input-base input-sm;
+    }
+    .input-lg{
+        @apply input-base input-lg;
+    }
+    .textarea{
+        min-height: 6.5rem;
+        padding-top:.6rem;
+        padding-bottom:.6rem;
+        resize: vertical;
+    }
+    .input:focus, .select:focus, .textarea:focus{
+        @apply input-focus;
+    }
+    .input:disabled, .textarea:disabled, .select:disabled{
+        @apply input-disabled;
+    }
+    .input::placeholder, .textarea::placeholder{
+        color: var(--text-3);
+    }
+    .field{
+        display:flex;
+        flex-direction:column;
+        gap:.4rem;
+    }
+    .label{
+        @apply label-muted;
+        font-weight:600;
+    }
+    .help-text{
+        color: var(--text-3);
+        font-size: .8rem;
+    }
+    .invalid .input, .invalid .textarea, .invalid .select{
+        @apply input-invalid;
+    }
+
+    /* Checkboxes / Radios */
+    .checkbox, .radio{
+        width: 1.05rem;
+        height: 1.05rem;
+        display:inline-block;
+        vertical-align:middle;
+        border-radius: 6px;
+        border:1px solid var(--border);
+        background: var(--muted);
+        position: relative;
+    }
+    .radio{
+        border-radius: 9999px;
+    }
+
+    /* Tables */
+    .table-wrap{
+        @apply table-wrap;
+    }
+    .table{
+        @apply table-base;
+    }
+    .table thead th{
+        @apply th-base;
+        padding:.6rem .75rem;
+    }
+    .table tbody tr{
+        @apply tr-divide;
+    }
+    .table tbody tr:hover{
+        background: #0f1728;
+    }
+    .table tbody td{
+        @apply td-base;
+        padding:.7rem .75rem;
+    }
+
+    /* Navigation links */
+    .navlink{
+        @apply navlink;
+    }
+    .navlink:hover{
+        background: var(--muted);
+        color: var(--text);
+        border-color: var(--border);
+        text-decoration: none;
+    }
+    .navlink.active{
+        @apply navlink-active;
+    }
+
+    /* Tabs */
+    .tab{
+        @apply tab;
+    }
+    .tab:hover{
+        border-color: var(--border-2);
+        color: var(--text);
+    }
+    .tab.active{
+        @apply tab-active;
+    }
+
+    /* Tiles (Messages grid) */
+    .tile{
+        @apply tile;
+    }
+    .tile:hover{
+        border-color: var(--border-2);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+    }
+    .tile .tile-header{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        padding:.75rem .75rem .5rem .75rem;
+        border-bottom:1px solid var(--border);
+    }
+    .tile .tile-body{
+        padding:.75rem;
+        color: var(--text-2);
+        font-size:.95rem;
+    }
+    .tile .tile-meta{
+        padding:.5rem .75rem .75rem .75rem;
+        color: var(--text-3);
+        font-size:.8rem;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+    }
+
+    /* Badges / Chips */
+    .badge{ @apply badge; }
+    .badge.accent{ @apply badge-accent; }
+    .badge.brand{ @apply badge-brand; }
+    .badge.success{ @apply badge-success; }
+    .badge.warning{ @apply badge-warning; }
+    .badge.danger{ @apply badge-danger; }
+    .chip{ @apply chip; }
+
+    /* KPI */
+    .kpi{ @apply kpi; }
+    .kpi .kpi-label{ color: var(--text-3); font-size:.8rem; font-weight:600;}
+    .kpi .kpi-value{ font-size:1.25rem; font-weight:700; color: var(--text); }
+    .kpi .kpi-delta{ font-size:.85rem; font-weight:600; }
+
+    /* Tooltip */
+    .tooltip{ @apply tooltip; }
+
+    /* Dividers */
+    .divider{ @apply divider; }
+
+    /* Prose (typography plugin, dark tune) */
+    .prose{
+        --tw-prose-body: var(--text-2);
+        --tw-prose-headings: var(--text);
+        --tw-prose-links: var(--blue);
+        --tw-prose-bold: var(--text);
+        --tw-prose-quotes: var(--text-2);
+        --tw-prose-code: var(--text);
+        --tw-prose-th-borders: var(--border);
+        --tw-prose-td-borders: var(--border);
+        color: var(--text-2);
+        max-width: 75ch;
+    }
+}
+
+/* Page-specific helpful classes */
+.page--Dashboard .kpi-grid{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: .75rem;
+}
+@media (max-width: 1200px){
+    .page--Dashboard .kpi-grid{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+}
+@media (max-width: 640px){
+    .page--Dashboard .kpi-grid{
+        grid-template-columns: minmax(0,1fr);
+    }
+}
+
+.page--MessageCategory .grid,
+.page--Messages .grid{
+    display:grid;
+    grid-template-columns: repeat(4, minmax(0,1fr));
+    gap: .75rem;
+}
+@media (max-width: 1280px){
+    .page--MessageCategory .grid,
+    .page--Messages .grid{
+        grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+}
+@media (max-width: 900px){
+    .page--MessageCategory .grid,
+    .page--Messages .grid{
+        grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+}
+@media (max-width: 560px){
+    .page--MessageCategory .grid,
+    .page--Messages .grid{
+        grid-template-columns: minmax(0,1fr);
+    }
+}
+
+/* States and accents */
+.status{
+    @apply badge;
+}
+.status.info{
+    @apply badge-accent;
+}
+.status.success{
+    @apply badge-success;
+}
+.status.warning{
+    @apply badge-warning;
+}
+.status.danger{
+    @apply badge-danger;
+}
+
+/* Animations */
+@keyframes skeleton-loading{
+    0%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+}
+@keyframes spin{
+    to { transform: rotate(360deg); }
+}
+
+.spinner{
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid var(--border);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+}
+
+/* Link styles (brand reserved for interactive) */
+.link{
+    color: var(--blue);
+    text-underline-offset: 3px;
+    text-decoration: none;
+    transition: color .16s ease, text-decoration-color .16s ease;
+}
+.link:hover{
+    text-decoration: underline;
+}
+
+/* Thin brand border highlight (non-CTA) */
+.highlight{
+    border:1px solid var(--blue-24);
+    border-radius: var(--radius);
+}
+
+/* Modal base */
+.modal{
+    position: fixed;
+    inset: 0;
+    display:grid;
+    place-items:center;
+    padding: 1rem;
+    background: rgb(10 14 22 / .6);
+    backdrop-filter: blur(2px);
+    z-index: 50;
+}
+.modal .modal-card{
+    @apply card-base;
+    width: 100%;
+    max-width: 540px;
+    box-shadow: var(--shadow-lg);
+    padding: 1rem;
+}
+
+/* Alerts (non-interactive info uses secondary color) */
+.alert{
+    display:flex;
+    gap:.75rem;
+    align-items:flex-start;
+    padding: .75rem .875rem;
+    border-radius: var(--radius);
+    border:1px solid var(--border);
+    background: var(--surface);
+}
+.alert.info{
+    background: var(--purple-12);
+    border-color: color-mix(in oklab, var(--purple) 32%, var(--border) 68%);
+}
+.alert.success{
+    background: var(--success-12);
+    border-color: color-mix(in oklab, var(--success) 32%, var(--border) 68%);
+}
+.alert.warning{
+    background: var(--warning-12);
+    border-color: color-mix(in oklab, var(--warning) 32%, var(--border) 68%);
+}
+.alert.danger{
+    background: var(--danger-12);
+    border-color: color-mix(in oklab, var(--danger) 32%, var(--border) 68%);
+}
+
+/* Steps (Create Agent wizard) */
+.steps{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+}
+.step{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    padding:.35rem .6rem;
+    border-radius: 9999px;
+    border:1px solid var(--border);
+    background: var(--muted);
+    color: var(--text-3);
+    font-weight:700;
+    font-size:.8rem;
+}
+.step.active{
+    color: var(--text);
+    border-color: var(--blue-24);
+    box-shadow: inset 0 0 0 1px var(--blue-12);
+}
+
+/* Decision log row */
+.decision{
+    display:grid;
+    grid-template-columns: 160px 1fr;
+    gap:.75rem;
+    padding:.75rem;
+    border-radius: 10px;
+    border:1px solid var(--border);
+    background: var(--surface);
+}
+.decision .meta{
+    color: var(--text-3);
+    font-size:.85rem;
+}
+.decision .reason{
+    color: var(--text-2);
+    font-size:.95rem;
+}
+
+/* Attribution legend */
+.legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.5rem .75rem;
+}
+.legend .item{
+    display:flex;
+    align-items:center;
+    gap:.5rem;
+    color: var(--text-2);
+    font-size:.85rem;
+}
+.legend .swatch{
+    width: .85rem;
+    height: .85rem;
+    border-radius: 3px;
+    border:1px solid var(--border);
+}
+
+/* Channel chips */
+.channel{
+    @apply chip;
+}
+.channel.email{
+    border-color: color-mix(in oklab, var(--blue) 25%, var(--border) 75%);
+    background: var(--blue-12);
+    color: var(--blue);
+}
+.channel.sms{
+    border-color: var(--border);
+}
+.channel.push{
+    border-color: var(--border-2);
+}
+
+/* Message previews */
+.preview-email{
+    background: #0f1523;
+    border:1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+.preview-sms{
+    background: #0e1522;
+    border:1px solid var(--border);
+    border-radius: 14px;
+    padding: .75rem;
+}
+.preview-push{
+    background: #0c1220;
+    border:1px solid var(--border);
+    border-radius: 12px;
+    padding: .75rem;
+}
+</tailwind-theme>
+
+> appendUser
+Generate a guide showing how to use the `tailwind-theme`. Include examples using it in HTML
+    fenced code blocks.
+
+> nop
+//_END_MAKE_TARGET_INPUT_
+
+
+@time 2025-11-06T17:41:20-05:00
+@tokenUsage 16510 / 7784 / $0.030367500000000006
+@model gpt-5-2025-08-07
+> assistant
+# Decisioning Demo Style Guide
+
+A practical guide for using the Tailwind v4-based theme and utilities included in tailwind-theme. This covers layout, components, state patterns, and best practices for brand usage across the app.
+
+## Basics and Setup
+
+- Tailwind version: v4 (utility-first; no App Router; pages dir only)
+- Use component classes and utilities defined by the theme before adding one-off Tailwind utilities
+- Brand color is reserved for interactive elements; secondary color is for non-interactive emphasis
+- Pill-shaped buttons; rounded corners; neutral surfaces and borders for the dark palette
+
+Top of globals.css must begin with:
+```css
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Public+Sans:wght@300..800&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+```
+
+Theme and utilities are defined in tailwind-theme. Do not edit pseudo selectors in @utility; use @layer components for pseudo selectors as already implemented.
+
+## Design Tokens and Color Usage
+
+- Use prebuilt classes like btn-primary, badge.brand, link, highlight for branded accents
+- For non-interactive emphasis (info), use secondary color via alert.info, badge.accent, or prose links
+- Subtle brand emphasis: highlight (thin brand border) and border-brand-subtle
+
+Dos
+- Use brand color for CTAs: buttons, links, clickable icons
+- Use secondary for non-clickable highlights and informational emphasis
+- Prefer card, tile, and neutral surfaces for layout structure
+
+Don’ts
+- Don’t use brand color for large backgrounds
+- Don’t apply brand color to non-interactive blocks unless highlighting with thin border
+
+## Page and Layout Conventions
+
+- Root element className must follow: page--{PageComponentName}
+- Default centered layout is handled by MainLayout; pages should not import it directly
+- Use content-2col to render a two-column layout with a right rail
+- Add rail-hidden to collapse to one column
+
+Example: Page root and 2-column layout
+```html
+<div class="page--Dashboard">
+    <header class="app-header">
+        <div class="flex items-center gap-2">
+            <!-- <Logo/> -->
+            <span class="font-bold">Decisioning Demo</span>
+        </div>
+        <button class="btn btn-secondary btn-icon" aria-label="Profile">
+            <!-- avatar or icon -->
+        </button>
+    </header>
+
+    <main class="container-page space-y-4">
+        <section class="content-2col">
+            <!-- Primary column -->
+            <div class="space-y-3">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Overview</div>
+                        <div class="card-subtitle">Summary of performance and trends</div>
+                    </div>
+                    <div class="text-[var(--text-2)]">Welcome back!</div>
+                </div>
+            </div>
+
+            <!-- Right rail -->
+            <aside class="right-rail space-y-3">
+                <div class="card">
+                    <div class="card-title">Quick Actions</div>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button class="btn btn-primary">New Agent</button>
+                        <button class="btn btn-secondary">Import Profiles</button>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+</div>
+```
+
+Collapse right rail
+```html
+<section class="content-2col rail-hidden">
+    <div>Full-width primary content</div>
+</section>
+```
+
+## App Shell and Navigation
+
+- Use app-shell to split sidebar and content columns
+- Use navlink and navlink.active for routing links
+
+```html
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <nav class="flex flex-col gap-1">
+            <a class="navlink active" href="/dashboard">Dashboard</a>
+            <a class="navlink" href="/profiles">Profiles</a>
+            <a class="navlink" href="/segments">Segments</a>
+            <a class="navlink" href="/messages">Messages</a>
+            <a class="navlink" href="/decisioning">Decisioning</a>
+            <a class="navlink" href="/account">Settings</a>
+        </nav>
+    </aside>
+
+    <div>
+        <header class="app-header">
+            <a class="flex items-center gap-2 no-underline" href="/dashboard">
+                <!-- <Logo/> -->
+                <span class="font-bold">Decisioning Demo</span>
+            </a>
+            <a class="btn btn-secondary btn-icon" href="/profile" aria-label="Profile">
+                <!-- icon/avatar -->
+            </a>
+        </header>
+
+        <main class="page container-page space-y-4">
+            <!-- page content -->
+        </main>
+    </div>
+</div>
+```
+
+Fullscreen pages should hide the sidebar (handled by the app). The app-shell.fullscreen class is applied by MainLayout when useFullPage is active.
+
+## Cards, Tiles, and Sections
+
+- card, card-header, card-title, card-subtitle, card-footer build elevated sections
+- tile variants are used in grid contexts (messages, categories)
+
+```html
+<div class="card">
+    <div class="card-header">
+        <div class="flex flex-col">
+            <div class="card-title">Recent Activity</div>
+            <div class="card-subtitle">Latest events from your tenant</div>
+        </div>
+        <button class="btn btn-secondary">View all</button>
+    </div>
+
+    <div class="space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-[var(--text-2)]">Purchase</span>
+            <span class="badge success">Success</span>
+        </div>
+        <div class="divider"></div>
+        <div class="flex items-center justify-between">
+            <span class="text-[var(--text-2)]">Unsubscribe</span>
+            <span class="badge danger">Alert</span>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <button class="btn btn-primary">Primary CTA</button>
+        <button class="btn btn-secondary">Secondary</button>
+    </div>
+</div>
+```
+
+Tile for message thumbnails
+```html
+<div class="tile">
+    <div class="tile-header">
+        <div class="font-semibold">Spring Promo</div>
+        <button class="btn btn-secondary btn-icon" aria-label="More">
+            <!-- ellipsis icon -->
+        </button>
+    </div>
+    <div class="tile-body">Email, SMS, Push</div>
+    <div class="tile-meta">
+        <span class="subtle">Created 2025-03-24</span>
+        <span class="badge brand">12 variants</span>
+    </div>
+</div>
+```
+
+## Buttons and Links
+
+- btn, btn-primary, btn-secondary, btn-danger
+- btn-primary.ghost for non-filled brand buttons
+- btn-icon for square icon buttons
+- link for inline clickable text; highlight for non-CTA brand outline
+
+```html
+<div class="flex items-center gap-2">
+    <button class="btn btn-primary">Save</button>
+    <button class="btn btn-primary ghost">Outline</button>
+    <button class="btn btn-secondary">Cancel</button>
+    <button class="btn btn-danger">Delete</button>
+    <button class="btn btn-icon" aria-label="Refresh">
+        <!-- icon -->
+    </button>
+    <a class="link" href="#learn">Learn more</a>
+</div>
+
+<div class="mt-3 p-3 highlight rounded-[var(--radius)]">
+    Subtle brand-highlighted container (non-CTA)
+</div>
+```
+
+## Forms and Inputs
+
+- Compose fields with field, label, input/select/textarea, help-text
+- Use .invalid on a wrapper to display error styles
+
+```html
+<form class="grid gap-3 max-w-xl">
+    <div class="field">
+        <label class="label">Name</label>
+        <input class="input" placeholder="Enter name"/>
+    </div>
+
+    <div class="field">
+        <label class="label">Email</label>
+        <input class="input" placeholder="name@example.com" type="email"/>
+        <div class="help-text">We’ll never share your email.</div>
+    </div>
+
+    <div class="field invalid">
+        <label class="label">Phone</label>
+        <input class="input" placeholder="+1 (555) 555-1234"/>
+        <div class="help-text">Please provide a valid phone number.</div>
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary">Cancel</button>
+    </div>
+</form>
+```
+
+Checkboxes and radios are styled by base classes. Pair them with labels:
+```html
+<label class="flex items-center gap-2">
+    <input type="checkbox" class="checkbox"/>
+    <span class="text-[var(--text-2)]">Subscribe to SMS</span>
+</label>
+```
+
+## Tabs
+
+- Use tab for base, tab active for selected tab
+
+```html
+<div class="flex items-center gap-2">
+    <button class="tab active">Email</button>
+    <button class="tab">SMS</button>
+    <button class="tab">Push</button>
+</div>
+```
+
+## Tables
+
+- Wrap with table-wrap and use table for the table element
+
+```html
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date added</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="td-base">Jane Doe</td>
+            <td class="td-base">jane@example.com</td>
+            <td class="td-base">2025-04-02</td>
+        </tr>
+        <tr>
+            <td class="td-base">John Smith</td>
+            <td class="td-base">john@example.com</td>
+            <td class="td-base">2025-04-05</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+```
+
+## Badges, Chips, Status
+
+- badge with variants: accent, brand, success, warning, danger
+- chip for compact labels
+- status mirrors badge variants
+
+```html
+<div class="flex flex-wrap gap-2">
+    <span class="badge">Default</span>
+    <span class="badge accent">Info</span>
+    <span class="badge brand">Brand</span>
+    <span class="badge success">Success</span>
+    <span class="badge warning">Warning</span>
+    <span class="badge danger">Danger</span>
+    <span class="chip">Segment: VIP</span>
+    <span class="status success">Active</span>
+</div>
+```
+
+## Alerts
+
+- Non-interactive informative emphasis; secondary color is appropriate for info
+
+```html
+<div class="alert info">
+    <div class="font-semibold">Heads up</div>
+    <div class="text-[var(--text-2)]">Messages are imported from GardenIQ. Authoring is disabled.</div>
+</div>
+```
+
+## KPI Blocks
+
+```html
+<div class="grid grid-cols-4 gap-3 kpi-grid">
+    <div class="kpi">
+        <div class="kpi-label">Total Orders</div>
+        <div class="kpi-value">4,218</div>
+        <div class="kpi-delta text-[var(--success)]">+8.3%</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">AOV</div>
+        <div class="kpi-value">$86.40</div>
+        <div class="kpi-delta text-[var(--text-3)]">–</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">LTV</div>
+        <div class="kpi-value">$472.10</div>
+        <div class="kpi-delta text-[var(--success)]">+3.2%</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">Attribution ROI</div>
+        <div class="kpi-value">3.7x</div>
+        <div class="kpi-delta text-[var(--success)]">+0.2</div>
+    </div>
+</div>
+```
+
+## Steps (Create Agent Wizard)
+
+```html
+<div class="steps">
+    <div class="step active">1. Basics</div>
+    <div class="step">2. Schedule</div>
+    <div class="step">3. Outcomes</div>
+</div>
+```
+
+## Decision Log
+
+```html
+<div class="space-y-2">
+    <div class="decision">
+        <div class="meta">
+            <div>2025-04-05 10:12</div>
+            <div>Profile: jane@example.com</div>
+        </div>
+        <div>
+            <div class="flex flex-wrap gap-2">
+                <span class="badge brand">Message: Spring Promo</span>
+                <span class="channel email">Email</span>
+                <span class="chip">Send: Afternoon</span>
+            </div>
+            <div class="reason mt-2">
+                Selected email for past email engagement; afternoon aligns with user open-time history.
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+## Analytics Legend
+
+```html
+<div class="legend">
+    <div class="item">
+        <span class="swatch" style="background: var(--chart-1)"></span>
+        Page views
+    </div>
+    <div class="item">
+        <span class="swatch" style="background: var(--chart-2)"></span>
+        Sessions
+    </div>
+    <div class="item">
+        <span class="swatch" style="background: var(--chart-3)"></span>
+        Form submits
+    </div>
+</div>
+```
+
+## Channels
+
+```html
+<div class="flex gap-2">
+    <span class="channel email">Email</span>
+    <span class="channel sms">SMS</span>
+    <span class="channel push">Push</span>
+</div>
+```
+
+## Message Previews
+
+```html
+<div class="space-y-3">
+    <div class="preview-email">
+        <div class="p-4 border-b border-[var(--border)] font-semibold">Brand Header</div>
+        <div class="p-4 text-[var(--text-2)]">Email content preview...</div>
+    </div>
+    <div class="preview-sms">
+        <div class="text-[var(--text-2)]">[Brand] Your code is 123456.</div>
+    </div>
+    <div class="preview-push">
+        <div class="font-semibold">Limited-time offer</div>
+        <div class="text-[var(--text-3)]">Tap to view details</div>
+    </div>
+</div>
+```
+
+## Modals
+
+```html
+<div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+        <div class="card-header">
+            <div class="card-title">Rename Category</div>
+        </div>
+        <div class="space-y-3">
+            <div class="field">
+                <label class="label">New name</label>
+                <input class="input" placeholder="Enter category name"/>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</div>
+```
+
+## Prose (Markdown/Docs)
+
+```html
+<article class="prose">
+    <h1>Attribution</h1>
+    <p>Analyze ROI by message or agent with user-selectable comparisons.</p>
+    <ul>
+        <li>Revenue</li>
+        <li>Orders</li>
+        <li>AOV</li>
+    </ul>
+    <p>Learn more in the <a href="#">documentation</a>.</p>
+</article>
+```
+
+## Dashboard KPI Grid (Page Rule)
+
+The theme provides a page-specific helper for the Dashboard KPI layout via .page--Dashboard .kpi-grid.
+
+```html
+<div class="page--Dashboard">
+    <main class="container-page">
+        <section class="kpi-grid">
+            <div class="kpi">
+                <div class="kpi-label">Sends</div>
+                <div class="kpi-value">186k</div>
+                <div class="kpi-delta text-[var(--success)]">+5.4%</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Opens</div>
+                <div class="kpi-value">42k</div>
+                <div class="kpi-delta text-[var(--success)]">+2.1%</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Clicks</div>
+                <div class="kpi-value">12.1k</div>
+                <div class="kpi-delta text-[var(--success)]">+0.8%</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Bounces</div>
+                <div class="kpi-value">1,042</div>
+                <div class="kpi-delta text-[var(--danger)]">+0.3%</div>
+            </div>
+        </section>
+    </main>
+</div>
+```
+
+## Messages and Categories Grid
+
+- Use .page--Messages .grid or .page--MessageCategory .grid for responsive tiles
+
+```html
+<div class="page--Messages">
+    <main class="container-page">
+        <div class="grid">
+            <a class="tile no-underline" href="/message-category?id=welcome">
+                <div class="tile-header">
+                    <div class="font-semibold">Welcome Series</div>
+                    <span class="badge brand">8</span>
+                </div>
+                <div class="tile-body">Automations</div>
+                <div class="tile-meta">
+                    <span class="subtle">Updated 2025-04-04</span>
+                    <span class="chip">Email + SMS</span>
+                </div>
+            </a>
+            <a class="tile no-underline" href="/message-category?id=promo">
+                <div class="tile-header">
+                    <div class="font-semibold">Promotions</div>
+                    <span class="badge brand">24</span>
+                </div>
+                <div class="tile-body">Campaign Library</div>
+                <div class="tile-meta">
+                    <span class="subtle">Updated 2025-03-29</span>
+                    <span class="chip">All channels</span>
+                </div>
+            </a>
+        </div>
+    </main>
+</div>
+```
+
+## Accessibility Considerations
+
+- Buttons, inputs, and interactive elements have a consistent focus ring (focus-ring)
+- Ensure aria-labels on icon-only buttons (btn-icon)
+- Maintain sufficient color contrast; avoid using brand color on large text backgrounds
+
+```html
+<button class="btn btn-icon" aria-label="Open menu">
+    <!-- icon -->
+</button>
+<input class="input focus-ring" placeholder="Search"/>
+```
+
+## Utilities at a Glance
+
+Layout
+- container-page for max width and horizontal padding
+- content-2col and rail-hidden to toggle two-column layouts
+- right-rail for sticky side content
+- divider for horizontal rules
+
+State/Emphasis
+- focus-ring and ring-brand for focus and emphasis rings
+- border-brand-subtle for thin brand border
+- skeleton for loading shimmer
+
+Navigation/Chips/Badges
+- navlink and navlink active for sidebar items
+- chip for compact labels and channel, badge.* for status
+
+Tables
+- table-wrap, table, th/td row styles baked into components
+
+Tabs
+- tab and tab active for tabbed UIs
+
+Modals
+- modal and modal-card for overlays
+
+Steps
+- steps, step, step active for the Create Agent workflow
+
+Decision Log
+- decision, with .meta and .reason blocks
+
+Legend
+- legend, item, swatch for analytics
+
+## Page Root Naming
+
+- Always include the page root class name using page--{ComponentName}
+- Examples: page--Dashboard, page--Profiles, page--Segments, page--Messages, page--Decisioning, page--Account
+
+```html
+<div class="page--Profiles">
+    <main class="container-page space-y-4">
+        <header class="flex items-center justify-between">
+            <h1 class="section-title text-xl">Profiles</h1>
+            <div class="flex gap-2">
+                <button class="btn btn-secondary">Export</button>
+                <button class="btn btn-primary">Import CSV</button>
+            </div>
+        </header>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Full name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Device ID</th>
+                        <th>Date added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-base">Avery Chen</td>
+                        <td class="td-base">avery@example.com</td>
+                        <td class="td-base">+1 (555) 555-1000</td>
+                        <td class="td-base">device-xyz</td>
+                        <td class="td-base">2025-04-05</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+```
+
+## Brand and Secondary Use Examples
+
+Interactive brand (buttons, links)
+```html
+<a class="link" href="/decisioning">Go to Decisioning</a>
+<button class="btn btn-primary">Activate Agent</button>
+```
+
+Non-interactive secondary (info emphasis)
+```html
+<div class="alert info">
+    <div class="font-semibold">Note</div>
+    <div class="text-[var(--text-2)]">Agents learn from outcomes; configure rankings for best results.</div>
+</div>
+```
+
+Subtle brand outline (non-CTA)
+```html
+<div class="p-3 highlight">
+    This section is highlighted with a thin brand border.
+</div>
+```
+
+## Performance and Responsiveness
+
+- Cards and tiles include hover and elevation transitions
+- The dashboard KPI grid adapts from 4 to 2 to 1 columns at breakpoints
+- Message grids adapt using page-level grid helpers
+
+```html
+<div class="page--MessageCategory">
+    <main class="container-page">
+        <div class="grid">
+            <!-- responsive tiles go here -->
+        </div>
+    </main>
+</div>
+```
+
+## Common Patterns per Screen
+
+Create Agent (3-step)
+```html
+<div class="page--CreateAgent container-page space-y-4">
+    <header class="flex items-center justify-between">
+        <div class="steps">
+            <div class="step active">1. Basics</div>
+            <div class="step">2. Schedule</div>
+            <div class="step">3. Outcomes</div>
+        </div>
+        <button class="btn btn-secondary">Cancel</button>
+    </header>
+
+    <section class="card">
+        <div class="card-title">Step 1: Basics</div>
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+            <div class="field">
+                <label class="label">Agent name</label>
+                <input class="input" placeholder="e.g., Promo Optimizer"/>
+            </div>
+            <div class="field">
+                <label class="label">Segment</label>
+                <select class="select">
+                    <option>All Subscribers</option>
+                </select>
+            </div>
+            <div class="field">
+                <label class="label">Holdout %</label>
+                <input class="input" placeholder="e.g., 10"/>
+            </div>
+            <div class="field">
+                <label class="label">Message Category</label>
+                <select class="select">
+                    <option>Promotions</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-secondary">Back</button>
+            <button class="btn btn-primary">Continue</button>
+        </div>
+    </section>
+</div>
+```
+
+Agent Detail (Decision Log)
+```html
+<div class="page--AgentDetail container-page space-y-3">
+    <h1 class="section-title text-xl">Agent: Promo Optimizer</h1>
+
+    <div class="decision">
+        <div class="meta">
+            <div>2025-04-05 09:30</div>
+            <div>Profile: avery@example.com</div>
+        </div>
+        <div>
+            <div class="flex flex-wrap gap-2">
+                <span class="badge brand">Spring Promo</span>
+                <span class="channel sms">SMS</span>
+                <span class="chip">Send: Morning</span>
+            </div>
+            <div class="reason mt-2">SMS chosen for recent SMS click behavior; morning window historically best.</div>
+        </div>
+    </div>
+</div>
+```
+
+Segments
+```html
+<div class="page--Segments container-page space-y-4">
+    <header class="flex items-center justify-between">
+        <h1 class="section-title text-xl">Segments</h1>
+        <button class="btn btn-primary">Create Segment</button>
+    </header>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Profiles</th>
+                    <th>Growth 30d</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-base">High Intent</td>
+                    <td class="td-base">12,341</td>
+                    <td class="td-base text-[var(--success)]">+4.2%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+```
+
+Messages and Message Detail tabs
+```html
+<div class="page--MessageDetail container-page space-y-3">
+    <div class="flex items-center gap-2">
+        <button class="tab active">Email</button>
+        <button class="tab">SMS</button>
+        <button class="tab">Push</button>
+    </div>
+    <div class="preview-email">
+        <div class="p-4 border-b border-[var(--border)] font-semibold">Brand Header</div>
+        <div class="p-4">Email preview content here</div>
+    </div>
+</div>
+```
+
+## Practical Tips
+
+- Prefer component classes (btn, card, tile, table, etc.) and theme utilities (container-page, content-2col) before composing many ad-hoc Tailwind classes
+- For custom emphasis that isn’t a CTA, use highlight or border-brand-subtle instead of a filled brand background
+- Use alert.info for informative notices where secondary color is appropriate
+- Use focus-ring for custom focusable elements to maintain consistent accessibility affordances
+
+If you must reference tokens directly in utilities, use CSS variable syntax for color values:
+```html
+<div class="p-3 rounded-[var(--radius)] border" style="border-color: var(--color-border)">
+    <p class="text-[var(--color-text-2)]">Direct token usage example.</p>
+</div>
+```
+
+This guide should cover most layout and component needs for the app screens:
+- Dashboard, Profiles, Segments, Messages, Decisioning, Account/Settings
+- Message categories and details
+- Agent creation, detail logs, analytics views
+- Invite, Register, Sign-in flows using the same input/button patterns
+
+Adhere to the brand usage rules and rely on the provided theme utilities for a consistent, modern, dark UI.
+
+
+
+> user

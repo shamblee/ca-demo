@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Logo",
+        "description": "An SVG logo component with a default size of 1rem.",
+        "propsInterface": "export interface LogoProps {\n    color?: string;\n    className?: string;\n    size?: string | number;\n}",
+        "import": "import { Logo } from \"@/components/Logo\""
+    },
+    {
+        "name": "SignInRequired",
+        "description": "A card shown when a user lacks access to a screen, with links to sign-in or register.",
+        "propsInterface": "export interface SignInRequiredProps {\n    /**\n     * A message to display to the user\n     */\n    message?: string;\n    className?: string;\n}",
+        "import": "import { SignInRequired } from \"@/components/SignInRequired\""
+    }
+]

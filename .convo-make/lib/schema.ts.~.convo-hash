@@ -1,0 +1,5 @@
+[in]
+?hash-props:[{"shell":"npx pg-schema-gen --sql-file {CONVO#MAKE#TARGET#SHELL#INPUT/([[[[[[[[[[***(((in.0)))***]]]]]]]]]])} --out lib/schema"}]
+supabase/schemas/db-schema.sql:wDlekpoNHMCt8tv2pvqOoGMy7_qqFpZ4GAiCo1IXdFw
+[out]
+lib/schema.ts:Q8Bp-hMgqsOgJ5Sel0lwNps6LTDsWR5SFdBIJYZQCN8

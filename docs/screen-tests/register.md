@@ -1,0 +1,18 @@
+- Navigate to /register and confirm a full-screen single-card layout without main navigation.
+- Verify labeled inputs exist for Name, Email, Organization name, and Password with helper text under Organization name.
+- Tab through fields to confirm logical order and visible focus rings.
+- Enter an invalid email and blur to see an inline email format error.
+- Attempt submit with required fields empty to see required field errors.
+- Enter a short password (e.g., 5 chars) and see a password length error.
+- Toggle password visibility on and off and confirm the state changes.
+- Fix each invalid field and confirm aria-invalid clears and errors disappear.
+- With all fields valid, click Register and see the button enter disabled/loading state.
+- While loading, try clicking Register again and confirm no duplicate submission occurs.
+- On success, verify you either see a “check your email” confirmation or you are signed in and redirected.
+- If signed in after success, confirm an account exists with the provided Organization name.
+- Trigger a failure by reusing an existing email and confirm an error summary appears in an aria-live region.
+- Correct the email and resubmit successfully.
+- When already signed in, visit /register and confirm the informational “already registered” card replaces the form.
+- From the “already registered” card, click the Profile link and confirm navigation to /profile.
+- From the form view, click the Sign-in link and confirm navigation to /sign-in.
+- Verify the primary Register button uses the brand color with pill-shaped styling on a dark-themed card.

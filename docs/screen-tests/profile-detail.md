@@ -1,0 +1,25 @@
+- Sign in as a standard user and open /profile-detail.
+- Confirm two-column layout: primary content left, KPIs and summaries in right rail.
+- Verify contact info shows first/last, email, phone, device ID, and full address fields.
+- Edit first and last name, save, reload, and confirm persistence.
+- Edit email and phone, save, and confirm validation and persistence.
+- Edit street, city, state/region, postal/ZIP, country, save, and confirm display.
+- Edit job title, department, and company, save, and confirm display.
+- View profile id, device id, and external id; copy each and confirm clipboard contents.
+- Review marketing attributes as key–value pairs.
+- Toggle raw attributes JSON view and confirm it is read-only.
+- Check channel subscriptions show Email, SMS, Push with current statuses.
+- Change a channel to subscribe/unsubscribe and confirm status updates (bounced is not editable).
+- Review segment memberships with counts and deep links.
+- Add the profile to a static segment, then remove it; confirm dynamic segments are not editable.
+- Click a segment to open its segment-detail page.
+- Run Enrich Profile and confirm new attributes or segment memberships may appear.
+- Export the profile as CSV and JSON and confirm downloaded fields are correct.
+- In the event timeline, filter by event type, channel, and date range; then clear filters.
+- Sort events by newest and oldest and confirm order changes.
+- Search events by keyword (URL or product ID) and see matching results.
+- Paginate the event timeline to next and previous pages.
+- From a message_open or message_click event, open the related message-detail.
+- From an event with agent linkage, open the related agent-detail.
+- Download filtered event history as CSV and confirm rows match current filters.
+- Switch to a guest role and confirm edit, enrich, export, and subscription controls are disabled.

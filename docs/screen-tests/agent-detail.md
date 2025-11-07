@@ -1,0 +1,18 @@
+- Header shows agent name and Active/Inactive badge; toggle Activate/Deactivate updates status/banner.
+- Metadata shows segment, holdout %, and message category; links open segment-detail and message-category.
+- Click Refresh; decision list reloads without clearing current filters/sort.
+- Date range filter narrows the decision list to the selected dates.
+- Channel filter (Email/SMS/Push) shows only matching channels.
+- Status filter (Sent/Skipped/Failed/Holdout) shows only matching rows.
+- Search by email/phone/device ID or message name returns the expected rows.
+- Sort by Oldest/Newest changes the ordering of decisions.
+- Each decision row shows timestamp (and scheduled time when present) and profile reference; “View Profile” opens profile-detail.
+- Rows show selected message and variant (or “None — Holdout”); “View Message” opens message-detail when applicable.
+- Rows show selected channel; failed sends display danger styling with an error tooltip/message.
+- Expand/collapse reasoning to reveal and hide the full reasoning text.
+- Holdout rows display a dedicated badge and non-send styling.
+- Use “Copy IDs” quick action and verify decision/message/profile IDs are copied (paste to confirm).
+- Scroll to the bottom to load more; additional decisions appear (pagination/infinite scroll).
+- Right rail Agent summary lists frequency, allowed days, and time windows; Outcomes mapping shows Worst→Best legend; GardenIQ info note is visible.
+- Toggle quick filters (Errors only, Holdout only, Sends only) and confirm they apply and can be combined with toolbar filters.
+- Export CSV downloads the current filtered decision log.

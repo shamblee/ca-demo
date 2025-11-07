@@ -1,0 +1,20 @@
+- Ensure you are signed out and open /sign-in; verify the main navigation is hidden and a centered sign-in card is shown.
+- Confirm the Logo and short intro text appear at the top of the card.
+- Verify labeled inputs for Email and Password are visible and empty.
+- Toggle the password show/hide control and confirm the input switches between masked and plain text.
+- Click Sign in with both fields empty; see inline validation messages under each field.
+- Enter an invalid email format and any password; submit and see an inline email format error.
+- Correct the email; confirm the email error clears.
+- Clear the password and submit; see an inline password-required error.
+- Type valid-looking credentials and press Enter; confirm the form submits from keyboard.
+- During submission, confirm the Sign in button shows a loading state and cannot be clicked twice.
+- Submit with known bad credentials; verify a non-field error alert appears (e.g., “Invalid credentials”).
+- Click the “Register” link and verify navigation to /register, then return to /sign-in.
+- Test redirect to last attempted route: while signed out, visit /profiles, get redirected to /sign-in, sign in successfully, and land on /profiles.
+- Test default post-sign-in: navigate directly to /sign-in, sign in successfully, and land on the default signed-in page (Dashboard).
+- Test invite flow banner: while signed out, open /accept-account-invite/TESTCODE and follow the prompt to sign in; on /sign-in, verify an info alert indicates an invite is in progress.
+- Complete sign-in from the invite flow and confirm you are taken back to Accept Account Invite with the same code to finish.
+- Visit /sign-in while already signed in; confirm the form is replaced by an info card stating you are signed in.
+- From the already-signed-in card, click the Profile link and verify navigation to /profile.
+- Check that the primary CTA and links use the brand color and non-interactive info alert uses secondary styling.
+- Use Tab to navigate fields and controls; verify logical order (Email → Password → Show/Hide → Sign in → Register) and visible focus states.

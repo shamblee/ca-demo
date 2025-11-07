@@ -1,0 +1,343 @@
+[
+    {
+        "name": "Account",
+        "description": "An account (tenant)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "account",
+        "type": "type",
+        "props": [
+            "created_at",
+            "hero_image_path",
+            "id",
+            "logo_image_path",
+            "name"
+        ]
+    },
+    {
+        "name": "AccountInvite",
+        "description": "An invitation to join an account",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "account_invite",
+        "type": "type",
+        "props": [
+            "accepted_at",
+            "account_id",
+            "created_at",
+            "declined_at",
+            "email",
+            "expires_at",
+            "id",
+            "invite_code",
+            "invited_by_user_id",
+            "is_active",
+            "role"
+        ]
+    },
+    {
+        "name": "AccountMembership",
+        "description": "A membership linking a user to an account with a role",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "account_membership",
+        "type": "type",
+        "props": [
+            "account_id",
+            "created_at",
+            "id",
+            "last_accessed_at",
+            "role",
+            "user_id"
+        ]
+    },
+    {
+        "name": "Agent",
+        "description": "An AI decisioning agent configuration",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "agent",
+        "type": "type",
+        "props": [
+            "account_id",
+            "activated_at",
+            "created_at",
+            "deactivated_at",
+            "default_email_from",
+            "default_sms_from",
+            "desired_outcome_description",
+            "holdout_percentage",
+            "id",
+            "is_active",
+            "message_category_id",
+            "name",
+            "segment_id",
+            "send_days",
+            "send_frequency",
+            "send_time_windows"
+        ]
+    },
+    {
+        "name": "AgentDecision",
+        "description": "A recorded decision made by an agent",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "agent_decision",
+        "type": "type",
+        "props": [
+            "account_id",
+            "agent_id",
+            "channel",
+            "created_at",
+            "decisioned_at",
+            "id",
+            "is_holdout",
+            "message_id",
+            "message_variant_id",
+            "profile_id",
+            "reasoning",
+            "scheduled_send_at",
+            "send_error",
+            "sent_at",
+            "was_sent"
+        ]
+    },
+    {
+        "name": "Channel",
+        "description": "Communication channel enumeration",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "ChannelSubscription",
+        "description": "Channel subscription per profile and channel",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "channel_subscription",
+        "type": "type",
+        "props": [
+            "account_id",
+            "address",
+            "channel",
+            "created_at",
+            "id",
+            "is_primary",
+            "last_bounced_at",
+            "profile_id",
+            "status",
+            "subscribed_at",
+            "unsubscribed_at"
+        ]
+    },
+    {
+        "name": "Event",
+        "description": "An analytics/event record used for web, messaging, ecommerce, and attribution",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "event",
+        "type": "type",
+        "props": [
+            "account_id",
+            "agent_id",
+            "channel",
+            "created_at",
+            "currency",
+            "event_type",
+            "id",
+            "message_id",
+            "occurred_at",
+            "order_id",
+            "page_url",
+            "product_id",
+            "profile_id",
+            "properties",
+            "revenue",
+            "session_id"
+        ]
+    },
+    {
+        "name": "EventType",
+        "description": "Event type enumeration for analytics and attribution",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "Message",
+        "description": "A marketing message imported from an external source (e.g., GardenIQ)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "message",
+        "type": "type",
+        "props": [
+            "account_id",
+            "category_id",
+            "created_at",
+            "external_id",
+            "external_source",
+            "id",
+            "name",
+            "tags"
+        ]
+    },
+    {
+        "name": "MessageCategory",
+        "description": "A message category (content library/folder)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "message_category",
+        "type": "type",
+        "props": [
+            "account_id",
+            "created_at",
+            "description",
+            "id",
+            "name",
+            "thumbnail_image_path"
+        ]
+    },
+    {
+        "name": "MessageVariant",
+        "description": "A message variant per channel (email, sms, push)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "message_variant",
+        "type": "type",
+        "props": [
+            "account_id",
+            "channel",
+            "created_at",
+            "email_html",
+            "email_subject",
+            "email_text",
+            "id",
+            "message_id",
+            "preview_image_path",
+            "push_body",
+            "push_title",
+            "sms_text"
+        ]
+    },
+    {
+        "name": "OutcomeMapping",
+        "description": "Mapping from events to desired outcome ranks for an agent",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "outcome_mapping",
+        "type": "type",
+        "props": [
+            "account_id",
+            "agent_id",
+            "created_at",
+            "event_type",
+            "id",
+            "outcome",
+            "weight"
+        ]
+    },
+    {
+        "name": "OutcomeRank",
+        "description": "Outcome ranking enumeration",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "Profile",
+        "description": "A stored customer profile",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "profile",
+        "type": "type",
+        "props": [
+            "account_id",
+            "address_city",
+            "address_country",
+            "address_state",
+            "address_street",
+            "address_zip",
+            "attributes",
+            "company",
+            "created_at",
+            "department",
+            "device_id",
+            "email",
+            "external_id",
+            "first_name",
+            "id",
+            "job_title",
+            "last_name",
+            "phone"
+        ]
+    },
+    {
+        "name": "Segment",
+        "description": "A segment of profiles",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "segment",
+        "type": "type",
+        "props": [
+            "account_id",
+            "created_at",
+            "criteria",
+            "description",
+            "id",
+            "is_dynamic",
+            "name"
+        ]
+    },
+    {
+        "name": "SegmentProfile",
+        "description": "Membership join between segment and profile",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "segment_profile",
+        "type": "type",
+        "props": [
+            "account_id",
+            "added_at",
+            "id",
+            "profile_id",
+            "segment_id"
+        ]
+    },
+    {
+        "name": "SendFrequency",
+        "description": "Sending frequency enumeration for agents",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "SendTimeWindow",
+        "description": "Time window enumeration for agents",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "SubscriptionStatus",
+        "description": "Channel subscription status enumeration",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "User",
+        "description": "A user",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "user",
+        "type": "type",
+        "props": [
+            "created_at",
+            "email",
+            "hero_image_path",
+            "id",
+            "name",
+            "profile_image_path"
+        ]
+    },
+    {
+        "name": "UserRole",
+        "description": "Role enumeration for account membership",
+        "type": "enum",
+        "props": []
+    }
+]

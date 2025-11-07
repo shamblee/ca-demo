@@ -1,0 +1,17 @@
+- Open /profiles and verify table columns: Full name, Email, Phone, Device ID, Date added.
+- Confirm multiple rows display expected values under each column.
+- Click a profile’s name and verify navigation to /profile-detail?id={profileId}.
+- Use Back, click the same profile’s email, and verify it opens the same detail route.
+- Check a single row checkbox and confirm only that row is selected.
+- Use the header checkbox to select all visible rows and confirm all visible row checkboxes are checked.
+- Uncheck the header checkbox and confirm all visible selections clear.
+- With no rows selected, verify Enrich selected and Export selected are disabled or blocked with a prompt.
+- Select two rows and click Enrich selected; verify a success status/toast references only those profiles.
+- With the same two rows selected, click Export selected and verify the CSV contains only those two profiles.
+- Click Enrich all profiles and verify it runs without requiring a selection.
+- Click Export all profiles and verify the CSV contains the full list of profiles.
+- Click Import CSV, upload a valid small CSV, and verify new profiles appear in the table after processing.
+- Attempt to import an invalid or misformatted CSV and verify a clear error is shown with no new rows added.
+- Click a newly imported profile’s name and verify it opens the profile detail view.
+- If pagination or virtual scrolling is present, verify the header checkbox selects only the currently visible rows.
+- Sign in with guest permissions and verify bulk action buttons are view-only/disabled while the list remains readable.

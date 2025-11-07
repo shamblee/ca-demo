@@ -1,0 +1,20 @@
+- Verify the identity header shows an avatar or initial, display name, and a read-only email.
+- Confirm the email field cannot be edited.
+- Clear the name field to trigger an inline validation error and see Save disabled.
+- Enter a valid name and confirm the Save button becomes enabled.
+- Click Cancel to revert the unsaved name change.
+- Save a valid name, see a success state, reload, and confirm the name persists.
+- Upload a JPG avatar and confirm the preview updates and persists after reload.
+- Replace the avatar with a PNG, then remove it and confirm the initial-based placeholder appears.
+- Upload a WebP hero/cover image, then remove it to see the Add cover placeholder.
+- Click Refresh image previews and confirm signed URLs re-resolve and images display correctly.
+- Click Copy user ID and paste into a text field to confirm clipboard contents.
+- Open the public profile link and confirm the public profile view loads.
+- Confirm membership cards list each account with its name and role badge.
+- Click Switch on a membership card and verify the active account changes in the UI.
+- Confirm there is no control to edit roles on this page.
+- Resize to a narrow viewport and confirm the right rail collapses or stacks appropriately.
+- Tab through all controls to verify visible focus rings and keyboard operability.
+- Inspect icon-only buttons to confirm they have meaningful aria-labels.
+- Attempt to select a non-image file for upload and confirm the picker restricts or shows an error.
+- Confirm the Save button remains disabled when no changes are pending.

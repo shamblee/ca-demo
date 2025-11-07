@@ -1,0 +1,526 @@
+-- Enable extensions needed for UUID generation
+create extension if not exists pgcrypto;
+
+-- Role enumeration for account membership
+create type public.user_role as enum (
+    'admin',
+    'standard',
+    'guest'
+);
+
+-- Communication channel enumeration
+create type public.channel as enum (
+    'email',
+    'sms',
+    'push'
+);
+
+-- Outcome ranking enumeration
+create type public.outcome_rank as enum (
+    'worst',
+    'good',
+    'very_good',
+    'best'
+);
+
+-- Event type enumeration for analytics and attribution
+create type public.event_type as enum (
+    'page_view',
+    'session_start',
+    'form_submit',
+    'message_sent',
+    'message_open',
+    'message_click',
+    'message_bounce',
+    'subscriber_new',
+    'subscriber_removed',
+    'add_to_cart',
+    'favorite',
+    'checkout_started',
+    'checkout_abandoned',
+    'purchase',
+    'push_open'
+);
+
+-- Sending frequency enumeration for agents
+create type public.send_frequency as enum (
+    'daily',
+    'six_per_week',
+    'five_per_week',
+    'weekly',
+    'biweekly',
+    'monthly'
+);
+
+-- Time window enumeration for agents
+create type public.send_time_window as enum (
+    'morning',
+    'afternoon',
+    'evening'
+);
+
+-- Channel subscription status enumeration
+create type public.subscription_status as enum (
+    'subscribed',
+    'unsubscribed',
+    'bounced',
+    'pending'
+);
+
+-- A user
+create table public.user (
+    -- Unique id of the user
+    id uuid not null default gen_random_uuid (),
+    -- When the user row was created
+    created_at timestamptz not null default now(),
+    -- Name of the user
+    name text not null,
+    -- Email of the user (used for identification within the app; auth handled by Supabase)
+    email text not null,
+    -- Path of the profile picture in the 'accounts' bucket using the pattern {account_id}/users/{user_id}/...
+    profile_image_path text,
+    -- Optional hero/cover image path in the 'accounts' bucket
+    hero_image_path text,
+    constraint user_pkey primary key (id),
+    constraint user_email_unique unique (email)
+);
+create index user_email_idx on public.user (email);
+
+-- An account (tenant)
+create table public.account (
+    -- Unique id of the account
+    id uuid not null default gen_random_uuid (),
+    -- When the account was created
+    created_at timestamptz not null default now(),
+    -- Display name of the account
+    name text not null,
+    -- Path to the logo image in the 'accounts' bucket
+    logo_image_path text,
+    -- Optional hero/cover image path for the account in the 'accounts' bucket
+    hero_image_path text,
+    constraint account_pkey primary key (id)
+);
+create index account_name_idx on public.account (name);
+
+-- A membership linking a user to an account with a role
+create table public.account_membership (
+    -- Unique id of the membership
+    id uuid not null default gen_random_uuid (),
+    -- When the membership was created
+    created_at timestamptz not null default now(),
+    -- When the member last accessed the account
+    last_accessed_at timestamptz,
+    -- The user this membership is for
+    user_id uuid not null,
+    -- The account this membership belongs to
+    account_id uuid not null,
+    -- The role of the user within this account
+    role public.user_role not null default 'standard',
+    constraint account_membership_pkey primary key (id),
+    constraint account_membership_user_fk foreign key (user_id) references public.user (id) on delete cascade,
+    constraint account_membership_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint account_membership_unique unique (user_id, account_id)
+);
+create index account_membership_user_idx on public.account_membership (user_id);
+create index account_membership_account_idx on public.account_membership (account_id);
+create index account_membership_role_idx on public.account_membership (role);
+
+-- An invitation to join an account
+create table public.account_invite (
+    -- Unique id of the invite
+    id uuid not null default gen_random_uuid (),
+    -- When the invite was created
+    created_at timestamptz not null default now(),
+    -- The account this invite is for
+    account_id uuid not null,
+    -- The user who created the invite
+    invited_by_user_id uuid,
+    -- Optional email address the invite targets
+    email text,
+    -- The role granted if the invite is accepted
+    role public.user_role not null default 'standard',
+    -- The unique invite code part used in the invite URL
+    invite_code text not null,
+    -- When the invite was accepted
+    accepted_at timestamptz,
+    -- When the invite was declined
+    declined_at timestamptz,
+    -- When the invite expires
+    expires_at timestamptz,
+    -- If true, the invite is currently active/valid
+    is_active boolean not null default true,
+    constraint account_invite_pkey primary key (id),
+    constraint account_invite_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint account_invite_invited_by_fk foreign key (invited_by_user_id) references public.user (id) on delete set null,
+    constraint account_invite_code_unique unique (invite_code)
+);
+create index account_invite_account_idx on public.account_invite (account_id);
+create index account_invite_email_idx on public.account_invite (email);
+create index account_invite_active_idx on public.account_invite (is_active);
+
+-- A stored customer profile
+create table public.profile (
+    -- Unique id of the profile
+    id uuid not null default gen_random_uuid (),
+    -- When the profile was created
+    created_at timestamptz not null default now(),
+    -- The account this profile belongs to
+    account_id uuid not null,
+    -- First name
+    first_name text,
+    -- Last name
+    last_name text,
+    -- Email address
+    email text,
+    -- Phone number (E.164 suggested)
+    phone text,
+    -- Device identifier (for push/SDK correlation)
+    device_id text,
+    -- Street address
+    address_street text,
+    -- City
+    address_city text,
+    -- State or region
+    address_state text,
+    -- Postal or ZIP code
+    address_zip text,
+    -- Country
+    address_country text,
+    -- Optional job title
+    job_title text,
+    -- Optional department
+    department text,
+    -- Optional company name
+    company text,
+    -- Arbitrary attributes for CRM-like properties and enrichment payloads
+    attributes jsonb not null default '{}'::jsonb,
+    -- External system identifier (e.g., CRM ID)
+    external_id text,
+    constraint profile_pkey primary key (id),
+    constraint profile_account_fk foreign key (account_id) references public.account (id) on delete cascade
+);
+create index profile_account_idx on public.profile (account_id);
+create index profile_email_idx on public.profile (email);
+create index profile_phone_idx on public.profile (phone);
+create index profile_device_idx on public.profile (device_id);
+
+-- A segment of profiles
+create table public.segment (
+    -- Unique id of the segment
+    id uuid not null default gen_random_uuid (),
+    -- When the segment was created
+    created_at timestamptz not null default now(),
+    -- The account this segment belongs to
+    account_id uuid not null,
+    -- Name of the segment
+    name text not null,
+    -- Description of the segment
+    description text,
+    -- Criteria used to define segment membership (demographics, behavior, etc.)
+    criteria jsonb not null default '{}'::jsonb,
+    -- If true, membership is dynamically evaluated; otherwise uses explicit membership
+    is_dynamic boolean not null default true,
+    constraint segment_pkey primary key (id),
+    constraint segment_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint segment_unique_name_per_account unique (account_id, name)
+);
+create index segment_account_idx on public.segment (account_id);
+
+-- Membership join between segment and profile
+create table public.segment_profile (
+    -- Unique id of the segment-profile membership
+    id uuid not null default gen_random_uuid (),
+    -- When the profile was added to the segment
+    added_at timestamptz not null default now(),
+    -- The account this membership belongs to
+    account_id uuid not null,
+    -- The segment id
+    segment_id uuid not null,
+    -- The profile id
+    profile_id uuid not null,
+    constraint segment_profile_pkey primary key (id),
+    constraint segment_profile_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint segment_profile_segment_fk foreign key (segment_id) references public.segment (id) on delete cascade,
+    constraint segment_profile_profile_fk foreign key (profile_id) references public.profile (id) on delete cascade,
+    constraint segment_profile_unique unique (segment_id, profile_id)
+);
+create index segment_profile_account_idx on public.segment_profile (account_id);
+create index segment_profile_segment_idx on public.segment_profile (segment_id);
+create index segment_profile_profile_idx on public.segment_profile (profile_id);
+
+-- A message category (content library/folder)
+create table public.message_category (
+    -- Unique id of the message category
+    id uuid not null default gen_random_uuid (),
+    -- When the category was created
+    created_at timestamptz not null default now(),
+    -- The account this category belongs to
+    account_id uuid not null,
+    -- Name of the category
+    name text not null,
+    -- Optional description of the category
+    description text,
+    -- Optional preview/thumbnail image path in the 'accounts' bucket
+    thumbnail_image_path text,
+    constraint message_category_pkey primary key (id),
+    constraint message_category_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint message_category_unique_name_per_account unique (account_id, name)
+);
+create index message_category_account_idx on public.message_category (account_id);
+
+-- A marketing message imported from an external source (e.g., GardenIQ)
+create table public.message (
+    -- Unique id of the message
+    id uuid not null default gen_random_uuid (),
+    -- When the message was created (imported)
+    created_at timestamptz not null default now(),
+    -- The account this message belongs to
+    account_id uuid not null,
+    -- The category this message belongs to
+    category_id uuid,
+    -- Human-readable name of the message
+    name text not null,
+    -- External source name, e.g., 'gardeniq'
+    external_source text not null default 'gardeniq',
+    -- External id for cross-system mapping
+    external_id text,
+    -- Optional tags for organization
+    tags text[] not null default '{}',
+    constraint message_pkey primary key (id),
+    constraint message_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint message_category_fk foreign key (category_id) references public.message_category (id) on delete set null,
+    constraint message_unique_name_per_category unique (account_id, category_id, name)
+);
+create index message_account_idx on public.message (account_id);
+create index message_category_idx on public.message (category_id);
+create index message_external_idx on public.message (external_source, external_id);
+
+-- A message variant per channel (email, sms, push)
+create table public.message_variant (
+    -- Unique id of the message variant
+    id uuid not null default gen_random_uuid (),
+    -- When the variant was created
+    created_at timestamptz not null default now(),
+    -- The account this variant belongs to
+    account_id uuid not null,
+    -- The parent message
+    message_id uuid not null,
+    -- Channel for this variant
+    channel public.channel not null,
+    -- Email subject (email channel)
+    email_subject text,
+    -- Email HTML content (email channel)
+    email_html text,
+    -- Email plain text content (email channel)
+    email_text text,
+    -- SMS text (sms channel)
+    sms_text text,
+    -- Push notification title (push channel)
+    push_title text,
+    -- Push notification body (push channel)
+    push_body text,
+    -- Optional preview image path in the 'accounts' bucket
+    preview_image_path text,
+    constraint message_variant_pkey primary key (id),
+    constraint message_variant_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint message_variant_message_fk foreign key (message_id) references public.message (id) on delete cascade,
+    constraint message_variant_unique_per_channel unique (message_id, channel)
+);
+create index message_variant_account_idx on public.message_variant (account_id);
+create index message_variant_message_idx on public.message_variant (message_id);
+
+-- An AI decisioning agent configuration
+create table public.agent (
+    -- Unique id of the agent
+    id uuid not null default gen_random_uuid (),
+    -- When the agent was created
+    created_at timestamptz not null default now(),
+    -- The account this agent belongs to
+    account_id uuid not null,
+    -- Display name of the agent
+    name text not null,
+    -- Default email address for sending (from)
+    default_email_from text,
+    -- Default SMS phone number for sending (from)
+    default_sms_from text,
+    -- The segment targeted by this agent
+    segment_id uuid not null,
+    -- The holdout percentage for control group (0-100)
+    holdout_percentage numeric(5,2) not null default 0,
+    -- The message category (content library) assigned to this agent
+    message_category_id uuid not null,
+    -- Sending frequency
+    send_frequency public.send_frequency not null,
+    -- Days of week allowed (0=Mon ... 6=Sun)
+    send_days smallint[] not null default '{}',
+    -- Time windows allowed for sending
+    send_time_windows public.send_time_window[] not null default '{}',
+    -- If true, the agent is active
+    is_active boolean not null default false,
+    -- When the agent was activated
+    activated_at timestamptz,
+    -- When the agent was deactivated
+    deactivated_at timestamptz,
+    -- Optional description of desired outcomes/goals
+    desired_outcome_description text,
+    constraint agent_pkey primary key (id),
+    constraint agent_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint agent_segment_fk foreign key (segment_id) references public.segment (id) on delete restrict,
+    constraint agent_message_category_fk foreign key (message_category_id) references public.message_category (id) on delete restrict,
+    constraint agent_holdout_pct_chk check (holdout_percentage >= 0 and holdout_percentage <= 100),
+    constraint agent_send_days_chk check (send_days <@ ARRAY[0,1,2,3,4,5,6]::smallint[])
+);
+create index agent_account_idx on public.agent (account_id);
+create index agent_segment_idx on public.agent (segment_id);
+create index agent_category_idx on public.agent (message_category_id);
+create index agent_active_idx on public.agent (is_active);
+
+-- Mapping from events to desired outcome ranks for an agent
+create table public.outcome_mapping (
+    -- Unique id of the outcome mapping
+    id uuid not null default gen_random_uuid (),
+    -- When the mapping was created
+    created_at timestamptz not null default now(),
+    -- The account this mapping belongs to
+    account_id uuid not null,
+    -- The agent this mapping belongs to
+    agent_id uuid not null,
+    -- The event type being mapped
+    event_type public.event_type not null,
+    -- The outcome rank associated with the event
+    outcome public.outcome_rank not null,
+    -- Optional weight or score for optimization
+    weight numeric(10,2),
+    constraint outcome_mapping_pkey primary key (id),
+    constraint outcome_mapping_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint outcome_mapping_agent_fk foreign key (agent_id) references public.agent (id) on delete cascade,
+    constraint outcome_mapping_unique_per_event unique (agent_id, event_type)
+);
+create index outcome_mapping_account_idx on public.outcome_mapping (account_id);
+create index outcome_mapping_agent_idx on public.outcome_mapping (agent_id);
+
+-- Channel subscription per profile and channel
+create table public.channel_subscription (
+    -- Unique id of the subscription
+    id uuid not null default gen_random_uuid (),
+    -- When the subscription record was created
+    created_at timestamptz not null default now(),
+    -- The account this subscription belongs to
+    account_id uuid not null,
+    -- The profile this subscription belongs to
+    profile_id uuid not null,
+    -- The channel for the subscription
+    channel public.channel not null,
+    -- Status of the subscription
+    status public.subscription_status not null default 'subscribed',
+    -- Target address/identifier for the channel (email address, phone, or device token)
+    address text,
+    -- When the subscription was established
+    subscribed_at timestamptz,
+    -- When the subscription was terminated
+    unsubscribed_at timestamptz,
+    -- When the last bounce occurred (if any)
+    last_bounced_at timestamptz,
+    -- If true, this is the primary subscription for the channel
+    is_primary boolean not null default true,
+    constraint channel_subscription_pkey primary key (id),
+    constraint channel_subscription_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint channel_subscription_profile_fk foreign key (profile_id) references public.profile (id) on delete cascade,
+    constraint channel_subscription_unique_per_channel unique (account_id, profile_id, channel)
+);
+create index channel_subscription_account_idx on public.channel_subscription (account_id);
+create index channel_subscription_profile_idx on public.channel_subscription (profile_id);
+create index channel_subscription_channel_idx on public.channel_subscription (channel);
+create index channel_subscription_status_idx on public.channel_subscription (status);
+
+-- A recorded decision made by an agent
+create table public.agent_decision (
+    -- Unique id of the decision
+    id uuid not null default gen_random_uuid (),
+    -- When the decision was recorded
+    created_at timestamptz not null default now(),
+    -- When the decision was made
+    decisioned_at timestamptz not null default now(),
+    -- The account this decision belongs to
+    account_id uuid not null,
+    -- The agent that made the decision
+    agent_id uuid not null,
+    -- The profile targeted by the decision
+    profile_id uuid not null,
+    -- The selected message (if any)
+    message_id uuid,
+    -- The selected message variant (if any)
+    message_variant_id uuid,
+    -- The chosen channel for sending
+    channel public.channel,
+    -- The chosen scheduled send time
+    scheduled_send_at timestamptz,
+    -- Concise reasoning for the decision
+    reasoning text,
+    -- True if the profile was in the holdout group and no send should occur
+    is_holdout boolean not null default false,
+    -- True if a send occurred for this decision
+    was_sent boolean,
+    -- When the send occurred (if sent)
+    sent_at timestamptz,
+    -- Optional error information if sending failed
+    send_error text,
+    constraint agent_decision_pkey primary key (id),
+    constraint agent_decision_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint agent_decision_agent_fk foreign key (agent_id) references public.agent (id) on delete cascade,
+    constraint agent_decision_profile_fk foreign key (profile_id) references public.profile (id) on delete cascade,
+    constraint agent_decision_message_fk foreign key (message_id) references public.message (id) on delete set null,
+    constraint agent_decision_message_variant_fk foreign key (message_variant_id) references public.message_variant (id) on delete set null
+);
+create index agent_decision_account_idx on public.agent_decision (account_id);
+create index agent_decision_agent_idx on public.agent_decision (agent_id);
+create index agent_decision_profile_idx on public.agent_decision (profile_id);
+create index agent_decision_scheduled_idx on public.agent_decision (scheduled_send_at);
+create index agent_decision_created_idx on public.agent_decision (created_at);
+
+-- An analytics/event record used for web, messaging, ecommerce, and attribution
+create table public.event (
+    -- Unique id of the event
+    id uuid not null default gen_random_uuid (),
+    -- When the event row was created
+    created_at timestamptz not null default now(),
+    -- When the event occurred
+    occurred_at timestamptz not null,
+    -- The account this event belongs to
+    account_id uuid not null,
+    -- The profile associated with the event (if known)
+    profile_id uuid,
+    -- Type of event
+    event_type public.event_type not null,
+    -- Channel associated with the event (if applicable)
+    channel public.channel,
+    -- Message associated with the event (if applicable)
+    message_id uuid,
+    -- Agent associated with the event (if applicable)
+    agent_id uuid,
+    -- Session identifier for web analytics
+    session_id text,
+    -- Page URL for page-related events
+    page_url text,
+    -- Product identifier for ecommerce events
+    product_id text,
+    -- Order identifier for purchase/checkout events
+    order_id text,
+    -- Monetary revenue amount for purchase/attribution
+    revenue numeric(12,2),
+    -- Currency code (ISO 4217)
+    currency char(3),
+    -- Additional event properties and metadata
+    properties jsonb not null default '{}'::jsonb,
+    constraint event_pkey primary key (id),
+    constraint event_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint event_profile_fk foreign key (profile_id) references public.profile (id) on delete set null,
+    constraint event_message_fk foreign key (message_id) references public.message (id) on delete set null,
+    constraint event_agent_fk foreign key (agent_id) references public.agent (id) on delete set null
+);
+create index event_account_idx on public.event (account_id);
+create index event_profile_idx on public.event (profile_id);
+create index event_type_time_idx on public.event (event_type, occurred_at desc);
+create index event_account_type_time_idx on public.event (account_id, event_type, occurred_at desc);
+create index event_agent_idx on public.event (agent_id);
+create index event_message_idx on public.event (message_id);

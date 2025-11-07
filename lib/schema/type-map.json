@@ -1,0 +1,82 @@
+{
+    "_default": {
+        "name": "string"
+    },
+    "text": {
+        "name": "string"
+    },
+    "int": {
+        "name": "number",
+        "zod": "z.number().int()"
+    },
+    "int2": {
+        "name": "number",
+        "zod": "z.number().int()"
+    },
+    "int4": {
+        "name": "number",
+        "zod": "z.number().int()"
+    },
+    "int8": {
+        "name": "number",
+        "zod": "z.number().int()"
+    },
+    "float": {
+        "name": "number"
+    },
+    "float4": {
+        "name": "number"
+    },
+    "float8": {
+        "name": "number"
+    },
+    "numeric": {
+        "name": "number"
+    },
+    "json": {
+        "name": "json",
+        "ts": "Record<string,any>",
+        "zod": "z.record(z.string(),z.any())",
+        "convo": "map"
+    },
+    "jsonb": {
+        "name": "json",
+        "ts": "Record<string,any>",
+        "zod": "z.record(z.string(),z.any())",
+        "convo": "map"
+    },
+    "bool": {
+        "name": "boolean"
+    },
+    "boolean": {
+        "name": "boolean"
+    },
+    "user_role": {
+        "name": "UserRole",
+        "zod": "UserRoleSchema"
+    },
+    "channel": {
+        "name": "Channel",
+        "zod": "ChannelSchema"
+    },
+    "outcome_rank": {
+        "name": "OutcomeRank",
+        "zod": "OutcomeRankSchema"
+    },
+    "event_type": {
+        "name": "EventType",
+        "zod": "EventTypeSchema"
+    },
+    "send_frequency": {
+        "name": "SendFrequency",
+        "zod": "SendFrequencySchema"
+    },
+    "send_time_window": {
+        "name": "SendTimeWindow",
+        "zod": "SendTimeWindowSchema"
+    },
+    "subscription_status": {
+        "name": "SubscriptionStatus",
+        "zod": "SubscriptionStatusSchema"
+    }
+}

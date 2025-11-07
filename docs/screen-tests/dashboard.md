@@ -1,0 +1,26 @@
+- Open /dashboard and confirm the KPI strip shows values with deltas vs previous period.
+- Switch between Web, Messaging, Ecommerce, and Attribution tabs and verify each tab’s content renders.
+- Change date range to 7 days and confirm KPIs and charts update.
+- Change date range to 30 days and 90 days and confirm updates each time.
+- Set a custom date range and apply; verify all visuals refresh to the new window.
+- Change granularity to hour, day, and week and confirm the time-series resamples accordingly.
+- Apply an Agent filter and verify KPIs/charts reflect only that agent’s data.
+- Apply a Message filter and confirm metrics and charts update to the selected message.
+- Apply a Message Category filter and verify scope narrows to that library.
+- Apply a Segment filter and confirm metrics reflect the selected segment.
+- In the Web tab, verify time-series for page views, sessions, and form submissions render; toggle a series off/on via the legend.
+- In the Web tab, hover the chart to see tooltips with exact values and timestamps.
+- In the Web tab, confirm the funnel and top pages table display data.
+- In the Messaging tab, verify stacked time-series by channel and toggle stacked vs overlapped view.
+- In the Messaging tab, confirm deliverability rate cards (sends, opens, clicks, bounces, subs/unsubs) show values.
+- In the Messaging tab, click a row in the top messages table to open /message-detail, then return to the dashboard.
+- From a message row, open its category link to /message-category, then return.
+- In the Ecommerce tab, verify the funnel from add-to-cart to purchases and confirm revenue/conversion trends render.
+- In the Ecommerce tab, check that top products (if available) populate with names and metrics.
+- In the Attribution tab, select Compare and choose two agents; verify revenue, orders, AOV, and ROI update and show a channel breakdown.
+- In the Attribution tab, toggle the holdout-aware view (if available) and confirm metrics recalculate.
+- Click an agent link to open /agent-detail and verify a decision log appears; return to the dashboard.
+- Click a segment link to open /segment-detail and verify KPIs/membership display; return.
+- Click a profile link from a recent event/top list to open /profile-detail; return.
+- Export a visible table to CSV and a chart to image and verify the files download.
+- If multiple accounts are available, switch accounts and confirm all dashboard data and links reflect the current account only.

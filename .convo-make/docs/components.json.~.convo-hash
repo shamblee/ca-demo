@@ -1,0 +1,11 @@
+[in]
+?hash-props:[{"outType":"array(struct(\n    # TypeScript name of the component\n    name: string\n    # A short description of the component\n    description: string\n    # A TypeScript interface describing the props of the component.\n    propsInterface: string\n    # Example of how to import the components - import { COMPONENT_NAME } from \"@/components/COMPONENT_NAME\"\n    import: string\n))"}]
+docs/app-description.md:1MAsQYKPIq_gB_iVSAa3sN6r_RKTa_9AIv0RqzvtXw8
+docs/screens.json:v3-timEw3FX27x3KjLU78VRcy3VgmTazI99vauu3UhI
+context/coding-rules.md:GQQTLYX-y6cbxyaWdJYoHwf84kCrgHaZQmxP2zfEarw
+lib/schema/types-ts.ts:LpLU2kCWzrOLctoQS_quYRTcVs5nI-x70vrrW3secXI
+.editorconfig:zjl_gjpiYewC-Fj1qVHBDJMjBNLFWlkM8KSxJCc4VKk
+context/components/*.md:RklcM1VJDWi9Yn38WsYjP0hu7RPrs6sy-7FdJPFvE-M
+:72HcYDJpunr2vk7_f-fS5BHQdgikhuiuouFHcI4zG2c
+[out]
+docs/components.json:pX_Ei_2ct9QSInOHzqlZptv-n5rmty42PTVQj3o2H50

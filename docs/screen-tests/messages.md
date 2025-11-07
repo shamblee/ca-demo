@@ -1,0 +1,17 @@
+- Sign in and navigate to /messages.
+- Confirm a responsive grid of category tiles appears.
+- Verify each tile shows the category name.
+- Verify each tile shows a message count badge (brand-colored).
+- If a category has a thumbnail, confirm it is displayed on the tile.
+- Click a category tile and confirm navigation to /message-category?id={category_id}.
+- On the Message Category page, confirm the number of messages matches the count shown on the tile, then go back.
+- Open the Rename Category modal for a category.
+- Change the name and click Save; confirm the tile updates and the change persists after refresh.
+- Open the Rename Category modal again and click Cancel; confirm the name remains unchanged.
+- Confirm there are no controls to author messages on this screen (no create/edit message actions).
+- Confirm that duplicate/move/delete controls are not present here (they belong in Message Category view).
+- Refresh the page and confirm loading skeleton tiles appear before data loads.
+- Temporarily go offline in DevTools, refresh, and confirm an error alert with a Retry appears; go back online and click Retry to load the list.
+- If your account has no categories, confirm the empty state card explains that messages are imported from GardenIQ (otherwise skip this step).
+- If you can switch accounts, switch to another account and confirm categories and counts change (scoped to active account).
+- If you can test roles, switch to a guest user and confirm rename is disabled/hidden; as standard/admin, confirm rename is available.

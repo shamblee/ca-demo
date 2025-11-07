@@ -1,0 +1,1715 @@
+> define
+__makeRoot="../../.."
+__makeFile="make.convo"
+__makeOut="supabase/schemas/db-schema.sql"
+__model="gpt-5"
+
+> system
+You are generating content that will be directly written to "supabase/schemas/db-schema.sql".
+DO NOT include a preamble or postamble.
+
+Always respond with the full content for "supabase/schemas/db-schema.sql", even if you are making an
+small or incremental update.
+
+> appendUser
+<app-description>
+## Decisioning Demo
+
+A modern, professional, dark-themed platform for importing and enriching customer profiles, organizing contacts into segments, browsing message content libraries, and configuring AI decisioning agents that determine which message to send, when to send it, and through which channel.
+
+## Feature Summary
+
+- Profile management
+  - Import customer contact records (CSV or Excel)
+  - View list of profiles with key identifiers
+  - View profile details: contact info, attributes, event history
+  - Export and enrich profiles (bulk or selected)
+- Segmentation
+  - View list of segments
+  - View segment details with criteria and membership
+  - Segment-level KPIs (aggregate orders, AOV, LTV; subscriber counts by channel)
+- Messages and categories
+  - Browse message categories as “folders”
+  - View messages in a category as thumbnails with previews
+  - Message detail previews for email, SMS, and push notifications
+  - Manage messages within categories (duplicate, move, delete)
+  - Messages are imported from GardenIQ (no authoring in-app)
+- AI decisioning agents
+  - 3-step agent creation and configuration
+  - Assign segment, holdout, and message category
+  - Configure sending frequency, days, and time windows
+  - Define desired outcomes and map events to rankings (Worst, Good, Very Good, Best)
+  - Activate/deactivate agents
+  - View an agent’s decision log with reasoning
+- Analytics dashboard
+  - Web, messaging, ecommerce, and attribution analytics
+  - Attribution and ROI by message or agent (selectable)
+- Accounts and users
+  - Accept account invites
+  - View and edit account (admin)
+  - Invite users to the account via invite link
+  - User profiles (self and public)
+  - Role-based permissions
+- App shell and layout
+  - Global navigation with pages for Dashboard, Profiles, Segments, Messages, Decisioning, Settings
+  - Two-column main content layout with an optional right rail
+- Multi-tenant data model with Supabase
+  - Account-centric tenancy
+  - File storage using structured paths and signed URLs
+
+## User Roles and Access
+
+- App roles
+  - guest: view-only permissions
+  - default: standard account member; can edit content and configure agents
+  - manager: default permissions plus can add/remove users
+  - admin: all permissions; can change roles, manage billing, delete account
+
+- Database roles (UserRole enum)
+  - admin, standard, guest
+  - Mapping guidance
+    - guest (app) → guest (db)
+    - default (app) → standard (db)
+    - manager (app) → standard (db) plus manager capabilities handled by application logic/permissions checks
+    - admin (app) → admin (db)
+
+## Core Concepts and Relationships
+
+- Profiles: stored customer contact records
+- Enrichment: appends additional properties/attributes to profiles; creates Segments
+- Segments: subsets of profiles based on demographics and/or event history
+- Messages: imported content from GardenIQ; includes email, SMS, and push notification variants for a given subject
+- Message categories: folders/content libraries that agents draw from
+- Channels: the medium used for sending (email, SMS, push notification)
+- AI decisioning agents: select message, channel, send day/time, and execute sends to profiles
+- Agent settings: send frequency, time windows, desired outcomes, holdout percentage
+- Outcomes: ranked as Worst, Good, Very Good, Best; events map to rankings
+- Holdout percentage: portion of the segment excluded from agent sends for testing/control
+
+## Global Navigation
+
+- Left side pane navigation:
+  - Home → Dashboard (/dashboard)
+  - Profiles (/profiles)
+  - Segments (/segments)
+  - Messages (/messages)
+  - Decisioning (/decisioning)
+  - Settings → Account (/account)
+
+## Main Layout
+
+- Header bar with app logo (left) and user avatar (right)
+  - Clicking the logo → Dashboard
+  - Clicking the avatar → Profile (/profile)
+- Two-column responsive content area (approx. 80:20)
+  - Left: primary content
+  - Right: optional secondary content (right rail)
+  - Right rail can be hidden to allow full-width primary content
+
+## Styling Guidelines
+
+- Framework: Tailwind CSS (v4)
+- Look and Feel
+  - Modern, professional, dark palette
+  - Neutral backgrounds and borders
+  - Rounded corners; pill-shaped buttons
+- Color palette
+  - Brand: #4583F7 (var(--blue))
+  - Secondary: #8E59FF (var(--purple))
+- Usage rules
+  - Use brand color sparingly for interactive elements (buttons, links, clickable icons)
+  - Use thin brand-colored borders to highlight non-CTA elements when needed
+  - Use secondary color to highlight non-interactive important information or as an accent
+  - Both colors may be used with transparency for subtle shading and states
+
+## Screens
+
+### Accept Account Invite (/accept-account-invite/[invite-code])
+- Seen by: All
+- Description: Accept or decline invitations to join an account. Prompts sign-in if not authenticated.
+- Requirements
+  - Accept or decline the invite
+  - If not signed in, prompt to sign in first
+
+### Account (/account)
+- Seen by: All signed-in users
+- Description: View account details and manage membership (admin).
+- Requirements
+  - Display basic account info: name, logo, id (muted)
+  - Admins can edit account info
+  - Users section: grid of user cards (name, profile picture), link to public user profile
+  - Link to create a new account
+  - Admins can generate invite links:
+    - https://[location.host]/accept-account-invite/[inviteCode]
+
+### Agent Detail (/agent-detail)
+- Seen by: All signed-in users
+- Description: Detailed log of an agent’s decisions.
+- Requirements
+  - Each decision record includes:
+    - Timestamp
+    - Profile that was engaged
+    - Selected message
+    - Selected channel
+    - Chosen send time
+    - Summary of reasoning for message, channel, and timing
+
+### Create Agent (/create-agent)
+- Seen by: All signed-in users
+- Description: Three-step wizard to create and configure an AI decisioning agent.
+- Requirements
+  - Step 1
+    - Name, default email address, default SMS phone number for sending
+    - Assign one segment and a Holdout percentage
+    - Assign one message category
+  - Step 2
+    - Sending frequency (daily, 6x/week, 5x/week, weekly, every 2 weeks, monthly)
+    - Sending days (Mon–Sun checkboxes)
+    - Sending times (morning, afternoon, evening)
+  - Step 3
+    - Define desired outcomes
+    - Map an event to each ranking (Worst, Good, Very Good, Best)
+  - Activate the agent once configured
+
+### Dashboard (/dashboard)
+- Seen by: All signed-in users
+- Description: Analytics hub for agents and communications.
+- Requirements
+  - Data visualization with tabs/subpages:
+    - Web: page views, new/unique sessions, form submissions
+    - Messaging (all channels): sent, opened, clicked, bounced, new subscribers, unsubscribers
+    - Ecommerce: adds-to-cart, favorites/saves, initiated checkouts, abandoned checkouts, purchases
+    - Attribution: ROI metrics (revenue, orders, average order value) by message or agent; user-selectable comparisons
+
+### Decisioning (/decisioning)
+- Seen by: All signed-in users
+- Description: List of AI decisioning agents with create, view, and delete actions.
+- Requirements
+  - View list of user’s agents
+  - Create new agents
+  - Click into an agent to view details
+  - Delete agents
+
+### Message Category (/message-category)
+- Seen by: All signed-in users
+- Description: Grid of messages inside a single category folder.
+- Requirements
+  - Thumbnail preview grid
+  - Each tile shows message name and creation date
+  - Overflow menu (ellipsis) per message:
+    - Duplicate message
+    - Move message (modal with category dropdown, confirmation moves item and removes it from original category)
+    - Delete message
+  - Click a message to open the message detail view
+
+### Message Detail (/message-detail)
+- Seen by: All signed-in users
+- Description: Tabbed previews of email, SMS, and push notification variants of a single marketing message.
+- Requirements
+  - Email tab: branded email preview
+  - SMS tab: branded text message preview
+  - Notification tab: branded push notification preview
+
+### Messages (/messages)
+- Seen by: All signed-in users
+- Description: Grid of message categories (folders) with counts and management.
+- Requirements
+  - Each category tile shows name and number of messages
+  - Click a category to view messages inside
+  - Edit category names in a modal
+
+### Profile Detail (/profile-detail)
+- Seen by: All signed-in users
+- Description: Detailed view of a single profile with attributes and events.
+- Requirements
+  - Display contact info: first name, last name, email, phone, device ID, address fields (street, city, state, zip, country)
+  - Optional: job title, department, company
+  - Other marketing attributes (CRM-like properties)
+  - Event history: page views, message opens/clicks, add-to-cart, checkout events
+  - KPIs: total orders, average order value, lifetime value
+
+### Profile (/profile)
+- Seen by: All signed-in users (self-only)
+- Description: User’s personal profile page.
+- Requirements
+  - Show user information
+  - List of accounts the user belongs to with option to switch
+  - User can edit their profile (not email address)
+
+### Profiles (/profiles)
+- Seen by: All signed-in users
+- Description: List of stored profiles with bulk actions.
+- Requirements
+  - View list of profiles: full name, email, phone, device ID, date added
+  - Click through to profile detail
+  - Import additional profiles via CSV
+  - Enrich all or selected profiles
+  - Export all or selected profiles
+  - Checkboxes for selecting profiles for actions
+
+### Public Profile (/profile/[user-id])
+- Seen by: All signed-in users
+- Description: Public view of another user’s profile.
+- Requirements
+  - Show user information
+  - Account admins can view and change the user’s role
+  - Admins cannot change their own role
+
+### Register (/register)
+- Seen by: All
+- Description: Register a new user and create an organizational account.
+- Requirements
+  - Inputs: name, email, organization name, password
+  - If already signed in, show a message indicating they are already registered
+
+### Segment Detail (/segment-detail)
+- Seen by: All signed-in users
+- Description: Segment-level criteria, membership, and metrics.
+- Requirements
+  - Display: segment name, segment criteria
+    - Demographics: age range, gender, geography, socioeconomic status, marital status, children/pets
+    - Event history: purchases, add-to-cart, message opens/clicks, page/product views
+  - KPIs: total aggregate orders, AOV, aggregate LTV
+  - Membership: list of profiles with counts, including subscriber counts by channel (email, SMS, notifications)
+
+### Segments (/segments)
+- Seen by: All signed-in users
+- Description: List of customer segments with growth indicators.
+- Requirements
+  - View list with: segment name, number of profiles, profiles added over last 30 days (listed twice in spec; treat as growth metric)
+  - Click through to segment detail
+
+### Sign-in (/sign-in)
+- Seen by: All
+- Description: Access for existing users.
+- Requirements
+  - Inputs: email, password
+  - If already signed in, show a message indicating they are already signed in
+
+## AI Decisioning Agents
+
+- Purpose
+  - Decide which message to send, the best channel, and the optimal day/time window per profile within a segment
+- Configuration
+  - Segment assignment and holdout
+  - Message category selection (content library)
+  - Frequency controls (daily/weekly/biweekly/monthly), days, and time windows (morning/afternoon/evening)
+  - Outcome definitions with event mapping to Worst, Good, Very Good, Best
+- Operation
+  - Log every decision with timestamp, target profile, message, channel, scheduled send time, and concise reasoning
+  - Respect holdout percentage for control groups
+- Governance
+  - Only use messages imported from GardenIQ; no authoring within the app
+
+## Analytics and Attribution
+
+- Web analytics: page views, new/unique sessions, form submissions
+- Messaging: sends, opens, clicks, bounces, new subscribers, unsubscribers across all channels
+- Ecommerce: add-to-cart, favorites/saves, initiated checkout, abandoned checkout, purchases
+- Attribution and ROI
+  - Revenue, orders, AOV attributed to messages and agents
+  - Users can select messages or agents to analyze and compare
+
+## Tech Stack and Architecture
+
+- React, Next.js (pages directory), Tailwind CSS v4, lucide-react, Supabase, Zod, RxJS, uuid
+- Static Site Generation (SSG) only; no server-side rendering (SSR)
+- Pages live in /pages; do not use the Next.js App Router
+- Exports: use named exports unless Next.js pages require default export
+- Icons: lucide-react
+- Forms: typed useState and Zod schemas for validation when persisting to DB
+
+## Multi-Tenancy and Data
+
+- Tenancy model
+  - account table represents a tenant
+  - All tenant-bound entities include account_id
+  - Users link to accounts via account_membership
+- Required base entities
+  - User (id, created_at, name, email, profile_image_path?, hero_image_path?)
+  - Account (id, created_at, name, logo_image_path?, hero_image_path?)
+  - AccountMembership (id, created_at, last_accessed_at, user_id, account_id, role: user_role)
+  - UserRole enum: admin, standard, guest
+- Domain entities (conceptual)
+  - Profile, Segment, Message, MessageCategory, Agent, AgentDecision, OutcomeMapping, ChannelSubscription
+  - Ensure each has account_id for scoping
+- File storage
+  - Supabase Storage bucket: accounts
+  - Path pattern: {account_id}/users/{user_id}/{REST_OF_PATH}
+  - Store only the path in DB; resolve full URLs client-side with fileStore() or useFileUrl
+- CRUD and data access
+  - store() service and useStore*() hooks for reactive CRUD and querying
+  - SelectOptions for pagination and ordering
+
+## Layout and Page Conventions
+
+- Main layout
+  - Navigation bar and centered column content by default
+  - Two-column content area with optional right rail
+- Display modes
+  - useFullPage() to hide main navigation and present a full-screen experience
+  - useNoMargins() to remove margins and allow edge-to-edge designs
+  - useIsInFullPageMode() and useIsNoMarginMode() to read current display state
+- Pages
+  - Next.js pages must export a default function named after the page
+  - Root element className must follow: page--{PageComponentName}
+  - Do not wrap pages with MainLayout directly; the App component handles it
+
+## Authentication and Registration
+
+- Authentication
+  - Sign-in with email/password
+  - If a user visits protected pages without being signed in, show SignInRequired
+- Registration
+  - When registering, store the user’s name and account name in options.data:
+    - { name, accountName }
+  - Do not insert DB rows explicitly during signup; backend handles user and account setup
+- Invites
+  - Accept via /accept-account-invite/[invite-code]
+  - If not signed in, prompt to sign in first
+
+## Permissions and Security
+
+- Role-based access
+  - Admin: full control, can edit account info, manage roles (except cannot change own role), billing, delete account
+  - Manager: can add/remove users (handled by app logic), inherits standard permissions
+  - Default/Standard: can edit content and configure agents
+  - Guest: view-only
+- Data isolation
+  - All queries and mutations constrained by account_id
+
+## Standard Components
+
+- Logo
+  - SVG logo, customizable color and size
+  - import { Logo } from "@/components/Logo";
+- SignInRequired
+  - Card for access-restricted scenarios with sign-in/register links
+  - import { SignInRequired } from "@/components/SignInRequired";
+
+## Supabase, Hooks, and Utilities
+
+- Supabase client
+  - supClient() for auth and data operations
+- Store service and hooks
+  - store().select*/insert/update/delete
+  - useStoreItem(), useStoreMatchingItems(), useStoreFirstMatchingItem()
+- File utilities
+  - fileStore().getUrlAsync(path), getCachedUrl(path)
+  - useFileUrl(path)
+- User/account hooks
+  - useCurrentUser(), useAccount(), useUserRole(), useUserInfo()
+- App controller
+  - app().switchAccountAsync(accountId) to change active tenant
+- Utilities
+  - cn(...) to combine class names
+
+## Interaction and UI Patterns
+
+- Buttons and CTAs
+  - Pill-shaped, no static widths, use brand color for primary interactions
+- Links and icons
+  - Use brand color sparingly; lucide-react icons for clarity with minimal visual noise
+- States and emphasis
+  - Secondary color used for non-interactive emphasis; transparent tints for subtle backgrounds and borders
+- Thumbnails and lists
+  - Compact grid cards with rounded corners, neutral borders, and clear hover states
+- Modals and popovers
+  - For rename, move, duplicate, and delete actions within message categories
+
+## Glossary
+
+- Profile: A customer record with contact info, attributes, and events
+- Segment: A subset of profiles based on shared demographics or behavior
+- Message: A marketing communication with variants (email, SMS, push)
+- Category: A folder that organizes messages
+- Agent: An automated decisioning entity that selects message, channel, and send timing
+- Outcome: Event-to-ranking mapping guiding agent optimization
+- Holdout: Percentage of a segment withheld from agent sends for control and measurement
+</app-description>
+
+> appendUser
+<coding-rules>
+## Tech Stack
+- ReactJS
+- NextJS - pages directory and static site generation
+- Tailwinds v4
+- lucide-react - icons
+- Supabase
+
+## Layout
+It is preferred to use stacking layouts using flex-box columns to avoid running out of horizontal
+room. Avoid long names in buttons and prefer to use icons for buttons.
+
+If buttons display text DO NOT give the button a static width.
+
+## Static site generation
+The frontend of the app uses static site generation so no server side rendering should be used. All
+pages are stored in the pages directory and the NextJS app router is NOT used.
+
+## Exports
+Always use named exports unless explicitly told otherwise or required such as when creating NextJS
+pages.
+
+## Multi-tenet Database
+The database is a multi-tenet database where the `account` table represents each tenet. All entities
+that belong to or fall under an account should have an `account_id` property directly linking the
+entity to an account. Entities that can belong to multiple accounts should use a join table to
+link to an account. 
+
+The `user` table is linked to the `account` table through the `account_membership` table.
+
+
+## Required Entities
+The following entities must be represented in the database schema. Additional properties or values
+can be added to the entities
+
+### User
+Represents a signed-in user
+
+Table name: user
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- email: text
+- profile_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### Account
+Represents a company or organization
+
+Table name: account
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- logo_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### AccountMembership
+Links a User to an Account
+
+Table name: account_membership
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- last_accessed_at: timestamptz
+- user_id: uuid
+- account_id: uuid
+- role: UserRole
+
+### UserRole
+An enumeration of different role types.
+- admin: The admin of an account
+- standard: The default role of a user
+- guest: A guest in an account
+Enum name: user_role
+
+
+
+## Schema Utility Types
+The `@/lib/schema` import contains types and objects that map to the database schema.
+
+`@/lib/schema` exports the following:
+- typeDefs: An object of type `Record<string,TypeDef>` containing key value pairs for each table in the database.
+- {type_name}: An interface that represents the structure of a value in a table.
+- {type_name}_insert: An interface that represents the structure of a value to be inserted in the a table.
+- {type_name}Schema: A Zod schema that represents the structure of a value in a table.
+- {type_name}_insertSchema: A Zod schema that represents the structure of a value to be inserted in the a table.
+- TypeDef: An interface that represents a type
+- PropDef: An interface the represents a property of a type
+- TypeMapping: An interface that maps type names to various programming languages.
+
+
+Example:
+``` ts
+import { User, User_insert, UserSchema, User_insertSchema, typeDefs } from "@/lib/schema";
+
+let user:User;
+UserSchema.parse(user);
+
+let newUser:User_insert;
+User_insertSchema.parse(newUser);
+
+const userPrimaryKey=typeDefs.primaryKey;
+```
+
+Schema Utility Interfaces:
+``` ts
+export interface TypeMapping
+{
+    name:string;
+    ts?:string;
+    zod?:string;
+    convo?:string;
+    sql?:string;
+}
+
+export interface PropDef
+{
+    name:string;
+    type:TypeMapping;
+    primary?:boolean;
+    description?:string;
+    sqlDef?:string;
+    optional?:boolean;
+    hasDefault?:boolean;
+    isArray?:boolean;
+    arrayDimensions?:number;
+}
+
+export interface TypeDef<
+    TValue extends Record<string,any>=Record<string,any>,
+    TInsert extends Record<string,any>=Record<string,any>
+\>{
+
+
+    name:string;
+    description?:string;
+    type:'type'|'enum';
+    primaryKey:(keyof TValue) & (keyof TInsert);
+    sqlTable?:string;
+    sqlSchema?:string;
+    zodSchema?:ZodType;
+    zodInsertSchema?:ZodType;
+    props:PropDef[];
+}
+```
+
+## Supabase client
+The `supClient` function imported from "@/lib/supabase" can be used to access an instance of a
+Supabase client.
+
+Supabase Client Example:
+``` ts
+import { supClient } from "@/lib/supabase";
+
+async function signInExampleAsync(){
+    const signInResult=await supClient().auth.signInWithPassword({email,password});
+}
+```
+
+## File Storage
+File should be stored using supabase storage using the `accounts` bucket and use the following pattern for paths.
+
+File path pattern: `{account_id}/users/{user_id}/{REST_OF_PATH}`
+
+Example file path for:
+- account_id: 809f36d5-8549-417e-b89c-7f1cb129b4dc
+- user_id: fe691ceb-ba31-421e-9a51-7fb1207965e8
+- file_name: example-book.pdf
+
+Upload Path: `809f36d5-8549-417e-b89c-7f1cb129b4dc/users/fe691ceb-ba31-421e-9a51-7fb1207965e8/example-book.pdf`
+
+### Storing file path in Database
+When storing file paths in the database only path of uploaded files should be store, the full URL
+will be generated client side using either the `fileStore()` service imported from `@/lib/fileStore`
+or using the `useFileUrl` hook imported from `@/lib/hooks`.
+
+Example of getting full URL for user profile picture using the `fileStore()` service:
+``` ts
+import { fileStore } from "@/lib/fileStore";
+import { User } from "@/lib/schema";
+
+async function exampleFunction(user:User){
+    if(!user.profile_image_path){
+        return;
+    }
+    const profilePictureUrl=await fileStore().getUrlAsync(user.profile_image_path);
+}
+```
+
+Example of getting full URL for user profile picture using the `useFileUrl` hook:
+``` tsx
+import { useFileUrl } from "@/lib/hooks";
+import { User } from "@/lib/schema";
+
+function ExampleComponent({user}:{user:User}){
+    const profilePictureUrl=useFileUrl(user.profile_image_path);
+    return (
+        <div>
+            {profilePictureUrl===null?
+                'loading'
+            :profilePictureUrl===undefined
+                'No profile picture'
+            :
+                <img src={profilePictureUrl}/>
+            }
+        </div>
+    )
+}
+```
+
+fileStore API:
+``` ts
+/**
+ * Utility class for Supabase storage operations. By default the FileStore class uses the `accounts`
+ * bucket.
+ */
+export class FileStore
+{
+    /**
+     * Gets the full URL for a given path. When needed signed URLs will be created. The result of the
+     * function will be cached and future calls for the same path will returned immediately
+     */
+    public async getUrlAsync(path:string):Promise<string|undefined>;
+
+    /**
+     * Attempts to get the cached URL for the path. If a URL has not been cached for the path
+     * undefined will be returned.
+     */
+    public getCachedUrl(path:string):string|undefined;
+}
+```
+
+useFileUrl API
+``` ts
+/**
+ * Gets the full URL to a given path
+ * Return values:
+ * null: URL info is being loaded
+ * undefined: URL not available
+ * {string}: The full URL of the path
+ * @param path The path to get a URL for. If null or undefined then undefined is returned.
+ */
+export const useFileUrl=(path:string|null|undefined):string|null|undefined=>;
+```
+
+
+
+## CRUD
+Common CRUD operations can be handled using the `store()` service imported from `@/lib/store`
+or the `useStore*()` React hooks imported from `@/lib/hooks`.
+
+Store service example:
+``` ts
+import { store } from "@/lib/store";
+import { typeDefs } from "@/lib/schema";
+
+const user=await store().selectFirstMatchesAsync(typeDefs.User,{email:'example@example.com'})
+```
+
+Use store hook example:
+``` ts
+import { useFirstMatchingStoreItem } from "@/lib/hooks";
+import { typeDefs } from "@/lib/schema";
+
+function ExampleComponent()
+{
+    const user=useFirstMatchingStoreItem(typeDefs.User,{email:'example@example.com'});
+}
+```
+
+### Store service API
+
+``` ts
+
+export class Store
+{
+
+    /**
+     * Gets an item from a table by table name and id. Undefined is returned if no item exists
+     * in the table with the given id.
+     * @param table Name of table to get item from
+     * @param id Id of item to get
+     */
+    public async selectFirstAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+
+    /**
+     * Selects all matching items from the given table
+     * @param table Name of table to select from
+     * @param match An object with properties to match against
+     * @param options Options used to control selection
+     */
+    public async selectMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>,options?:SelectOptions):Promise<Record<string,any>[]>;
+
+    /**
+     * Selects the first matching item form the given table
+     * @param table Table to select from
+     * @param match An object with properties to match against
+     */
+    public async selectFirstMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>):Promise<Record<string,any>|undefined>;
+
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async insertAsync<T extends Record<string,any>>(table:string|TypeDef<Record<string,any>,T>,value:T):Promise<T>;
+    
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async updateAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string,value:Partial<T>):Promise<T>;
+    
+    /**
+     * Deletes an item from a table
+     * @param table The name of the table to delete the item from
+     * @param id The Id of the item to delete
+     * @returns The value of the item before being delete or undefined
+     */
+    public async deleteAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+}
+```
+
+### Store hooks
+The store hooks also have the added benefit of automatically receiving updates when changes are made
+by the `store()` service.
+
+``` ts
+
+export interface UseStoreItemOptions
+{
+    /**
+     * If true useStoreItem will return undefined
+     */
+    disabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when disabled. By default the last loaded
+     * value will be returned when disabled.
+     */
+    resetOnDisabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when table or id changes. By default the last loaded
+     * value will be returned until the new value is loaded.
+     */
+    resetOnChange?:boolean;
+}
+
+export type UseStoreItemsOptions = UseStoreItemOptions & SelectOptions;
+
+/**
+ * Returns an item by id from a given table. Any updates made to the item elsewhere in the app
+ * will cause useStoreItem to return the new value.
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T,any>|string|null|undefined,
+    id:string|null|undefined,
+    options?:UseStoreItemOptions
+):T|null|undefined=>;
+
+/**
+ * Returns all matching items
+ *
+ * null is returned while the items are loading.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreMatchingItems=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T[]|null=>;
+
+
+/**
+ * Returns all matching items
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreFirstMatchingItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T|null|undefined=>;
+
+```
+
+## Full screen screens
+The `useFullPage` hook can be used to display a full screen page without the main navigation bar.
+
+example:
+``` tsx
+import { useFullPage } from "@/lib/hooks";
+
+function ExampleComponent(){
+
+    useFullPage();
+
+    return (
+        <div></div>
+    )
+}
+```
+
+## Form Data
+When creating forms store form data in a typed useState variable.
+
+Zod schemas can be imported from `@/lib/schema` to validate types stored in the database.
+
+Form state example:
+``` tsx
+
+interface NewsletterForm
+{
+    name:string
+    email:string;
+}
+function ExampleComponent()
+{
+    const [newsletterData,setNewsletterData]=useState<NewsletterForm>({
+        name:'',
+        email:'',
+    });
+
+    return (
+        <form>
+            <input
+                placeholder="Enter name"
+                value={newsletterData.name}
+                onChange={e=>setNewsletterData({...newsletterData,name:e.target.value})}
+            />
+            <input
+                placeholder="Enter email"
+                value={newsletterData.email}
+                onChange={e=>setNewsletterData({...newsletterData,email:e.target.value})}
+            />
+        </form>
+    )
+}
+```
+
+## Pages
+When creating NextJS pages export the page component as a default function with the function
+name reflecting the name of the page.
+
+Do not use the MainLayout component when creating a page. The Main Layout component will be
+used by the top level App component.
+
+Include the name of the page in the className of the root element of the page component using the
+format of: "page--{PageComponentName}"
+
+Example Page with a route of "/example":
+``` tsx
+
+export default function ExamplePage(){
+
+    return (
+        <div className="page--ExamplePage">
+            Example page content
+        <div>
+    )
+}
+```
+
+## Main Layout
+The `MainLayout` component is used by the top level `App` component to render the main layout of the
+app. By default the MainLayout should render pages in a centered column with a navigation bar.
+
+### Main Layout Display modes
+Pages can use the `useFullPage` and `useNoMargins` hooks to alter the way the page is displayed.
+Implement display modes using css or class names, DO NOT change the render order or do anything
+that would cause the page to be unmounted.
+
+### Main Layout Fullscreen Mode
+Pages can request to enter into fullscreen. Use the `useIsInFullPageMode` hook imported from 
+`@/lib/hooks` to check if the page should be displayed in fullscreen mode. If useIsInFullPageMode
+returns true hide the main navigation and any other UI other than the page content.
+
+### Main Layout No Margins Mode
+Pages can request to remove all page margins so that they can display content edge to edge. Use
+the `useIsNoMarginMode` hook imported from `@/lib/hooks` to check if the page should be displayed
+in no margins mode.
+
+
+## Packages
+This is the package.json file for the project. You can only use libraries based on the dependencies
+of the package.json file.
+
+``` json
+{
+  "dependencies": {
+    "lucide-react": "^0.544.0",
+    "markdown-it": "^14.1.0",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "rxjs": "^7.8.2",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.11",
+    "supabase": "^2.33.9",
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+
+```
+
+## Standard Components
+The following components can be used
+
+### Logo
+Displays the apps logo using an SVG
+
+Import: `import { Logo } from "@/components/Logo";`
+Props:
+``` ts
+interface LogoProps
+{
+    color?:string;
+    /**
+     * @default "w-8 h-8"
+     */ 
+    className?:string;
+    size?:string|number;
+}
+```
+
+### SignInRequired
+A card to display when a user does not have access to a screen with links to sign-in or register.
+Import: `import { Logo } from "@/components/SignInRequired";`
+Props:
+``` ts
+interface SignInRequiredProps
+{
+
+    /**
+     * A message to display to the user
+     */
+    message?:string;
+    className?:string;
+}
+```
+
+
+## User Registration
+
+When registering a new user store the user's name and account name in options.data object
+of the user sign-up options:
+``` ts
+await supClient().auth.signUp({
+    email: form.email.trim(),
+    password: form.password,
+    options: {
+        data: { name: form.name, accountName:form.accountName },
+    },
+});
+```
+
+When registering a new user do not explicitly insert any values into the database.
+User and account setup will be handled by the backend.
+
+
+## Utility Functions
+The following utility functions can be imported from `@/lib/util`
+
+``` ts
+export type ClassNameValue = string | false | number | null | undefined | {
+    [className: string]: any;
+} | ClassNameValue[];
+
+/**
+ * Combines class names and ignores falsy values.
+ */
+export const cn=(...classNames:ClassNameValue[]):string=>;
+```
+
+
+## Hooks
+React components can use the following hooks imported from `@/lib/hooks`
+
+``` ts
+/**
+ * Hides common UI controls such as the main nav bar.
+ * @param enabled If false the hook is disabled
+ */
+export const useFullPage=(enabled=true)=>;
+
+/**
+ * Removes all margins and paddings from the main layout while keeping the main navigation and
+ * other shared UI elements
+ * @param enabled If false the hook is disabled
+ */
+export const useNoMargins=(enabled=true)=>;
+
+/**
+ * Returns true if the page should be displayed in full screen
+ */
+export const useIsInFullPageMode=():boolean=>{
+    const count=useSubject(fullPageSubject);
+    return count>0;
+}
+
+/**
+ * Returns true if the page should remove all margins
+ */
+export const useIsNoMarginMode=():boolean=>;
+
+/**
+ * Returns the current signed-in user.
+ * null === user is being loaded
+ * undefined === user is not signed in
+ */
+export const useCurrentUser=():User|null|undefined=>;
+
+/**
+ * Returns the current account the user is signed into.
+ * null === account is being loaded
+ * undefined === No account found for user
+ */
+export const useAccount=():Account|null|undefined=>;
+
+/**
+ * Returns the role of the user in the current account.
+ * null === role is being loaded
+ * undefined === No role found for user
+ */
+export const useUserRole=():UserRole|null|undefined=>;
+
+/**
+ * Returns the information about the current user, including a user object, account object
+ * and the role the user has for the account.
+ * null === user info is being loaded
+ * undefined === user is not signed in
+ */
+export const useUserInfo=():UserInfo|null|undefined=>;
+```
+
+## Utility types
+The following utility types can be imported from `@/lib/types-util`
+
+``` ts
+export interface UserInfo
+{
+    user:User;
+    role?:UserRole;
+    membership?:AccountMembership;
+    account?:Account;
+}
+
+/**
+ * Options used with select queries
+ */
+export interface SelectOptions
+{
+    offset?:number;
+    limit?:number;
+    orderBy?:string;
+    /**
+     * If true return items will be ordered in descending order
+     */
+    orderByDesc?:boolean;
+}
+```
+
+## App Controller
+The App Controller can be accessed by calling the `app` function imported from `@/lib/app`.
+
+Use can use the App Controller to switch between accounts
+``` ts
+import { app } from `@/lib/app`
+
+async function switchAccountExample(accountId:string){
+    await app().switchAccountAsync(accountId);
+}
+```
+</coding-rules>
+
+> appendUser
+<editor-config>
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+</editor-config>
+
+> appendUser
+Generate a database schema as an SQL file. Do not include any seed data. The schema should
+    only define table structure, enumerated types, indexes and other structural database entities.
+
+    Make sure to include the "Required Entities" from `coding-rules`.
+
+    The schema will be used to create a database using Supabase. Do not include auth properties
+    for user sign-in, that will be handled by Supabase.
+
+    User singular form names for tables and types.
+
+    Use modern Postgres SQL syntax.
+    - Use the `constraint` keyword to define constraints in create table statements.
+    - Use the `references` within constraints to reference foreign key relations.
+    - The primary key of all tables should be named `id` and use a data type of `uuid` -> `id uuid not null default gen_random_uuid ()`
+    - Do not create any functions or triggers or views
+    - Add comments to columns and tables by using standard SQL statements located on the line above table and column definitions
+    - Do not use generated / computed columns
+
+    Comment examples:
+    ``` sql
+    -- A user
+    create table public.user (
+        -- Unique id of the user
+        id uuid not null default gen_random_uuid(),
+        
+        -- Name of the user
+        name text not null;
+    );
+    ```
+
+> nop
+//_END_MAKE_TARGET_INPUT_
+
+
+@time 2025-11-06T17:39:51-05:00
+@tokenUsage 9000 / 9555 / $0.023193750000000003
+@model gpt-5-2025-08-07
+> assistant
+-- Enable extensions needed for UUID generation
+create extension if not exists pgcrypto;
+
+-- Role enumeration for account membership
+create type public.user_role as enum (
+    'admin',
+    'standard',
+    'guest'
+);
+
+-- Communication channel enumeration
+create type public.channel as enum (
+    'email',
+    'sms',
+    'push'
+);
+
+-- Outcome ranking enumeration
+create type public.outcome_rank as enum (
+    'worst',
+    'good',
+    'very_good',
+    'best'
+);
+
+-- Event type enumeration for analytics and attribution
+create type public.event_type as enum (
+    'page_view',
+    'session_start',
+    'form_submit',
+    'message_sent',
+    'message_open',
+    'message_click',
+    'message_bounce',
+    'subscriber_new',
+    'subscriber_removed',
+    'add_to_cart',
+    'favorite',
+    'checkout_started',
+    'checkout_abandoned',
+    'purchase',
+    'push_open'
+);
+
+-- Sending frequency enumeration for agents
+create type public.send_frequency as enum (
+    'daily',
+    'six_per_week',
+    'five_per_week',
+    'weekly',
+    'biweekly',
+    'monthly'
+);
+
+-- Time window enumeration for agents
+create type public.send_time_window as enum (
+    'morning',
+    'afternoon',
+    'evening'
+);
+
+-- Channel subscription status enumeration
+create type public.subscription_status as enum (
+    'subscribed',
+    'unsubscribed',
+    'bounced',
+    'pending'
+);
+
+-- A user
+create table public.user (
+    -- Unique id of the user
+    id uuid not null default gen_random_uuid (),
+    -- When the user row was created
+    created_at timestamptz not null default now(),
+    -- Name of the user
+    name text not null,
+    -- Email of the user (used for identification within the app; auth handled by Supabase)
+    email text not null,
+    -- Path of the profile picture in the 'accounts' bucket using the pattern {account_id}/users/{user_id}/...
+    profile_image_path text,
+    -- Optional hero/cover image path in the 'accounts' bucket
+    hero_image_path text,
+    constraint user_pkey primary key (id),
+    constraint user_email_unique unique (email)
+);
+create index user_email_idx on public.user (email);
+
+-- An account (tenant)
+create table public.account (
+    -- Unique id of the account
+    id uuid not null default gen_random_uuid (),
+    -- When the account was created
+    created_at timestamptz not null default now(),
+    -- Display name of the account
+    name text not null,
+    -- Path to the logo image in the 'accounts' bucket
+    logo_image_path text,
+    -- Optional hero/cover image path for the account in the 'accounts' bucket
+    hero_image_path text,
+    constraint account_pkey primary key (id)
+);
+create index account_name_idx on public.account (name);
+
+-- A membership linking a user to an account with a role
+create table public.account_membership (
+    -- Unique id of the membership
+    id uuid not null default gen_random_uuid (),
+    -- When the membership was created
+    created_at timestamptz not null default now(),
+    -- When the member last accessed the account
+    last_accessed_at timestamptz,
+    -- The user this membership is for
+    user_id uuid not null,
+    -- The account this membership belongs to
+    account_id uuid not null,
+    -- The role of the user within this account
+    role public.user_role not null default 'standard',
+    constraint account_membership_pkey primary key (id),
+    constraint account_membership_user_fk foreign key (user_id) references public.user (id) on delete cascade,
+    constraint account_membership_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint account_membership_unique unique (user_id, account_id)
+);
+create index account_membership_user_idx on public.account_membership (user_id);
+create index account_membership_account_idx on public.account_membership (account_id);
+create index account_membership_role_idx on public.account_membership (role);
+
+-- An invitation to join an account
+create table public.account_invite (
+    -- Unique id of the invite
+    id uuid not null default gen_random_uuid (),
+    -- When the invite was created
+    created_at timestamptz not null default now(),
+    -- The account this invite is for
+    account_id uuid not null,
+    -- The user who created the invite
+    invited_by_user_id uuid,
+    -- Optional email address the invite targets
+    email text,
+    -- The role granted if the invite is accepted
+    role public.user_role not null default 'standard',
+    -- The unique invite code part used in the invite URL
+    invite_code text not null,
+    -- When the invite was accepted
+    accepted_at timestamptz,
+    -- When the invite was declined
+    declined_at timestamptz,
+    -- When the invite expires
+    expires_at timestamptz,
+    -- If true, the invite is currently active/valid
+    is_active boolean not null default true,
+    constraint account_invite_pkey primary key (id),
+    constraint account_invite_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint account_invite_invited_by_fk foreign key (invited_by_user_id) references public.user (id) on delete set null,
+    constraint account_invite_code_unique unique (invite_code)
+);
+create index account_invite_account_idx on public.account_invite (account_id);
+create index account_invite_email_idx on public.account_invite (email);
+create index account_invite_active_idx on public.account_invite (is_active);
+
+-- A stored customer profile
+create table public.profile (
+    -- Unique id of the profile
+    id uuid not null default gen_random_uuid (),
+    -- When the profile was created
+    created_at timestamptz not null default now(),
+    -- The account this profile belongs to
+    account_id uuid not null,
+    -- First name
+    first_name text,
+    -- Last name
+    last_name text,
+    -- Email address
+    email text,
+    -- Phone number (E.164 suggested)
+    phone text,
+    -- Device identifier (for push/SDK correlation)
+    device_id text,
+    -- Street address
+    address_street text,
+    -- City
+    address_city text,
+    -- State or region
+    address_state text,
+    -- Postal or ZIP code
+    address_zip text,
+    -- Country
+    address_country text,
+    -- Optional job title
+    job_title text,
+    -- Optional department
+    department text,
+    -- Optional company name
+    company text,
+    -- Arbitrary attributes for CRM-like properties and enrichment payloads
+    attributes jsonb not null default '{}'::jsonb,
+    -- External system identifier (e.g., CRM ID)
+    external_id text,
+    constraint profile_pkey primary key (id),
+    constraint profile_account_fk foreign key (account_id) references public.account (id) on delete cascade
+);
+create index profile_account_idx on public.profile (account_id);
+create index profile_email_idx on public.profile (email);
+create index profile_phone_idx on public.profile (phone);
+create index profile_device_idx on public.profile (device_id);
+
+-- A segment of profiles
+create table public.segment (
+    -- Unique id of the segment
+    id uuid not null default gen_random_uuid (),
+    -- When the segment was created
+    created_at timestamptz not null default now(),
+    -- The account this segment belongs to
+    account_id uuid not null,
+    -- Name of the segment
+    name text not null,
+    -- Description of the segment
+    description text,
+    -- Criteria used to define segment membership (demographics, behavior, etc.)
+    criteria jsonb not null default '{}'::jsonb,
+    -- If true, membership is dynamically evaluated; otherwise uses explicit membership
+    is_dynamic boolean not null default true,
+    constraint segment_pkey primary key (id),
+    constraint segment_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint segment_unique_name_per_account unique (account_id, name)
+);
+create index segment_account_idx on public.segment (account_id);
+
+-- Membership join between segment and profile
+create table public.segment_profile (
+    -- Unique id of the segment-profile membership
+    id uuid not null default gen_random_uuid (),
+    -- When the profile was added to the segment
+    added_at timestamptz not null default now(),
+    -- The account this membership belongs to
+    account_id uuid not null,
+    -- The segment id
+    segment_id uuid not null,
+    -- The profile id
+    profile_id uuid not null,
+    constraint segment_profile_pkey primary key (id),
+    constraint segment_profile_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint segment_profile_segment_fk foreign key (segment_id) references public.segment (id) on delete cascade,
+    constraint segment_profile_profile_fk foreign key (profile_id) references public.profile (id) on delete cascade,
+    constraint segment_profile_unique unique (segment_id, profile_id)
+);
+create index segment_profile_account_idx on public.segment_profile (account_id);
+create index segment_profile_segment_idx on public.segment_profile (segment_id);
+create index segment_profile_profile_idx on public.segment_profile (profile_id);
+
+-- A message category (content library/folder)
+create table public.message_category (
+    -- Unique id of the message category
+    id uuid not null default gen_random_uuid (),
+    -- When the category was created
+    created_at timestamptz not null default now(),
+    -- The account this category belongs to
+    account_id uuid not null,
+    -- Name of the category
+    name text not null,
+    -- Optional description of the category
+    description text,
+    -- Optional preview/thumbnail image path in the 'accounts' bucket
+    thumbnail_image_path text,
+    constraint message_category_pkey primary key (id),
+    constraint message_category_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint message_category_unique_name_per_account unique (account_id, name)
+);
+create index message_category_account_idx on public.message_category (account_id);
+
+-- A marketing message imported from an external source (e.g., GardenIQ)
+create table public.message (
+    -- Unique id of the message
+    id uuid not null default gen_random_uuid (),
+    -- When the message was created (imported)
+    created_at timestamptz not null default now(),
+    -- The account this message belongs to
+    account_id uuid not null,
+    -- The category this message belongs to
+    category_id uuid,
+    -- Human-readable name of the message
+    name text not null,
+    -- External source name, e.g., 'gardeniq'
+    external_source text not null default 'gardeniq',
+    -- External id for cross-system mapping
+    external_id text,
+    -- Optional tags for organization
+    tags text[] not null default '{}',
+    constraint message_pkey primary key (id),
+    constraint message_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint message_category_fk foreign key (category_id) references public.message_category (id) on delete set null,
+    constraint message_unique_name_per_category unique (account_id, category_id, name)
+);
+create index message_account_idx on public.message (account_id);
+create index message_category_idx on public.message (category_id);
+create index message_external_idx on public.message (external_source, external_id);
+
+-- A message variant per channel (email, sms, push)
+create table public.message_variant (
+    -- Unique id of the message variant
+    id uuid not null default gen_random_uuid (),
+    -- When the variant was created
+    created_at timestamptz not null default now(),
+    -- The account this variant belongs to
+    account_id uuid not null,
+    -- The parent message
+    message_id uuid not null,
+    -- Channel for this variant
+    channel public.channel not null,
+    -- Email subject (email channel)
+    email_subject text,
+    -- Email HTML content (email channel)
+    email_html text,
+    -- Email plain text content (email channel)
+    email_text text,
+    -- SMS text (sms channel)
+    sms_text text,
+    -- Push notification title (push channel)
+    push_title text,
+    -- Push notification body (push channel)
+    push_body text,
+    -- Optional preview image path in the 'accounts' bucket
+    preview_image_path text,
+    constraint message_variant_pkey primary key (id),
+    constraint message_variant_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint message_variant_message_fk foreign key (message_id) references public.message (id) on delete cascade,
+    constraint message_variant_unique_per_channel unique (message_id, channel)
+);
+create index message_variant_account_idx on public.message_variant (account_id);
+create index message_variant_message_idx on public.message_variant (message_id);
+
+-- An AI decisioning agent configuration
+create table public.agent (
+    -- Unique id of the agent
+    id uuid not null default gen_random_uuid (),
+    -- When the agent was created
+    created_at timestamptz not null default now(),
+    -- The account this agent belongs to
+    account_id uuid not null,
+    -- Display name of the agent
+    name text not null,
+    -- Default email address for sending (from)
+    default_email_from text,
+    -- Default SMS phone number for sending (from)
+    default_sms_from text,
+    -- The segment targeted by this agent
+    segment_id uuid not null,
+    -- The holdout percentage for control group (0-100)
+    holdout_percentage numeric(5,2) not null default 0,
+    -- The message category (content library) assigned to this agent
+    message_category_id uuid not null,
+    -- Sending frequency
+    send_frequency public.send_frequency not null,
+    -- Days of week allowed (0=Mon ... 6=Sun)
+    send_days smallint[] not null default '{}',
+    -- Time windows allowed for sending
+    send_time_windows public.send_time_window[] not null default '{}',
+    -- If true, the agent is active
+    is_active boolean not null default false,
+    -- When the agent was activated
+    activated_at timestamptz,
+    -- When the agent was deactivated
+    deactivated_at timestamptz,
+    -- Optional description of desired outcomes/goals
+    desired_outcome_description text,
+    constraint agent_pkey primary key (id),
+    constraint agent_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint agent_segment_fk foreign key (segment_id) references public.segment (id) on delete restrict,
+    constraint agent_message_category_fk foreign key (message_category_id) references public.message_category (id) on delete restrict,
+    constraint agent_holdout_pct_chk check (holdout_percentage >= 0 and holdout_percentage <= 100),
+    constraint agent_send_days_chk check (send_days <@ ARRAY[0,1,2,3,4,5,6]::smallint[])
+);
+create index agent_account_idx on public.agent (account_id);
+create index agent_segment_idx on public.agent (segment_id);
+create index agent_category_idx on public.agent (message_category_id);
+create index agent_active_idx on public.agent (is_active);
+
+-- Mapping from events to desired outcome ranks for an agent
+create table public.outcome_mapping (
+    -- Unique id of the outcome mapping
+    id uuid not null default gen_random_uuid (),
+    -- When the mapping was created
+    created_at timestamptz not null default now(),
+    -- The account this mapping belongs to
+    account_id uuid not null,
+    -- The agent this mapping belongs to
+    agent_id uuid not null,
+    -- The event type being mapped
+    event_type public.event_type not null,
+    -- The outcome rank associated with the event
+    outcome public.outcome_rank not null,
+    -- Optional weight or score for optimization
+    weight numeric(10,2),
+    constraint outcome_mapping_pkey primary key (id),
+    constraint outcome_mapping_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint outcome_mapping_agent_fk foreign key (agent_id) references public.agent (id) on delete cascade,
+    constraint outcome_mapping_unique_per_event unique (agent_id, event_type)
+);
+create index outcome_mapping_account_idx on public.outcome_mapping (account_id);
+create index outcome_mapping_agent_idx on public.outcome_mapping (agent_id);
+
+-- Channel subscription per profile and channel
+create table public.channel_subscription (
+    -- Unique id of the subscription
+    id uuid not null default gen_random_uuid (),
+    -- When the subscription record was created
+    created_at timestamptz not null default now(),
+    -- The account this subscription belongs to
+    account_id uuid not null,
+    -- The profile this subscription belongs to
+    profile_id uuid not null,
+    -- The channel for the subscription
+    channel public.channel not null,
+    -- Status of the subscription
+    status public.subscription_status not null default 'subscribed',
+    -- Target address/identifier for the channel (email address, phone, or device token)
+    address text,
+    -- When the subscription was established
+    subscribed_at timestamptz,
+    -- When the subscription was terminated
+    unsubscribed_at timestamptz,
+    -- When the last bounce occurred (if any)
+    last_bounced_at timestamptz,
+    -- If true, this is the primary subscription for the channel
+    is_primary boolean not null default true,
+    constraint channel_subscription_pkey primary key (id),
+    constraint channel_subscription_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint channel_subscription_profile_fk foreign key (profile_id) references public.profile (id) on delete cascade,
+    constraint channel_subscription_unique_per_channel unique (account_id, profile_id, channel)
+);
+create index channel_subscription_account_idx on public.channel_subscription (account_id);
+create index channel_subscription_profile_idx on public.channel_subscription (profile_id);
+create index channel_subscription_channel_idx on public.channel_subscription (channel);
+create index channel_subscription_status_idx on public.channel_subscription (status);
+
+-- A recorded decision made by an agent
+create table public.agent_decision (
+    -- Unique id of the decision
+    id uuid not null default gen_random_uuid (),
+    -- When the decision was recorded
+    created_at timestamptz not null default now(),
+    -- When the decision was made
+    decisioned_at timestamptz not null default now(),
+    -- The account this decision belongs to
+    account_id uuid not null,
+    -- The agent that made the decision
+    agent_id uuid not null,
+    -- The profile targeted by the decision
+    profile_id uuid not null,
+    -- The selected message (if any)
+    message_id uuid,
+    -- The selected message variant (if any)
+    message_variant_id uuid,
+    -- The chosen channel for sending
+    channel public.channel,
+    -- The chosen scheduled send time
+    scheduled_send_at timestamptz,
+    -- Concise reasoning for the decision
+    reasoning text,
+    -- True if the profile was in the holdout group and no send should occur
+    is_holdout boolean not null default false,
+    -- True if a send occurred for this decision
+    was_sent boolean,
+    -- When the send occurred (if sent)
+    sent_at timestamptz,
+    -- Optional error information if sending failed
+    send_error text,
+    constraint agent_decision_pkey primary key (id),
+    constraint agent_decision_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint agent_decision_agent_fk foreign key (agent_id) references public.agent (id) on delete cascade,
+    constraint agent_decision_profile_fk foreign key (profile_id) references public.profile (id) on delete cascade,
+    constraint agent_decision_message_fk foreign key (message_id) references public.message (id) on delete set null,
+    constraint agent_decision_message_variant_fk foreign key (message_variant_id) references public.message_variant (id) on delete set null
+);
+create index agent_decision_account_idx on public.agent_decision (account_id);
+create index agent_decision_agent_idx on public.agent_decision (agent_id);
+create index agent_decision_profile_idx on public.agent_decision (profile_id);
+create index agent_decision_scheduled_idx on public.agent_decision (scheduled_send_at);
+create index agent_decision_created_idx on public.agent_decision (created_at);
+
+-- An analytics/event record used for web, messaging, ecommerce, and attribution
+create table public.event (
+    -- Unique id of the event
+    id uuid not null default gen_random_uuid (),
+    -- When the event row was created
+    created_at timestamptz not null default now(),
+    -- When the event occurred
+    occurred_at timestamptz not null,
+    -- The account this event belongs to
+    account_id uuid not null,
+    -- The profile associated with the event (if known)
+    profile_id uuid,
+    -- Type of event
+    event_type public.event_type not null,
+    -- Channel associated with the event (if applicable)
+    channel public.channel,
+    -- Message associated with the event (if applicable)
+    message_id uuid,
+    -- Agent associated with the event (if applicable)
+    agent_id uuid,
+    -- Session identifier for web analytics
+    session_id text,
+    -- Page URL for page-related events
+    page_url text,
+    -- Product identifier for ecommerce events
+    product_id text,
+    -- Order identifier for purchase/checkout events
+    order_id text,
+    -- Monetary revenue amount for purchase/attribution
+    revenue numeric(12,2),
+    -- Currency code (ISO 4217)
+    currency char(3),
+    -- Additional event properties and metadata
+    properties jsonb not null default '{}'::jsonb,
+    constraint event_pkey primary key (id),
+    constraint event_account_fk foreign key (account_id) references public.account (id) on delete cascade,
+    constraint event_profile_fk foreign key (profile_id) references public.profile (id) on delete set null,
+    constraint event_message_fk foreign key (message_id) references public.message (id) on delete set null,
+    constraint event_agent_fk foreign key (agent_id) references public.agent (id) on delete set null
+);
+create index event_account_idx on public.event (account_id);
+create index event_profile_idx on public.event (profile_id);
+create index event_type_time_idx on public.event (event_type, occurred_at desc);
+create index event_account_type_time_idx on public.event (account_id, event_type, occurred_at desc);
+create index event_agent_idx on public.event (agent_id);
+create index event_message_idx on public.event (message_id);
+
+
+
+> user

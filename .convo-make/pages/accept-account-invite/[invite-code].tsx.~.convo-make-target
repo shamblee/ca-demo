@@ -1,0 +1,4137 @@
+> define
+__makeRoot="../../.."
+__makeFile="make.convo"
+__makeOut="pages/accept-account-invite/[invite-code].tsx"
+__model="gpt-5"
+
+> system
+You are generating content that will be directly written to "pages/accept-account-invite/[invite-code].tsx".
+DO NOT include a preamble or postamble.
+
+Always respond with the full content for "pages/accept-account-invite/[invite-code].tsx", even if you are making an
+small or incremental update.
+
+> appendUser
+<app-description>
+## Decisioning Demo
+
+A modern, professional, dark-themed platform for importing and enriching customer profiles, organizing contacts into segments, browsing message content libraries, and configuring AI decisioning agents that determine which message to send, when to send it, and through which channel.
+
+## Feature Summary
+
+- Profile management
+  - Import customer contact records (CSV or Excel)
+  - View list of profiles with key identifiers
+  - View profile details: contact info, attributes, event history
+  - Export and enrich profiles (bulk or selected)
+- Segmentation
+  - View list of segments
+  - View segment details with criteria and membership
+  - Segment-level KPIs (aggregate orders, AOV, LTV; subscriber counts by channel)
+- Messages and categories
+  - Browse message categories as “folders”
+  - View messages in a category as thumbnails with previews
+  - Message detail previews for email, SMS, and push notifications
+  - Manage messages within categories (duplicate, move, delete)
+  - Messages are imported from GardenIQ (no authoring in-app)
+- AI decisioning agents
+  - 3-step agent creation and configuration
+  - Assign segment, holdout, and message category
+  - Configure sending frequency, days, and time windows
+  - Define desired outcomes and map events to rankings (Worst, Good, Very Good, Best)
+  - Activate/deactivate agents
+  - View an agent’s decision log with reasoning
+- Analytics dashboard
+  - Web, messaging, ecommerce, and attribution analytics
+  - Attribution and ROI by message or agent (selectable)
+- Accounts and users
+  - Accept account invites
+  - View and edit account (admin)
+  - Invite users to the account via invite link
+  - User profiles (self and public)
+  - Role-based permissions
+- App shell and layout
+  - Global navigation with pages for Dashboard, Profiles, Segments, Messages, Decisioning, Settings
+  - Two-column main content layout with an optional right rail
+- Multi-tenant data model with Supabase
+  - Account-centric tenancy
+  - File storage using structured paths and signed URLs
+
+## User Roles and Access
+
+- App roles
+  - guest: view-only permissions
+  - default: standard account member; can edit content and configure agents
+  - manager: default permissions plus can add/remove users
+  - admin: all permissions; can change roles, manage billing, delete account
+
+- Database roles (UserRole enum)
+  - admin, standard, guest
+  - Mapping guidance
+    - guest (app) → guest (db)
+    - default (app) → standard (db)
+    - manager (app) → standard (db) plus manager capabilities handled by application logic/permissions checks
+    - admin (app) → admin (db)
+
+## Core Concepts and Relationships
+
+- Profiles: stored customer contact records
+- Enrichment: appends additional properties/attributes to profiles; creates Segments
+- Segments: subsets of profiles based on demographics and/or event history
+- Messages: imported content from GardenIQ; includes email, SMS, and push notification variants for a given subject
+- Message categories: folders/content libraries that agents draw from
+- Channels: the medium used for sending (email, SMS, push notification)
+- AI decisioning agents: select message, channel, send day/time, and execute sends to profiles
+- Agent settings: send frequency, time windows, desired outcomes, holdout percentage
+- Outcomes: ranked as Worst, Good, Very Good, Best; events map to rankings
+- Holdout percentage: portion of the segment excluded from agent sends for testing/control
+
+## Global Navigation
+
+- Left side pane navigation:
+  - Home → Dashboard (/dashboard)
+  - Profiles (/profiles)
+  - Segments (/segments)
+  - Messages (/messages)
+  - Decisioning (/decisioning)
+  - Settings → Account (/account)
+
+## Main Layout
+
+- Header bar with app logo (left) and user avatar (right)
+  - Clicking the logo → Dashboard
+  - Clicking the avatar → Profile (/profile)
+- Two-column responsive content area (approx. 80:20)
+  - Left: primary content
+  - Right: optional secondary content (right rail)
+  - Right rail can be hidden to allow full-width primary content
+
+## Styling Guidelines
+
+- Framework: Tailwind CSS (v4)
+- Look and Feel
+  - Modern, professional, dark palette
+  - Neutral backgrounds and borders
+  - Rounded corners; pill-shaped buttons
+- Color palette
+  - Brand: #4583F7 (var(--blue))
+  - Secondary: #8E59FF (var(--purple))
+- Usage rules
+  - Use brand color sparingly for interactive elements (buttons, links, clickable icons)
+  - Use thin brand-colored borders to highlight non-CTA elements when needed
+  - Use secondary color to highlight non-interactive important information or as an accent
+  - Both colors may be used with transparency for subtle shading and states
+
+## Screens
+
+### Accept Account Invite (/accept-account-invite/[invite-code])
+- Seen by: All
+- Description: Accept or decline invitations to join an account. Prompts sign-in if not authenticated.
+- Requirements
+  - Accept or decline the invite
+  - If not signed in, prompt to sign in first
+
+### Account (/account)
+- Seen by: All signed-in users
+- Description: View account details and manage membership (admin).
+- Requirements
+  - Display basic account info: name, logo, id (muted)
+  - Admins can edit account info
+  - Users section: grid of user cards (name, profile picture), link to public user profile
+  - Link to create a new account
+  - Admins can generate invite links:
+    - https://[location.host]/accept-account-invite/[inviteCode]
+
+### Agent Detail (/agent-detail)
+- Seen by: All signed-in users
+- Description: Detailed log of an agent’s decisions.
+- Requirements
+  - Each decision record includes:
+    - Timestamp
+    - Profile that was engaged
+    - Selected message
+    - Selected channel
+    - Chosen send time
+    - Summary of reasoning for message, channel, and timing
+
+### Create Agent (/create-agent)
+- Seen by: All signed-in users
+- Description: Three-step wizard to create and configure an AI decisioning agent.
+- Requirements
+  - Step 1
+    - Name, default email address, default SMS phone number for sending
+    - Assign one segment and a Holdout percentage
+    - Assign one message category
+  - Step 2
+    - Sending frequency (daily, 6x/week, 5x/week, weekly, every 2 weeks, monthly)
+    - Sending days (Mon–Sun checkboxes)
+    - Sending times (morning, afternoon, evening)
+  - Step 3
+    - Define desired outcomes
+    - Map an event to each ranking (Worst, Good, Very Good, Best)
+  - Activate the agent once configured
+
+### Dashboard (/dashboard)
+- Seen by: All signed-in users
+- Description: Analytics hub for agents and communications.
+- Requirements
+  - Data visualization with tabs/subpages:
+    - Web: page views, new/unique sessions, form submissions
+    - Messaging (all channels): sent, opened, clicked, bounced, new subscribers, unsubscribers
+    - Ecommerce: adds-to-cart, favorites/saves, initiated checkouts, abandoned checkouts, purchases
+    - Attribution: ROI metrics (revenue, orders, average order value) by message or agent; user-selectable comparisons
+
+### Decisioning (/decisioning)
+- Seen by: All signed-in users
+- Description: List of AI decisioning agents with create, view, and delete actions.
+- Requirements
+  - View list of user’s agents
+  - Create new agents
+  - Click into an agent to view details
+  - Delete agents
+
+### Message Category (/message-category)
+- Seen by: All signed-in users
+- Description: Grid of messages inside a single category folder.
+- Requirements
+  - Thumbnail preview grid
+  - Each tile shows message name and creation date
+  - Overflow menu (ellipsis) per message:
+    - Duplicate message
+    - Move message (modal with category dropdown, confirmation moves item and removes it from original category)
+    - Delete message
+  - Click a message to open the message detail view
+
+### Message Detail (/message-detail)
+- Seen by: All signed-in users
+- Description: Tabbed previews of email, SMS, and push notification variants of a single marketing message.
+- Requirements
+  - Email tab: branded email preview
+  - SMS tab: branded text message preview
+  - Notification tab: branded push notification preview
+
+### Messages (/messages)
+- Seen by: All signed-in users
+- Description: Grid of message categories (folders) with counts and management.
+- Requirements
+  - Each category tile shows name and number of messages
+  - Click a category to view messages inside
+  - Edit category names in a modal
+
+### Profile Detail (/profile-detail)
+- Seen by: All signed-in users
+- Description: Detailed view of a single profile with attributes and events.
+- Requirements
+  - Display contact info: first name, last name, email, phone, device ID, address fields (street, city, state, zip, country)
+  - Optional: job title, department, company
+  - Other marketing attributes (CRM-like properties)
+  - Event history: page views, message opens/clicks, add-to-cart, checkout events
+  - KPIs: total orders, average order value, lifetime value
+
+### Profile (/profile)
+- Seen by: All signed-in users (self-only)
+- Description: User’s personal profile page.
+- Requirements
+  - Show user information
+  - List of accounts the user belongs to with option to switch
+  - User can edit their profile (not email address)
+
+### Profiles (/profiles)
+- Seen by: All signed-in users
+- Description: List of stored profiles with bulk actions.
+- Requirements
+  - View list of profiles: full name, email, phone, device ID, date added
+  - Click through to profile detail
+  - Import additional profiles via CSV
+  - Enrich all or selected profiles
+  - Export all or selected profiles
+  - Checkboxes for selecting profiles for actions
+
+### Public Profile (/profile/[user-id])
+- Seen by: All signed-in users
+- Description: Public view of another user’s profile.
+- Requirements
+  - Show user information
+  - Account admins can view and change the user’s role
+  - Admins cannot change their own role
+
+### Register (/register)
+- Seen by: All
+- Description: Register a new user and create an organizational account.
+- Requirements
+  - Inputs: name, email, organization name, password
+  - If already signed in, show a message indicating they are already registered
+
+### Segment Detail (/segment-detail)
+- Seen by: All signed-in users
+- Description: Segment-level criteria, membership, and metrics.
+- Requirements
+  - Display: segment name, segment criteria
+    - Demographics: age range, gender, geography, socioeconomic status, marital status, children/pets
+    - Event history: purchases, add-to-cart, message opens/clicks, page/product views
+  - KPIs: total aggregate orders, AOV, aggregate LTV
+  - Membership: list of profiles with counts, including subscriber counts by channel (email, SMS, notifications)
+
+### Segments (/segments)
+- Seen by: All signed-in users
+- Description: List of customer segments with growth indicators.
+- Requirements
+  - View list with: segment name, number of profiles, profiles added over last 30 days (listed twice in spec; treat as growth metric)
+  - Click through to segment detail
+
+### Sign-in (/sign-in)
+- Seen by: All
+- Description: Access for existing users.
+- Requirements
+  - Inputs: email, password
+  - If already signed in, show a message indicating they are already signed in
+
+## AI Decisioning Agents
+
+- Purpose
+  - Decide which message to send, the best channel, and the optimal day/time window per profile within a segment
+- Configuration
+  - Segment assignment and holdout
+  - Message category selection (content library)
+  - Frequency controls (daily/weekly/biweekly/monthly), days, and time windows (morning/afternoon/evening)
+  - Outcome definitions with event mapping to Worst, Good, Very Good, Best
+- Operation
+  - Log every decision with timestamp, target profile, message, channel, scheduled send time, and concise reasoning
+  - Respect holdout percentage for control groups
+- Governance
+  - Only use messages imported from GardenIQ; no authoring within the app
+
+## Analytics and Attribution
+
+- Web analytics: page views, new/unique sessions, form submissions
+- Messaging: sends, opens, clicks, bounces, new subscribers, unsubscribers across all channels
+- Ecommerce: add-to-cart, favorites/saves, initiated checkout, abandoned checkout, purchases
+- Attribution and ROI
+  - Revenue, orders, AOV attributed to messages and agents
+  - Users can select messages or agents to analyze and compare
+
+## Tech Stack and Architecture
+
+- React, Next.js (pages directory), Tailwind CSS v4, lucide-react, Supabase, Zod, RxJS, uuid
+- Static Site Generation (SSG) only; no server-side rendering (SSR)
+- Pages live in /pages; do not use the Next.js App Router
+- Exports: use named exports unless Next.js pages require default export
+- Icons: lucide-react
+- Forms: typed useState and Zod schemas for validation when persisting to DB
+
+## Multi-Tenancy and Data
+
+- Tenancy model
+  - account table represents a tenant
+  - All tenant-bound entities include account_id
+  - Users link to accounts via account_membership
+- Required base entities
+  - User (id, created_at, name, email, profile_image_path?, hero_image_path?)
+  - Account (id, created_at, name, logo_image_path?, hero_image_path?)
+  - AccountMembership (id, created_at, last_accessed_at, user_id, account_id, role: user_role)
+  - UserRole enum: admin, standard, guest
+- Domain entities (conceptual)
+  - Profile, Segment, Message, MessageCategory, Agent, AgentDecision, OutcomeMapping, ChannelSubscription
+  - Ensure each has account_id for scoping
+- File storage
+  - Supabase Storage bucket: accounts
+  - Path pattern: {account_id}/users/{user_id}/{REST_OF_PATH}
+  - Store only the path in DB; resolve full URLs client-side with fileStore() or useFileUrl
+- CRUD and data access
+  - store() service and useStore*() hooks for reactive CRUD and querying
+  - SelectOptions for pagination and ordering
+
+## Layout and Page Conventions
+
+- Main layout
+  - Navigation bar and centered column content by default
+  - Two-column content area with optional right rail
+- Display modes
+  - useFullPage() to hide main navigation and present a full-screen experience
+  - useNoMargins() to remove margins and allow edge-to-edge designs
+  - useIsInFullPageMode() and useIsNoMarginMode() to read current display state
+- Pages
+  - Next.js pages must export a default function named after the page
+  - Root element className must follow: page--{PageComponentName}
+  - Do not wrap pages with MainLayout directly; the App component handles it
+
+## Authentication and Registration
+
+- Authentication
+  - Sign-in with email/password
+  - If a user visits protected pages without being signed in, show SignInRequired
+- Registration
+  - When registering, store the user’s name and account name in options.data:
+    - { name, accountName }
+  - Do not insert DB rows explicitly during signup; backend handles user and account setup
+- Invites
+  - Accept via /accept-account-invite/[invite-code]
+  - If not signed in, prompt to sign in first
+
+## Permissions and Security
+
+- Role-based access
+  - Admin: full control, can edit account info, manage roles (except cannot change own role), billing, delete account
+  - Manager: can add/remove users (handled by app logic), inherits standard permissions
+  - Default/Standard: can edit content and configure agents
+  - Guest: view-only
+- Data isolation
+  - All queries and mutations constrained by account_id
+
+## Standard Components
+
+- Logo
+  - SVG logo, customizable color and size
+  - import { Logo } from "@/components/Logo";
+- SignInRequired
+  - Card for access-restricted scenarios with sign-in/register links
+  - import { SignInRequired } from "@/components/SignInRequired";
+
+## Supabase, Hooks, and Utilities
+
+- Supabase client
+  - supClient() for auth and data operations
+- Store service and hooks
+  - store().select*/insert/update/delete
+  - useStoreItem(), useStoreMatchingItems(), useStoreFirstMatchingItem()
+- File utilities
+  - fileStore().getUrlAsync(path), getCachedUrl(path)
+  - useFileUrl(path)
+- User/account hooks
+  - useCurrentUser(), useAccount(), useUserRole(), useUserInfo()
+- App controller
+  - app().switchAccountAsync(accountId) to change active tenant
+- Utilities
+  - cn(...) to combine class names
+
+## Interaction and UI Patterns
+
+- Buttons and CTAs
+  - Pill-shaped, no static widths, use brand color for primary interactions
+- Links and icons
+  - Use brand color sparingly; lucide-react icons for clarity with minimal visual noise
+- States and emphasis
+  - Secondary color used for non-interactive emphasis; transparent tints for subtle backgrounds and borders
+- Thumbnails and lists
+  - Compact grid cards with rounded corners, neutral borders, and clear hover states
+- Modals and popovers
+  - For rename, move, duplicate, and delete actions within message categories
+
+## Glossary
+
+- Profile: A customer record with contact info, attributes, and events
+- Segment: A subset of profiles based on shared demographics or behavior
+- Message: A marketing communication with variants (email, SMS, push)
+- Category: A folder that organizes messages
+- Agent: An automated decisioning entity that selects message, channel, and send timing
+- Outcome: Event-to-ranking mapping guiding agent optimization
+- Holdout: Percentage of a segment withheld from agent sends for control and measurement
+</app-description>
+
+> appendUser
+<all-screens>
+[
+    {
+        "name": "Accept Account Invite",
+        "route": "accept-account-invite/[invite-code]",
+        "description": "Accept or decline invitations to join an account. Prompts sign-in if not authenticated."
+    },
+    {
+        "name": "Account",
+        "route": "account",
+        "description": "View account details and manage membership (admin)."
+    },
+    {
+        "name": "Agent Detail",
+        "route": "agent-detail",
+        "description": "Detailed log of an agent’s decisions."
+    },
+    {
+        "name": "Create Agent",
+        "route": "create-agent",
+        "description": "Three-step wizard to create and configure an AI decisioning agent."
+    },
+    {
+        "name": "Dashboard",
+        "route": "dashboard",
+        "description": "Analytics hub for agents and communications."
+    },
+    {
+        "name": "Decisioning",
+        "route": "decisioning",
+        "description": "List of AI decisioning agents with create, view, and delete actions."
+    },
+    {
+        "name": "Message Category",
+        "route": "message-category",
+        "description": "Grid of messages inside a single category folder."
+    },
+    {
+        "name": "Message Detail",
+        "route": "message-detail",
+        "description": "Tabbed previews of email, SMS, and push notification variants of a single marketing message."
+    },
+    {
+        "name": "Messages",
+        "route": "messages",
+        "description": "Grid of message categories (folders) with counts and management."
+    },
+    {
+        "name": "Profile Detail",
+        "route": "profile-detail",
+        "description": "Detailed view of a single profile with attributes and events."
+    },
+    {
+        "name": "Profile",
+        "route": "profile",
+        "description": "User’s personal profile page."
+    },
+    {
+        "name": "Profiles",
+        "route": "profiles",
+        "description": "List of stored profiles with bulk actions."
+    },
+    {
+        "name": "Public Profile",
+        "route": "profile/[user-id]",
+        "description": "Public view of another user’s profile."
+    },
+    {
+        "name": "Register",
+        "route": "register",
+        "description": "Register a new user and create an organizational account."
+    },
+    {
+        "name": "Segment Detail",
+        "route": "segment-detail",
+        "description": "Segment-level criteria, membership, and metrics."
+    },
+    {
+        "name": "Segments",
+        "route": "segments",
+        "description": "List of customer segments with growth indicators."
+    },
+    {
+        "name": "Sign-in",
+        "route": "sign-in",
+        "description": "Access for existing users."
+    }
+]
+</all-screens>
+
+> appendUser
+<components>
+[
+    {
+        "name": "Logo",
+        "description": "An SVG logo component with a default size of 1rem.",
+        "propsInterface": "export interface LogoProps {\n    color?: string;\n    className?: string;\n    size?: string | number;\n}",
+        "import": "import { Logo } from \"@/components/Logo\""
+    },
+    {
+        "name": "SignInRequired",
+        "description": "A card shown when a user lacks access to a screen, with links to sign-in or register.",
+        "propsInterface": "export interface SignInRequiredProps {\n    /**\n     * A message to display to the user\n     */\n    message?: string;\n    className?: string;\n}",
+        "import": "import { SignInRequired } from \"@/components/SignInRequired\""
+    }
+]
+</components>
+
+> appendUser
+<coding-rules>
+## Tech Stack
+- ReactJS
+- NextJS - pages directory and static site generation
+- Tailwinds v4
+- lucide-react - icons
+- Supabase
+
+## Layout
+It is preferred to use stacking layouts using flex-box columns to avoid running out of horizontal
+room. Avoid long names in buttons and prefer to use icons for buttons.
+
+If buttons display text DO NOT give the button a static width.
+
+## Static site generation
+The frontend of the app uses static site generation so no server side rendering should be used. All
+pages are stored in the pages directory and the NextJS app router is NOT used.
+
+## Exports
+Always use named exports unless explicitly told otherwise or required such as when creating NextJS
+pages.
+
+## Multi-tenet Database
+The database is a multi-tenet database where the `account` table represents each tenet. All entities
+that belong to or fall under an account should have an `account_id` property directly linking the
+entity to an account. Entities that can belong to multiple accounts should use a join table to
+link to an account. 
+
+The `user` table is linked to the `account` table through the `account_membership` table.
+
+
+## Required Entities
+The following entities must be represented in the database schema. Additional properties or values
+can be added to the entities
+
+### User
+Represents a signed-in user
+
+Table name: user
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- email: text
+- profile_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### Account
+Represents a company or organization
+
+Table name: account
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- name: text
+- logo_image_path?: text - path of profile picture in the accounts bucket
+- hero_image_path?: text
+
+### AccountMembership
+Links a User to an Account
+
+Table name: account_membership
+Required Properties:
+- id: uuid
+- created_at: timestamptz
+- last_accessed_at: timestamptz
+- user_id: uuid
+- account_id: uuid
+- role: UserRole
+
+### UserRole
+An enumeration of different role types.
+- admin: The admin of an account
+- standard: The default role of a user
+- guest: A guest in an account
+Enum name: user_role
+
+
+
+## Schema Utility Types
+The `@/lib/schema` import contains types and objects that map to the database schema.
+
+`@/lib/schema` exports the following:
+- typeDefs: An object of type `Record<string,TypeDef>` containing key value pairs for each table in the database.
+- {type_name}: An interface that represents the structure of a value in a table.
+- {type_name}_insert: An interface that represents the structure of a value to be inserted in the a table.
+- {type_name}Schema: A Zod schema that represents the structure of a value in a table.
+- {type_name}_insertSchema: A Zod schema that represents the structure of a value to be inserted in the a table.
+- TypeDef: An interface that represents a type
+- PropDef: An interface the represents a property of a type
+- TypeMapping: An interface that maps type names to various programming languages.
+
+
+Example:
+``` ts
+import { User, User_insert, UserSchema, User_insertSchema, typeDefs } from "@/lib/schema";
+
+let user:User;
+UserSchema.parse(user);
+
+let newUser:User_insert;
+User_insertSchema.parse(newUser);
+
+const userPrimaryKey=typeDefs.primaryKey;
+```
+
+Schema Utility Interfaces:
+``` ts
+export interface TypeMapping
+{
+    name:string;
+    ts?:string;
+    zod?:string;
+    convo?:string;
+    sql?:string;
+}
+
+export interface PropDef
+{
+    name:string;
+    type:TypeMapping;
+    primary?:boolean;
+    description?:string;
+    sqlDef?:string;
+    optional?:boolean;
+    hasDefault?:boolean;
+    isArray?:boolean;
+    arrayDimensions?:number;
+}
+
+export interface TypeDef<
+    TValue extends Record<string,any>=Record<string,any>,
+    TInsert extends Record<string,any>=Record<string,any>
+\>{
+
+
+    name:string;
+    description?:string;
+    type:'type'|'enum';
+    primaryKey:(keyof TValue) & (keyof TInsert);
+    sqlTable?:string;
+    sqlSchema?:string;
+    zodSchema?:ZodType;
+    zodInsertSchema?:ZodType;
+    props:PropDef[];
+}
+```
+
+## Supabase client
+The `supClient` function imported from "@/lib/supabase" can be used to access an instance of a
+Supabase client.
+
+Supabase Client Example:
+``` ts
+import { supClient } from "@/lib/supabase";
+
+async function signInExampleAsync(){
+    const signInResult=await supClient().auth.signInWithPassword({email,password});
+}
+```
+
+## File Storage
+File should be stored using supabase storage using the `accounts` bucket and use the following pattern for paths.
+
+File path pattern: `{account_id}/users/{user_id}/{REST_OF_PATH}`
+
+Example file path for:
+- account_id: 809f36d5-8549-417e-b89c-7f1cb129b4dc
+- user_id: fe691ceb-ba31-421e-9a51-7fb1207965e8
+- file_name: example-book.pdf
+
+Upload Path: `809f36d5-8549-417e-b89c-7f1cb129b4dc/users/fe691ceb-ba31-421e-9a51-7fb1207965e8/example-book.pdf`
+
+### Storing file path in Database
+When storing file paths in the database only path of uploaded files should be store, the full URL
+will be generated client side using either the `fileStore()` service imported from `@/lib/fileStore`
+or using the `useFileUrl` hook imported from `@/lib/hooks`.
+
+Example of getting full URL for user profile picture using the `fileStore()` service:
+``` ts
+import { fileStore } from "@/lib/fileStore";
+import { User } from "@/lib/schema";
+
+async function exampleFunction(user:User){
+    if(!user.profile_image_path){
+        return;
+    }
+    const profilePictureUrl=await fileStore().getUrlAsync(user.profile_image_path);
+}
+```
+
+Example of getting full URL for user profile picture using the `useFileUrl` hook:
+``` tsx
+import { useFileUrl } from "@/lib/hooks";
+import { User } from "@/lib/schema";
+
+function ExampleComponent({user}:{user:User}){
+    const profilePictureUrl=useFileUrl(user.profile_image_path);
+    return (
+        <div>
+            {profilePictureUrl===null?
+                'loading'
+            :profilePictureUrl===undefined
+                'No profile picture'
+            :
+                <img src={profilePictureUrl}/>
+            }
+        </div>
+    )
+}
+```
+
+fileStore API:
+``` ts
+/**
+ * Utility class for Supabase storage operations. By default the FileStore class uses the `accounts`
+ * bucket.
+ */
+export class FileStore
+{
+    /**
+     * Gets the full URL for a given path. When needed signed URLs will be created. The result of the
+     * function will be cached and future calls for the same path will returned immediately
+     */
+    public async getUrlAsync(path:string):Promise<string|undefined>;
+
+    /**
+     * Attempts to get the cached URL for the path. If a URL has not been cached for the path
+     * undefined will be returned.
+     */
+    public getCachedUrl(path:string):string|undefined;
+}
+```
+
+useFileUrl API
+``` ts
+/**
+ * Gets the full URL to a given path
+ * Return values:
+ * null: URL info is being loaded
+ * undefined: URL not available
+ * {string}: The full URL of the path
+ * @param path The path to get a URL for. If null or undefined then undefined is returned.
+ */
+export const useFileUrl=(path:string|null|undefined):string|null|undefined=>;
+```
+
+
+
+## CRUD
+Common CRUD operations can be handled using the `store()` service imported from `@/lib/store`
+or the `useStore*()` React hooks imported from `@/lib/hooks`.
+
+Store service example:
+``` ts
+import { store } from "@/lib/store";
+import { typeDefs } from "@/lib/schema";
+
+const user=await store().selectFirstMatchesAsync(typeDefs.User,{email:'example@example.com'})
+```
+
+Use store hook example:
+``` ts
+import { useFirstMatchingStoreItem } from "@/lib/hooks";
+import { typeDefs } from "@/lib/schema";
+
+function ExampleComponent()
+{
+    const user=useFirstMatchingStoreItem(typeDefs.User,{email:'example@example.com'});
+}
+```
+
+### Store service API
+
+``` ts
+
+export class Store
+{
+
+    /**
+     * Gets an item from a table by table name and id. Undefined is returned if no item exists
+     * in the table with the given id.
+     * @param table Name of table to get item from
+     * @param id Id of item to get
+     */
+    public async selectFirstAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+
+    /**
+     * Selects all matching items from the given table
+     * @param table Name of table to select from
+     * @param match An object with properties to match against
+     * @param options Options used to control selection
+     */
+    public async selectMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>,options?:SelectOptions):Promise<Record<string,any>[]>;
+
+    /**
+     * Selects the first matching item form the given table
+     * @param table Table to select from
+     * @param match An object with properties to match against
+     */
+    public async selectFirstMatchesAsync<T extends Record<string,any>>(table:string|TypeDef<T>,match:Partial<T>):Promise<Record<string,any>|undefined>;
+
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async insertAsync<T extends Record<string,any>>(table:string|TypeDef<Record<string,any>,T>,value:T):Promise<T>;
+    
+    /**
+     * Updates an item value in a table by id.
+     * @param table Name of table to set the item in.
+     * @param id Id of the item to set
+     * @param value Value of the item to set
+     * @returns The value passed to the setItem function
+     */
+    public async updateAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string,value:Partial<T>):Promise<T>;
+    
+    /**
+     * Deletes an item from a table
+     * @param table The name of the table to delete the item from
+     * @param id The Id of the item to delete
+     * @returns The value of the item before being delete or undefined
+     */
+    public async deleteAsync<T extends Record<string,any>>(table:string|TypeDef<T>,id:string):Promise<T|undefined>;
+}
+```
+
+### Store hooks
+The store hooks also have the added benefit of automatically receiving updates when changes are made
+by the `store()` service.
+
+``` ts
+
+export interface UseStoreItemOptions
+{
+    /**
+     * If true useStoreItem will return undefined
+     */
+    disabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when disabled. By default the last loaded
+     * value will be returned when disabled.
+     */
+    resetOnDisabled?:boolean;
+
+    /**
+     * If true the value will be reset to null when table or id changes. By default the last loaded
+     * value will be returned until the new value is loaded.
+     */
+    resetOnChange?:boolean;
+}
+
+export type UseStoreItemsOptions = UseStoreItemOptions & SelectOptions;
+
+/**
+ * Returns an item by id from a given table. Any updates made to the item elsewhere in the app
+ * will cause useStoreItem to return the new value.
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T,any>|string|null|undefined,
+    id:string|null|undefined,
+    options?:UseStoreItemOptions
+):T|null|undefined=>;
+
+/**
+ * Returns all matching items
+ *
+ * null is returned while the items are loading.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreMatchingItems=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T[]|null=>;
+
+
+/**
+ * Returns all matching items
+ *
+ * Undefined is returned if the value does not exist in the table and null is returned while
+ * the item is being loaded.
+ *
+ * @param table Name of table to get item from. If null or undefined useStoreItem will return undefined
+ * @param id Id of item to get from table. If null or undefined useStoreItem will return undefined
+ * @param options Additional options
+ */
+export const useStoreFirstMatchingItem=<T extends Record<string,any>=Record<string,any>>(
+    table:TypeDef<T>|string|null|undefined,
+    match:Partial<T>|null|undefined,
+    options?:UseStoreItemsOptions
+):T|null|undefined=>;
+
+```
+
+## Full screen screens
+The `useFullPage` hook can be used to display a full screen page without the main navigation bar.
+
+example:
+``` tsx
+import { useFullPage } from "@/lib/hooks";
+
+function ExampleComponent(){
+
+    useFullPage();
+
+    return (
+        <div></div>
+    )
+}
+```
+
+## Form Data
+When creating forms store form data in a typed useState variable.
+
+Zod schemas can be imported from `@/lib/schema` to validate types stored in the database.
+
+Form state example:
+``` tsx
+
+interface NewsletterForm
+{
+    name:string
+    email:string;
+}
+function ExampleComponent()
+{
+    const [newsletterData,setNewsletterData]=useState<NewsletterForm>({
+        name:'',
+        email:'',
+    });
+
+    return (
+        <form>
+            <input
+                placeholder="Enter name"
+                value={newsletterData.name}
+                onChange={e=>setNewsletterData({...newsletterData,name:e.target.value})}
+            />
+            <input
+                placeholder="Enter email"
+                value={newsletterData.email}
+                onChange={e=>setNewsletterData({...newsletterData,email:e.target.value})}
+            />
+        </form>
+    )
+}
+```
+
+## Pages
+When creating NextJS pages export the page component as a default function with the function
+name reflecting the name of the page.
+
+Do not use the MainLayout component when creating a page. The Main Layout component will be
+used by the top level App component.
+
+Include the name of the page in the className of the root element of the page component using the
+format of: "page--{PageComponentName}"
+
+Example Page with a route of "/example":
+``` tsx
+
+export default function ExamplePage(){
+
+    return (
+        <div className="page--ExamplePage">
+            Example page content
+        <div>
+    )
+}
+```
+
+## Main Layout
+The `MainLayout` component is used by the top level `App` component to render the main layout of the
+app. By default the MainLayout should render pages in a centered column with a navigation bar.
+
+### Main Layout Display modes
+Pages can use the `useFullPage` and `useNoMargins` hooks to alter the way the page is displayed.
+Implement display modes using css or class names, DO NOT change the render order or do anything
+that would cause the page to be unmounted.
+
+### Main Layout Fullscreen Mode
+Pages can request to enter into fullscreen. Use the `useIsInFullPageMode` hook imported from 
+`@/lib/hooks` to check if the page should be displayed in fullscreen mode. If useIsInFullPageMode
+returns true hide the main navigation and any other UI other than the page content.
+
+### Main Layout No Margins Mode
+Pages can request to remove all page margins so that they can display content edge to edge. Use
+the `useIsNoMarginMode` hook imported from `@/lib/hooks` to check if the page should be displayed
+in no margins mode.
+
+
+## Packages
+This is the package.json file for the project. You can only use libraries based on the dependencies
+of the package.json file.
+
+``` json
+{
+  "dependencies": {
+    "lucide-react": "^0.544.0",
+    "markdown-it": "^14.1.0",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "rxjs": "^7.8.2",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.11",
+    "supabase": "^2.33.9",
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+
+```
+
+## Standard Components
+The following components can be used
+
+### Logo
+Displays the apps logo using an SVG
+
+Import: `import { Logo } from "@/components/Logo";`
+Props:
+``` ts
+interface LogoProps
+{
+    color?:string;
+    /**
+     * @default "w-8 h-8"
+     */ 
+    className?:string;
+    size?:string|number;
+}
+```
+
+### SignInRequired
+A card to display when a user does not have access to a screen with links to sign-in or register.
+Import: `import { Logo } from "@/components/SignInRequired";`
+Props:
+``` ts
+interface SignInRequiredProps
+{
+
+    /**
+     * A message to display to the user
+     */
+    message?:string;
+    className?:string;
+}
+```
+
+
+## User Registration
+
+When registering a new user store the user's name and account name in options.data object
+of the user sign-up options:
+``` ts
+await supClient().auth.signUp({
+    email: form.email.trim(),
+    password: form.password,
+    options: {
+        data: { name: form.name, accountName:form.accountName },
+    },
+});
+```
+
+When registering a new user do not explicitly insert any values into the database.
+User and account setup will be handled by the backend.
+
+
+## Utility Functions
+The following utility functions can be imported from `@/lib/util`
+
+``` ts
+export type ClassNameValue = string | false | number | null | undefined | {
+    [className: string]: any;
+} | ClassNameValue[];
+
+/**
+ * Combines class names and ignores falsy values.
+ */
+export const cn=(...classNames:ClassNameValue[]):string=>;
+```
+
+
+## Hooks
+React components can use the following hooks imported from `@/lib/hooks`
+
+``` ts
+/**
+ * Hides common UI controls such as the main nav bar.
+ * @param enabled If false the hook is disabled
+ */
+export const useFullPage=(enabled=true)=>;
+
+/**
+ * Removes all margins and paddings from the main layout while keeping the main navigation and
+ * other shared UI elements
+ * @param enabled If false the hook is disabled
+ */
+export const useNoMargins=(enabled=true)=>;
+
+/**
+ * Returns true if the page should be displayed in full screen
+ */
+export const useIsInFullPageMode=():boolean=>{
+    const count=useSubject(fullPageSubject);
+    return count>0;
+}
+
+/**
+ * Returns true if the page should remove all margins
+ */
+export const useIsNoMarginMode=():boolean=>;
+
+/**
+ * Returns the current signed-in user.
+ * null === user is being loaded
+ * undefined === user is not signed in
+ */
+export const useCurrentUser=():User|null|undefined=>;
+
+/**
+ * Returns the current account the user is signed into.
+ * null === account is being loaded
+ * undefined === No account found for user
+ */
+export const useAccount=():Account|null|undefined=>;
+
+/**
+ * Returns the role of the user in the current account.
+ * null === role is being loaded
+ * undefined === No role found for user
+ */
+export const useUserRole=():UserRole|null|undefined=>;
+
+/**
+ * Returns the information about the current user, including a user object, account object
+ * and the role the user has for the account.
+ * null === user info is being loaded
+ * undefined === user is not signed in
+ */
+export const useUserInfo=():UserInfo|null|undefined=>;
+```
+
+## Utility types
+The following utility types can be imported from `@/lib/types-util`
+
+``` ts
+export interface UserInfo
+{
+    user:User;
+    role?:UserRole;
+    membership?:AccountMembership;
+    account?:Account;
+}
+
+/**
+ * Options used with select queries
+ */
+export interface SelectOptions
+{
+    offset?:number;
+    limit?:number;
+    orderBy?:string;
+    /**
+     * If true return items will be ordered in descending order
+     */
+    orderByDesc?:boolean;
+}
+```
+
+## App Controller
+The App Controller can be accessed by calling the `app` function imported from `@/lib/app`.
+
+Use can use the App Controller to switch between accounts
+``` ts
+import { app } from `@/lib/app`
+
+async function switchAccountExample(accountId:string){
+    await app().switchAccountAsync(accountId);
+}
+```
+</coding-rules>
+
+> appendUser
+<types>
+/**
+ * Communication channel enumeration
+ */
+export type Channel="email"|"sms"|"push";
+
+/**
+ * Event type enumeration for analytics and attribution
+ */
+export type EventType="page_view"|"session_start"|"form_submit"|"message_sent"|"message_open"|"message_click"|"message_bounce"|"subscriber_new"|"subscriber_removed"|"add_to_cart"|"favorite"|"checkout_started"|"checkout_abandoned"|"purchase"|"push_open";
+
+/**
+ * Outcome ranking enumeration
+ */
+export type OutcomeRank="worst"|"good"|"very_good"|"best";
+
+/**
+ * Sending frequency enumeration for agents
+ */
+export type SendFrequency="daily"|"six_per_week"|"five_per_week"|"weekly"|"biweekly"|"monthly";
+
+/**
+ * Time window enumeration for agents
+ */
+export type SendTimeWindow="morning"|"afternoon"|"evening";
+
+/**
+ * Channel subscription status enumeration
+ */
+export type SubscriptionStatus="subscribed"|"unsubscribed"|"bounced"|"pending";
+
+/**
+ * Role enumeration for account membership
+ */
+export type UserRole="admin"|"standard"|"guest";
+
+/**
+ * An account (tenant)
+ * @table account
+ * @schema public
+ */
+export interface Account
+{
+    /**
+     * Unique id of the account
+     */
+    id:string;
+    /**
+     * When the account was created
+     */
+    created_at:string;
+    /**
+     * Display name of the account
+     */
+    name:string;
+    /**
+     * Path to the logo image in the 'accounts' bucket
+     */
+    logo_image_path?:string;
+    /**
+     * Optional hero/cover image path for the account in the 'accounts' bucket
+     */
+    hero_image_path?:string;
+}
+
+/**
+ * @insertFor Account
+ * @table account
+ * @schema public
+ */
+export interface Account_insert
+{
+    id?:string;
+    created_at?:string;
+    name:string;
+    logo_image_path?:string;
+    hero_image_path?:string;
+}
+
+/**
+ * An invitation to join an account
+ * @table account_invite
+ * @schema public
+ */
+export interface AccountInvite
+{
+    /**
+     * Unique id of the invite
+     */
+    id:string;
+    /**
+     * When the invite was created
+     */
+    created_at:string;
+    /**
+     * The account this invite is for
+     */
+    account_id:string;
+    /**
+     * The user who created the invite
+     */
+    invited_by_user_id?:string;
+    /**
+     * Optional email address the invite targets
+     */
+    email?:string;
+    /**
+     * The role granted if the invite is accepted
+     */
+    role:string;
+    /**
+     * The unique invite code part used in the invite URL
+     */
+    invite_code:string;
+    /**
+     * When the invite was accepted
+     */
+    accepted_at?:string;
+    /**
+     * When the invite was declined
+     */
+    declined_at?:string;
+    /**
+     * When the invite expires
+     */
+    expires_at?:string;
+    /**
+     * If true, the invite is currently active/valid
+     */
+    is_active:boolean;
+}
+
+/**
+ * @insertFor AccountInvite
+ * @table account_invite
+ * @schema public
+ */
+export interface AccountInvite_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    invited_by_user_id?:string;
+    email?:string;
+    role?:string;
+    invite_code:string;
+    accepted_at?:string;
+    declined_at?:string;
+    expires_at?:string;
+    is_active?:boolean;
+}
+
+/**
+ * A membership linking a user to an account with a role
+ * @table account_membership
+ * @schema public
+ */
+export interface AccountMembership
+{
+    /**
+     * Unique id of the membership
+     */
+    id:string;
+    /**
+     * When the membership was created
+     */
+    created_at:string;
+    /**
+     * When the member last accessed the account
+     */
+    last_accessed_at?:string;
+    /**
+     * The user this membership is for
+     */
+    user_id:string;
+    /**
+     * The account this membership belongs to
+     */
+    account_id:string;
+    /**
+     * The role of the user within this account
+     */
+    role:string;
+}
+
+/**
+ * @insertFor AccountMembership
+ * @table account_membership
+ * @schema public
+ */
+export interface AccountMembership_insert
+{
+    id?:string;
+    created_at?:string;
+    last_accessed_at?:string;
+    user_id:string;
+    account_id:string;
+    role?:string;
+}
+
+/**
+ * An AI decisioning agent configuration
+ * @table agent
+ * @schema public
+ */
+export interface Agent
+{
+    /**
+     * Unique id of the agent
+     */
+    id:string;
+    /**
+     * When the agent was created
+     */
+    created_at:string;
+    /**
+     * The account this agent belongs to
+     */
+    account_id:string;
+    /**
+     * Display name of the agent
+     */
+    name:string;
+    /**
+     * Default email address for sending (from)
+     */
+    default_email_from?:string;
+    /**
+     * Default SMS phone number for sending (from)
+     */
+    default_sms_from?:string;
+    /**
+     * The segment targeted by this agent
+     */
+    segment_id:string;
+    /**
+     * The holdout percentage for control group (0-100)
+     */
+    holdout_percentage:number;
+    /**
+     * The message category (content library) assigned to this agent
+     */
+    message_category_id:string;
+    /**
+     * Sending frequency
+     */
+    send_frequency:string;
+    /**
+     * Days of week allowed (0=Mon ... 6=Sun)
+     */
+    send_days:number[];
+    /**
+     * Time windows allowed for sending
+     */
+    send_time_windows:string[];
+    /**
+     * If true, the agent is active
+     */
+    is_active:boolean;
+    /**
+     * When the agent was activated
+     */
+    activated_at?:string;
+    /**
+     * When the agent was deactivated
+     */
+    deactivated_at?:string;
+    /**
+     * Optional description of desired outcomes/goals
+     */
+    desired_outcome_description?:string;
+}
+
+/**
+ * @insertFor Agent
+ * @table agent
+ * @schema public
+ */
+export interface Agent_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    name:string;
+    default_email_from?:string;
+    default_sms_from?:string;
+    segment_id:string;
+    holdout_percentage?:number;
+    message_category_id:string;
+    send_frequency:string;
+    send_days?:number[];
+    send_time_windows?:string[];
+    is_active?:boolean;
+    activated_at?:string;
+    deactivated_at?:string;
+    desired_outcome_description?:string;
+}
+
+/**
+ * A recorded decision made by an agent
+ * @table agent_decision
+ * @schema public
+ */
+export interface AgentDecision
+{
+    /**
+     * Unique id of the decision
+     */
+    id:string;
+    /**
+     * When the decision was recorded
+     */
+    created_at:string;
+    /**
+     * When the decision was made
+     */
+    decisioned_at:string;
+    /**
+     * The account this decision belongs to
+     */
+    account_id:string;
+    /**
+     * The agent that made the decision
+     */
+    agent_id:string;
+    /**
+     * The profile targeted by the decision
+     */
+    profile_id:string;
+    /**
+     * The selected message (if any)
+     */
+    message_id?:string;
+    /**
+     * The selected message variant (if any)
+     */
+    message_variant_id?:string;
+    /**
+     * The chosen channel for sending
+     */
+    channel?:string;
+    /**
+     * The chosen scheduled send time
+     */
+    scheduled_send_at?:string;
+    /**
+     * Concise reasoning for the decision
+     */
+    reasoning?:string;
+    /**
+     * True if the profile was in the holdout group and no send should occur
+     */
+    is_holdout:boolean;
+    /**
+     * True if a send occurred for this decision
+     */
+    was_sent?:boolean;
+    /**
+     * When the send occurred (if sent)
+     */
+    sent_at?:string;
+    /**
+     * Optional error information if sending failed
+     */
+    send_error?:string;
+}
+
+/**
+ * @insertFor AgentDecision
+ * @table agent_decision
+ * @schema public
+ */
+export interface AgentDecision_insert
+{
+    id?:string;
+    created_at?:string;
+    decisioned_at?:string;
+    account_id:string;
+    agent_id:string;
+    profile_id:string;
+    message_id?:string;
+    message_variant_id?:string;
+    channel?:string;
+    scheduled_send_at?:string;
+    reasoning?:string;
+    is_holdout?:boolean;
+    was_sent?:boolean;
+    sent_at?:string;
+    send_error?:string;
+}
+
+/**
+ * Channel subscription per profile and channel
+ * @table channel_subscription
+ * @schema public
+ */
+export interface ChannelSubscription
+{
+    /**
+     * Unique id of the subscription
+     */
+    id:string;
+    /**
+     * When the subscription record was created
+     */
+    created_at:string;
+    /**
+     * The account this subscription belongs to
+     */
+    account_id:string;
+    /**
+     * The profile this subscription belongs to
+     */
+    profile_id:string;
+    /**
+     * The channel for the subscription
+     */
+    channel:string;
+    /**
+     * Status of the subscription
+     */
+    status:string;
+    /**
+     * Target address/identifier for the channel (email address, phone, or device token)
+     */
+    address?:string;
+    /**
+     * When the subscription was established
+     */
+    subscribed_at?:string;
+    /**
+     * When the subscription was terminated
+     */
+    unsubscribed_at?:string;
+    /**
+     * When the last bounce occurred (if any)
+     */
+    last_bounced_at?:string;
+    /**
+     * If true, this is the primary subscription for the channel
+     */
+    is_primary:boolean;
+}
+
+/**
+ * @insertFor ChannelSubscription
+ * @table channel_subscription
+ * @schema public
+ */
+export interface ChannelSubscription_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    profile_id:string;
+    channel:string;
+    status?:string;
+    address?:string;
+    subscribed_at?:string;
+    unsubscribed_at?:string;
+    last_bounced_at?:string;
+    is_primary?:boolean;
+}
+
+/**
+ * An analytics/event record used for web, messaging, ecommerce, and attribution
+ * @table event
+ * @schema public
+ */
+export interface Event
+{
+    /**
+     * Unique id of the event
+     */
+    id:string;
+    /**
+     * When the event row was created
+     */
+    created_at:string;
+    /**
+     * When the event occurred
+     */
+    occurred_at:string;
+    /**
+     * The account this event belongs to
+     */
+    account_id:string;
+    /**
+     * The profile associated with the event (if known)
+     */
+    profile_id?:string;
+    /**
+     * Type of event
+     */
+    event_type:string;
+    /**
+     * Channel associated with the event (if applicable)
+     */
+    channel?:string;
+    /**
+     * Message associated with the event (if applicable)
+     */
+    message_id?:string;
+    /**
+     * Agent associated with the event (if applicable)
+     */
+    agent_id?:string;
+    /**
+     * Session identifier for web analytics
+     */
+    session_id?:string;
+    /**
+     * Page URL for page-related events
+     */
+    page_url?:string;
+    /**
+     * Product identifier for ecommerce events
+     */
+    product_id?:string;
+    /**
+     * Order identifier for purchase/checkout events
+     */
+    order_id?:string;
+    /**
+     * Monetary revenue amount for purchase/attribution
+     */
+    revenue?:number;
+    /**
+     * Currency code (ISO 4217)
+     */
+    currency?:string;
+    /**
+     * Additional event properties and metadata
+     */
+    properties:Record<string,any>;
+}
+
+/**
+ * @insertFor Event
+ * @table event
+ * @schema public
+ */
+export interface Event_insert
+{
+    id?:string;
+    created_at?:string;
+    occurred_at:string;
+    account_id:string;
+    profile_id?:string;
+    event_type:string;
+    channel?:string;
+    message_id?:string;
+    agent_id?:string;
+    session_id?:string;
+    page_url?:string;
+    product_id?:string;
+    order_id?:string;
+    revenue?:number;
+    currency?:string;
+    properties?:Record<string,any>;
+}
+
+/**
+ * A marketing message imported from an external source (e.g., GardenIQ)
+ * @table message
+ * @schema public
+ */
+export interface Message
+{
+    /**
+     * Unique id of the message
+     */
+    id:string;
+    /**
+     * When the message was created (imported)
+     */
+    created_at:string;
+    /**
+     * The account this message belongs to
+     */
+    account_id:string;
+    /**
+     * The category this message belongs to
+     */
+    category_id?:string;
+    /**
+     * Human-readable name of the message
+     */
+    name:string;
+    /**
+     * External source name, e.g., 'gardeniq'
+     */
+    external_source:string;
+    /**
+     * External id for cross-system mapping
+     */
+    external_id?:string;
+    /**
+     * Optional tags for organization
+     */
+    tags:string[];
+}
+
+/**
+ * @insertFor Message
+ * @table message
+ * @schema public
+ */
+export interface Message_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    category_id?:string;
+    name:string;
+    external_source?:string;
+    external_id?:string;
+    tags?:string[];
+}
+
+/**
+ * A message category (content library/folder)
+ * @table message_category
+ * @schema public
+ */
+export interface MessageCategory
+{
+    /**
+     * Unique id of the message category
+     */
+    id:string;
+    /**
+     * When the category was created
+     */
+    created_at:string;
+    /**
+     * The account this category belongs to
+     */
+    account_id:string;
+    /**
+     * Name of the category
+     */
+    name:string;
+    /**
+     * Optional description of the category
+     */
+    description?:string;
+    /**
+     * Optional preview/thumbnail image path in the 'accounts' bucket
+     */
+    thumbnail_image_path?:string;
+}
+
+/**
+ * @insertFor MessageCategory
+ * @table message_category
+ * @schema public
+ */
+export interface MessageCategory_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    name:string;
+    description?:string;
+    thumbnail_image_path?:string;
+}
+
+/**
+ * A message variant per channel (email, sms, push)
+ * @table message_variant
+ * @schema public
+ */
+export interface MessageVariant
+{
+    /**
+     * Unique id of the message variant
+     */
+    id:string;
+    /**
+     * When the variant was created
+     */
+    created_at:string;
+    /**
+     * The account this variant belongs to
+     */
+    account_id:string;
+    /**
+     * The parent message
+     */
+    message_id:string;
+    /**
+     * Channel for this variant
+     */
+    channel:string;
+    /**
+     * Email subject (email channel)
+     */
+    email_subject?:string;
+    /**
+     * Email HTML content (email channel)
+     */
+    email_html?:string;
+    /**
+     * Email plain text content (email channel)
+     */
+    email_text?:string;
+    /**
+     * SMS text (sms channel)
+     */
+    sms_text?:string;
+    /**
+     * Push notification title (push channel)
+     */
+    push_title?:string;
+    /**
+     * Push notification body (push channel)
+     */
+    push_body?:string;
+    /**
+     * Optional preview image path in the 'accounts' bucket
+     */
+    preview_image_path?:string;
+}
+
+/**
+ * @insertFor MessageVariant
+ * @table message_variant
+ * @schema public
+ */
+export interface MessageVariant_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    message_id:string;
+    channel:string;
+    email_subject?:string;
+    email_html?:string;
+    email_text?:string;
+    sms_text?:string;
+    push_title?:string;
+    push_body?:string;
+    preview_image_path?:string;
+}
+
+/**
+ * Mapping from events to desired outcome ranks for an agent
+ * @table outcome_mapping
+ * @schema public
+ */
+export interface OutcomeMapping
+{
+    /**
+     * Unique id of the outcome mapping
+     */
+    id:string;
+    /**
+     * When the mapping was created
+     */
+    created_at:string;
+    /**
+     * The account this mapping belongs to
+     */
+    account_id:string;
+    /**
+     * The agent this mapping belongs to
+     */
+    agent_id:string;
+    /**
+     * The event type being mapped
+     */
+    event_type:string;
+    /**
+     * The outcome rank associated with the event
+     */
+    outcome:string;
+    /**
+     * Optional weight or score for optimization
+     */
+    weight?:number;
+}
+
+/**
+ * @insertFor OutcomeMapping
+ * @table outcome_mapping
+ * @schema public
+ */
+export interface OutcomeMapping_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    agent_id:string;
+    event_type:string;
+    outcome:string;
+    weight?:number;
+}
+
+/**
+ * A stored customer profile
+ * @table profile
+ * @schema public
+ */
+export interface Profile
+{
+    /**
+     * Unique id of the profile
+     */
+    id:string;
+    /**
+     * When the profile was created
+     */
+    created_at:string;
+    /**
+     * The account this profile belongs to
+     */
+    account_id:string;
+    /**
+     * First name
+     */
+    first_name?:string;
+    /**
+     * Last name
+     */
+    last_name?:string;
+    /**
+     * Email address
+     */
+    email?:string;
+    /**
+     * Phone number (E.164 suggested)
+     */
+    phone?:string;
+    /**
+     * Device identifier (for push/SDK correlation)
+     */
+    device_id?:string;
+    /**
+     * Street address
+     */
+    address_street?:string;
+    /**
+     * City
+     */
+    address_city?:string;
+    /**
+     * State or region
+     */
+    address_state?:string;
+    /**
+     * Postal or ZIP code
+     */
+    address_zip?:string;
+    /**
+     * Country
+     */
+    address_country?:string;
+    /**
+     * Optional job title
+     */
+    job_title?:string;
+    /**
+     * Optional department
+     */
+    department?:string;
+    /**
+     * Optional company name
+     */
+    company?:string;
+    /**
+     * Arbitrary attributes for CRM-like properties and enrichment payloads
+     */
+    attributes:Record<string,any>;
+    /**
+     * External system identifier (e.g., CRM ID)
+     */
+    external_id?:string;
+}
+
+/**
+ * @insertFor Profile
+ * @table profile
+ * @schema public
+ */
+export interface Profile_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    first_name?:string;
+    last_name?:string;
+    email?:string;
+    phone?:string;
+    device_id?:string;
+    address_street?:string;
+    address_city?:string;
+    address_state?:string;
+    address_zip?:string;
+    address_country?:string;
+    job_title?:string;
+    department?:string;
+    company?:string;
+    attributes?:Record<string,any>;
+    external_id?:string;
+}
+
+/**
+ * A segment of profiles
+ * @table segment
+ * @schema public
+ */
+export interface Segment
+{
+    /**
+     * Unique id of the segment
+     */
+    id:string;
+    /**
+     * When the segment was created
+     */
+    created_at:string;
+    /**
+     * The account this segment belongs to
+     */
+    account_id:string;
+    /**
+     * Name of the segment
+     */
+    name:string;
+    /**
+     * Description of the segment
+     */
+    description?:string;
+    /**
+     * Criteria used to define segment membership (demographics, behavior, etc.)
+     */
+    criteria:Record<string,any>;
+    /**
+     * If true, membership is dynamically evaluated; otherwise uses explicit membership
+     */
+    is_dynamic:boolean;
+}
+
+/**
+ * @insertFor Segment
+ * @table segment
+ * @schema public
+ */
+export interface Segment_insert
+{
+    id?:string;
+    created_at?:string;
+    account_id:string;
+    name:string;
+    description?:string;
+    criteria?:Record<string,any>;
+    is_dynamic?:boolean;
+}
+
+/**
+ * Membership join between segment and profile
+ * @table segment_profile
+ * @schema public
+ */
+export interface SegmentProfile
+{
+    /**
+     * Unique id of the segment-profile membership
+     */
+    id:string;
+    /**
+     * When the profile was added to the segment
+     */
+    added_at:string;
+    /**
+     * The account this membership belongs to
+     */
+    account_id:string;
+    /**
+     * The segment id
+     */
+    segment_id:string;
+    /**
+     * The profile id
+     */
+    profile_id:string;
+}
+
+/**
+ * @insertFor SegmentProfile
+ * @table segment_profile
+ * @schema public
+ */
+export interface SegmentProfile_insert
+{
+    id?:string;
+    added_at?:string;
+    account_id:string;
+    segment_id:string;
+    profile_id:string;
+}
+
+/**
+ * A user
+ * @table user
+ * @schema public
+ */
+export interface User
+{
+    /**
+     * Unique id of the user
+     */
+    id:string;
+    /**
+     * When the user row was created
+     */
+    created_at:string;
+    /**
+     * Name of the user
+     */
+    name:string;
+    /**
+     * Email of the user (used for identification within the app; auth handled by Supabase)
+     */
+    email:string;
+    /**
+     * Path of the profile picture in the 'accounts' bucket using the pattern {account_id}/users/{user_id}/...
+     */
+    profile_image_path?:string;
+    /**
+     * Optional hero/cover image path in the 'accounts' bucket
+     */
+    hero_image_path?:string;
+}
+
+/**
+ * @insertFor User
+ * @table user
+ * @schema public
+ */
+export interface User_insert
+{
+    id?:string;
+    created_at?:string;
+    name:string;
+    email:string;
+    profile_image_path?:string;
+    hero_image_path?:string;
+}
+</types>
+
+> appendUser
+<styling>
+## Styling Framework
+Use Tailwinds for styling
+
+## Look and Feel
+- modern platform design
+- professional
+- dark color palette
+- neutral backgrounds and borders
+- rounded corners
+- pill-shaped buttons
+
+## Custom Color Palette
+``` css
+:root{
+    --blue: #4583F7;
+    --purple: #8E59FF;
+}
+```
+
+Brand color: #4583F7 (--blue)
+Secondary color: #8E59FF (--purple)
+
+
+## Rules
+Use the brand color sparingly. The brand color should only be used for interactive elements, like buttons, links, clickable icons, etc.
+The brand color can be used as a thin border color in situations where an element should be highlighted
+but is not a main CTA.
+The secondary color should be used to highlight important information that is not interactive. Secondary color can also be used as a accent color.
+Brand and secondary colors can also be used with transparency to create color shades
+</styling>
+
+> appendUser
+<style-guide>
+# Decisioning Demo Style Guide
+
+A practical guide for using the Tailwind v4-based theme and utilities included in tailwind-theme. This covers layout, components, state patterns, and best practices for brand usage across the app.
+
+## Basics and Setup
+
+- Tailwind version: v4 (utility-first; no App Router; pages dir only)
+- Use component classes and utilities defined by the theme before adding one-off Tailwind utilities
+- Brand color is reserved for interactive elements; secondary color is for non-interactive emphasis
+- Pill-shaped buttons; rounded corners; neutral surfaces and borders for the dark palette
+
+Top of globals.css must begin with:
+```css
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Public+Sans:wght@300..800&display=swap");
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+```
+
+Theme and utilities are defined in tailwind-theme. Do not edit pseudo selectors in @utility; use @layer components for pseudo selectors as already implemented.
+
+## Design Tokens and Color Usage
+
+- Use prebuilt classes like btn-primary, badge.brand, link, highlight for branded accents
+- For non-interactive emphasis (info), use secondary color via alert.info, badge.accent, or prose links
+- Subtle brand emphasis: highlight (thin brand border) and border-brand-subtle
+
+Dos
+- Use brand color for CTAs: buttons, links, clickable icons
+- Use secondary for non-clickable highlights and informational emphasis
+- Prefer card, tile, and neutral surfaces for layout structure
+
+Don’ts
+- Don’t use brand color for large backgrounds
+- Don’t apply brand color to non-interactive blocks unless highlighting with thin border
+
+## Page and Layout Conventions
+
+- Root element className must follow: page--{PageComponentName}
+- Default centered layout is handled by MainLayout; pages should not import it directly
+- Use content-2col to render a two-column layout with a right rail
+- Add rail-hidden to collapse to one column
+
+Example: Page root and 2-column layout
+```html
+<div class="page--Dashboard">
+    <header class="app-header">
+        <div class="flex items-center gap-2">
+            <!-- <Logo/> -->
+            <span class="font-bold">Decisioning Demo</span>
+        </div>
+        <button class="btn btn-secondary btn-icon" aria-label="Profile">
+            <!-- avatar or icon -->
+        </button>
+    </header>
+
+    <main class="container-page space-y-4">
+        <section class="content-2col">
+            <!-- Primary column -->
+            <div class="space-y-3">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Overview</div>
+                        <div class="card-subtitle">Summary of performance and trends</div>
+                    </div>
+                    <div class="text-[var(--text-2)]">Welcome back!</div>
+                </div>
+            </div>
+
+            <!-- Right rail -->
+            <aside class="right-rail space-y-3">
+                <div class="card">
+                    <div class="card-title">Quick Actions</div>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        <button class="btn btn-primary">New Agent</button>
+                        <button class="btn btn-secondary">Import Profiles</button>
+                    </div>
+                </div>
+            </aside>
+        </section>
+    </main>
+</div>
+```
+
+Collapse right rail
+```html
+<section class="content-2col rail-hidden">
+    <div>Full-width primary content</div>
+</section>
+```
+
+## App Shell and Navigation
+
+- Use app-shell to split sidebar and content columns
+- Use navlink and navlink.active for routing links
+
+```html
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <nav class="flex flex-col gap-1">
+            <a class="navlink active" href="/dashboard">Dashboard</a>
+            <a class="navlink" href="/profiles">Profiles</a>
+            <a class="navlink" href="/segments">Segments</a>
+            <a class="navlink" href="/messages">Messages</a>
+            <a class="navlink" href="/decisioning">Decisioning</a>
+            <a class="navlink" href="/account">Settings</a>
+        </nav>
+    </aside>
+
+    <div>
+        <header class="app-header">
+            <a class="flex items-center gap-2 no-underline" href="/dashboard">
+                <!-- <Logo/> -->
+                <span class="font-bold">Decisioning Demo</span>
+            </a>
+            <a class="btn btn-secondary btn-icon" href="/profile" aria-label="Profile">
+                <!-- icon/avatar -->
+            </a>
+        </header>
+
+        <main class="page container-page space-y-4">
+            <!-- page content -->
+        </main>
+    </div>
+</div>
+```
+
+Fullscreen pages should hide the sidebar (handled by the app). The app-shell.fullscreen class is applied by MainLayout when useFullPage is active.
+
+## Cards, Tiles, and Sections
+
+- card, card-header, card-title, card-subtitle, card-footer build elevated sections
+- tile variants are used in grid contexts (messages, categories)
+
+```html
+<div class="card">
+    <div class="card-header">
+        <div class="flex flex-col">
+            <div class="card-title">Recent Activity</div>
+            <div class="card-subtitle">Latest events from your tenant</div>
+        </div>
+        <button class="btn btn-secondary">View all</button>
+    </div>
+
+    <div class="space-y-2">
+        <div class="flex items-center justify-between">
+            <span class="text-[var(--text-2)]">Purchase</span>
+            <span class="badge success">Success</span>
+        </div>
+        <div class="divider"></div>
+        <div class="flex items-center justify-between">
+            <span class="text-[var(--text-2)]">Unsubscribe</span>
+            <span class="badge danger">Alert</span>
+        </div>
+    </div>
+
+    <div class="card-footer">
+        <button class="btn btn-primary">Primary CTA</button>
+        <button class="btn btn-secondary">Secondary</button>
+    </div>
+</div>
+```
+
+Tile for message thumbnails
+```html
+<div class="tile">
+    <div class="tile-header">
+        <div class="font-semibold">Spring Promo</div>
+        <button class="btn btn-secondary btn-icon" aria-label="More">
+            <!-- ellipsis icon -->
+        </button>
+    </div>
+    <div class="tile-body">Email, SMS, Push</div>
+    <div class="tile-meta">
+        <span class="subtle">Created 2025-03-24</span>
+        <span class="badge brand">12 variants</span>
+    </div>
+</div>
+```
+
+## Buttons and Links
+
+- btn, btn-primary, btn-secondary, btn-danger
+- btn-primary.ghost for non-filled brand buttons
+- btn-icon for square icon buttons
+- link for inline clickable text; highlight for non-CTA brand outline
+
+```html
+<div class="flex items-center gap-2">
+    <button class="btn btn-primary">Save</button>
+    <button class="btn btn-primary ghost">Outline</button>
+    <button class="btn btn-secondary">Cancel</button>
+    <button class="btn btn-danger">Delete</button>
+    <button class="btn btn-icon" aria-label="Refresh">
+        <!-- icon -->
+    </button>
+    <a class="link" href="#learn">Learn more</a>
+</div>
+
+<div class="mt-3 p-3 highlight rounded-[var(--radius)]">
+    Subtle brand-highlighted container (non-CTA)
+</div>
+```
+
+## Forms and Inputs
+
+- Compose fields with field, label, input/select/textarea, help-text
+- Use .invalid on a wrapper to display error styles
+
+```html
+<form class="grid gap-3 max-w-xl">
+    <div class="field">
+        <label class="label">Name</label>
+        <input class="input" placeholder="Enter name"/>
+    </div>
+
+    <div class="field">
+        <label class="label">Email</label>
+        <input class="input" placeholder="name@example.com" type="email"/>
+        <div class="help-text">We’ll never share your email.</div>
+    </div>
+
+    <div class="field invalid">
+        <label class="label">Phone</label>
+        <input class="input" placeholder="+1 (555) 555-1234"/>
+        <div class="help-text">Please provide a valid phone number.</div>
+    </div>
+
+    <div class="flex gap-2">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="button" class="btn btn-secondary">Cancel</button>
+    </div>
+</form>
+```
+
+Checkboxes and radios are styled by base classes. Pair them with labels:
+```html
+<label class="flex items-center gap-2">
+    <input type="checkbox" class="checkbox"/>
+    <span class="text-[var(--text-2)]">Subscribe to SMS</span>
+</label>
+```
+
+## Tabs
+
+- Use tab for base, tab active for selected tab
+
+```html
+<div class="flex items-center gap-2">
+    <button class="tab active">Email</button>
+    <button class="tab">SMS</button>
+    <button class="tab">Push</button>
+</div>
+```
+
+## Tables
+
+- Wrap with table-wrap and use table for the table element
+
+```html
+<div class="table-wrap">
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date added</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="td-base">Jane Doe</td>
+            <td class="td-base">jane@example.com</td>
+            <td class="td-base">2025-04-02</td>
+        </tr>
+        <tr>
+            <td class="td-base">John Smith</td>
+            <td class="td-base">john@example.com</td>
+            <td class="td-base">2025-04-05</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+```
+
+## Badges, Chips, Status
+
+- badge with variants: accent, brand, success, warning, danger
+- chip for compact labels
+- status mirrors badge variants
+
+```html
+<div class="flex flex-wrap gap-2">
+    <span class="badge">Default</span>
+    <span class="badge accent">Info</span>
+    <span class="badge brand">Brand</span>
+    <span class="badge success">Success</span>
+    <span class="badge warning">Warning</span>
+    <span class="badge danger">Danger</span>
+    <span class="chip">Segment: VIP</span>
+    <span class="status success">Active</span>
+</div>
+```
+
+## Alerts
+
+- Non-interactive informative emphasis; secondary color is appropriate for info
+
+```html
+<div class="alert info">
+    <div class="font-semibold">Heads up</div>
+    <div class="text-[var(--text-2)]">Messages are imported from GardenIQ. Authoring is disabled.</div>
+</div>
+```
+
+## KPI Blocks
+
+```html
+<div class="grid grid-cols-4 gap-3 kpi-grid">
+    <div class="kpi">
+        <div class="kpi-label">Total Orders</div>
+        <div class="kpi-value">4,218</div>
+        <div class="kpi-delta text-[var(--success)]">+8.3%</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">AOV</div>
+        <div class="kpi-value">$86.40</div>
+        <div class="kpi-delta text-[var(--text-3)]">–</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">LTV</div>
+        <div class="kpi-value">$472.10</div>
+        <div class="kpi-delta text-[var(--success)]">+3.2%</div>
+    </div>
+    <div class="kpi">
+        <div class="kpi-label">Attribution ROI</div>
+        <div class="kpi-value">3.7x</div>
+        <div class="kpi-delta text-[var(--success)]">+0.2</div>
+    </div>
+</div>
+```
+
+## Steps (Create Agent Wizard)
+
+```html
+<div class="steps">
+    <div class="step active">1. Basics</div>
+    <div class="step">2. Schedule</div>
+    <div class="step">3. Outcomes</div>
+</div>
+```
+
+## Decision Log
+
+```html
+<div class="space-y-2">
+    <div class="decision">
+        <div class="meta">
+            <div>2025-04-05 10:12</div>
+            <div>Profile: jane@example.com</div>
+        </div>
+        <div>
+            <div class="flex flex-wrap gap-2">
+                <span class="badge brand">Message: Spring Promo</span>
+                <span class="channel email">Email</span>
+                <span class="chip">Send: Afternoon</span>
+            </div>
+            <div class="reason mt-2">
+                Selected email for past email engagement; afternoon aligns with user open-time history.
+            </div>
+        </div>
+    </div>
+</div>
+```
+
+## Analytics Legend
+
+```html
+<div class="legend">
+    <div class="item">
+        <span class="swatch" style="background: var(--chart-1)"></span>
+        Page views
+    </div>
+    <div class="item">
+        <span class="swatch" style="background: var(--chart-2)"></span>
+        Sessions
+    </div>
+    <div class="item">
+        <span class="swatch" style="background: var(--chart-3)"></span>
+        Form submits
+    </div>
+</div>
+```
+
+## Channels
+
+```html
+<div class="flex gap-2">
+    <span class="channel email">Email</span>
+    <span class="channel sms">SMS</span>
+    <span class="channel push">Push</span>
+</div>
+```
+
+## Message Previews
+
+```html
+<div class="space-y-3">
+    <div class="preview-email">
+        <div class="p-4 border-b border-[var(--border)] font-semibold">Brand Header</div>
+        <div class="p-4 text-[var(--text-2)]">Email content preview...</div>
+    </div>
+    <div class="preview-sms">
+        <div class="text-[var(--text-2)]">[Brand] Your code is 123456.</div>
+    </div>
+    <div class="preview-push">
+        <div class="font-semibold">Limited-time offer</div>
+        <div class="text-[var(--text-3)]">Tap to view details</div>
+    </div>
+</div>
+```
+
+## Modals
+
+```html
+<div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-card">
+        <div class="card-header">
+            <div class="card-title">Rename Category</div>
+        </div>
+        <div class="space-y-3">
+            <div class="field">
+                <label class="label">New name</label>
+                <input class="input" placeholder="Enter category name"/>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-secondary">Cancel</button>
+            <button class="btn btn-primary">Save</button>
+        </div>
+    </div>
+</div>
+```
+
+## Prose (Markdown/Docs)
+
+```html
+<article class="prose">
+    <h1>Attribution</h1>
+    <p>Analyze ROI by message or agent with user-selectable comparisons.</p>
+    <ul>
+        <li>Revenue</li>
+        <li>Orders</li>
+        <li>AOV</li>
+    </ul>
+    <p>Learn more in the <a href="#">documentation</a>.</p>
+</article>
+```
+
+## Dashboard KPI Grid (Page Rule)
+
+The theme provides a page-specific helper for the Dashboard KPI layout via .page--Dashboard .kpi-grid.
+
+```html
+<div class="page--Dashboard">
+    <main class="container-page">
+        <section class="kpi-grid">
+            <div class="kpi">
+                <div class="kpi-label">Sends</div>
+                <div class="kpi-value">186k</div>
+                <div class="kpi-delta text-[var(--success)]">+5.4%</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Opens</div>
+                <div class="kpi-value">42k</div>
+                <div class="kpi-delta text-[var(--success)]">+2.1%</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Clicks</div>
+                <div class="kpi-value">12.1k</div>
+                <div class="kpi-delta text-[var(--success)]">+0.8%</div>
+            </div>
+            <div class="kpi">
+                <div class="kpi-label">Bounces</div>
+                <div class="kpi-value">1,042</div>
+                <div class="kpi-delta text-[var(--danger)]">+0.3%</div>
+            </div>
+        </section>
+    </main>
+</div>
+```
+
+## Messages and Categories Grid
+
+- Use .page--Messages .grid or .page--MessageCategory .grid for responsive tiles
+
+```html
+<div class="page--Messages">
+    <main class="container-page">
+        <div class="grid">
+            <a class="tile no-underline" href="/message-category?id=welcome">
+                <div class="tile-header">
+                    <div class="font-semibold">Welcome Series</div>
+                    <span class="badge brand">8</span>
+                </div>
+                <div class="tile-body">Automations</div>
+                <div class="tile-meta">
+                    <span class="subtle">Updated 2025-04-04</span>
+                    <span class="chip">Email + SMS</span>
+                </div>
+            </a>
+            <a class="tile no-underline" href="/message-category?id=promo">
+                <div class="tile-header">
+                    <div class="font-semibold">Promotions</div>
+                    <span class="badge brand">24</span>
+                </div>
+                <div class="tile-body">Campaign Library</div>
+                <div class="tile-meta">
+                    <span class="subtle">Updated 2025-03-29</span>
+                    <span class="chip">All channels</span>
+                </div>
+            </a>
+        </div>
+    </main>
+</div>
+```
+
+## Accessibility Considerations
+
+- Buttons, inputs, and interactive elements have a consistent focus ring (focus-ring)
+- Ensure aria-labels on icon-only buttons (btn-icon)
+- Maintain sufficient color contrast; avoid using brand color on large text backgrounds
+
+```html
+<button class="btn btn-icon" aria-label="Open menu">
+    <!-- icon -->
+</button>
+<input class="input focus-ring" placeholder="Search"/>
+```
+
+## Utilities at a Glance
+
+Layout
+- container-page for max width and horizontal padding
+- content-2col and rail-hidden to toggle two-column layouts
+- right-rail for sticky side content
+- divider for horizontal rules
+
+State/Emphasis
+- focus-ring and ring-brand for focus and emphasis rings
+- border-brand-subtle for thin brand border
+- skeleton for loading shimmer
+
+Navigation/Chips/Badges
+- navlink and navlink active for sidebar items
+- chip for compact labels and channel, badge.* for status
+
+Tables
+- table-wrap, table, th/td row styles baked into components
+
+Tabs
+- tab and tab active for tabbed UIs
+
+Modals
+- modal and modal-card for overlays
+
+Steps
+- steps, step, step active for the Create Agent workflow
+
+Decision Log
+- decision, with .meta and .reason blocks
+
+Legend
+- legend, item, swatch for analytics
+
+## Page Root Naming
+
+- Always include the page root class name using page--{ComponentName}
+- Examples: page--Dashboard, page--Profiles, page--Segments, page--Messages, page--Decisioning, page--Account
+
+```html
+<div class="page--Profiles">
+    <main class="container-page space-y-4">
+        <header class="flex items-center justify-between">
+            <h1 class="section-title text-xl">Profiles</h1>
+            <div class="flex gap-2">
+                <button class="btn btn-secondary">Export</button>
+                <button class="btn btn-primary">Import CSV</button>
+            </div>
+        </header>
+
+        <div class="table-wrap">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Full name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Device ID</th>
+                        <th>Date added</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="td-base">Avery Chen</td>
+                        <td class="td-base">avery@example.com</td>
+                        <td class="td-base">+1 (555) 555-1000</td>
+                        <td class="td-base">device-xyz</td>
+                        <td class="td-base">2025-04-05</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+```
+
+## Brand and Secondary Use Examples
+
+Interactive brand (buttons, links)
+```html
+<a class="link" href="/decisioning">Go to Decisioning</a>
+<button class="btn btn-primary">Activate Agent</button>
+```
+
+Non-interactive secondary (info emphasis)
+```html
+<div class="alert info">
+    <div class="font-semibold">Note</div>
+    <div class="text-[var(--text-2)]">Agents learn from outcomes; configure rankings for best results.</div>
+</div>
+```
+
+Subtle brand outline (non-CTA)
+```html
+<div class="p-3 highlight">
+    This section is highlighted with a thin brand border.
+</div>
+```
+
+## Performance and Responsiveness
+
+- Cards and tiles include hover and elevation transitions
+- The dashboard KPI grid adapts from 4 to 2 to 1 columns at breakpoints
+- Message grids adapt using page-level grid helpers
+
+```html
+<div class="page--MessageCategory">
+    <main class="container-page">
+        <div class="grid">
+            <!-- responsive tiles go here -->
+        </div>
+    </main>
+</div>
+```
+
+## Common Patterns per Screen
+
+Create Agent (3-step)
+```html
+<div class="page--CreateAgent container-page space-y-4">
+    <header class="flex items-center justify-between">
+        <div class="steps">
+            <div class="step active">1. Basics</div>
+            <div class="step">2. Schedule</div>
+            <div class="step">3. Outcomes</div>
+        </div>
+        <button class="btn btn-secondary">Cancel</button>
+    </header>
+
+    <section class="card">
+        <div class="card-title">Step 1: Basics</div>
+        <div class="mt-3 grid gap-3 md:grid-cols-2">
+            <div class="field">
+                <label class="label">Agent name</label>
+                <input class="input" placeholder="e.g., Promo Optimizer"/>
+            </div>
+            <div class="field">
+                <label class="label">Segment</label>
+                <select class="select">
+                    <option>All Subscribers</option>
+                </select>
+            </div>
+            <div class="field">
+                <label class="label">Holdout %</label>
+                <input class="input" placeholder="e.g., 10"/>
+            </div>
+            <div class="field">
+                <label class="label">Message Category</label>
+                <select class="select">
+                    <option>Promotions</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-footer">
+            <button class="btn btn-secondary">Back</button>
+            <button class="btn btn-primary">Continue</button>
+        </div>
+    </section>
+</div>
+```
+
+Agent Detail (Decision Log)
+```html
+<div class="page--AgentDetail container-page space-y-3">
+    <h1 class="section-title text-xl">Agent: Promo Optimizer</h1>
+
+    <div class="decision">
+        <div class="meta">
+            <div>2025-04-05 09:30</div>
+            <div>Profile: avery@example.com</div>
+        </div>
+        <div>
+            <div class="flex flex-wrap gap-2">
+                <span class="badge brand">Spring Promo</span>
+                <span class="channel sms">SMS</span>
+                <span class="chip">Send: Morning</span>
+            </div>
+            <div class="reason mt-2">SMS chosen for recent SMS click behavior; morning window historically best.</div>
+        </div>
+    </div>
+</div>
+```
+
+Segments
+```html
+<div class="page--Segments container-page space-y-4">
+    <header class="flex items-center justify-between">
+        <h1 class="section-title text-xl">Segments</h1>
+        <button class="btn btn-primary">Create Segment</button>
+    </header>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Profiles</th>
+                    <th>Growth 30d</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="td-base">High Intent</td>
+                    <td class="td-base">12,341</td>
+                    <td class="td-base text-[var(--success)]">+4.2%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+```
+
+Messages and Message Detail tabs
+```html
+<div class="page--MessageDetail container-page space-y-3">
+    <div class="flex items-center gap-2">
+        <button class="tab active">Email</button>
+        <button class="tab">SMS</button>
+        <button class="tab">Push</button>
+    </div>
+    <div class="preview-email">
+        <div class="p-4 border-b border-[var(--border)] font-semibold">Brand Header</div>
+        <div class="p-4">Email preview content here</div>
+    </div>
+</div>
+```
+
+## Practical Tips
+
+- Prefer component classes (btn, card, tile, table, etc.) and theme utilities (container-page, content-2col) before composing many ad-hoc Tailwind classes
+- For custom emphasis that isn’t a CTA, use highlight or border-brand-subtle instead of a filled brand background
+- Use alert.info for informative notices where secondary color is appropriate
+- Use focus-ring for custom focusable elements to maintain consistent accessibility affordances
+
+If you must reference tokens directly in utilities, use CSS variable syntax for color values:
+```html
+<div class="p-3 rounded-[var(--radius)] border" style="border-color: var(--color-border)">
+    <p class="text-[var(--color-text-2)]">Direct token usage example.</p>
+</div>
+```
+
+This guide should cover most layout and component needs for the app screens:
+- Dashboard, Profiles, Segments, Messages, Decisioning, Account/Settings
+- Message categories and details
+- Agent creation, detail logs, analytics views
+- Invite, Register, Sign-in flows using the same input/button patterns
+
+Adhere to the brand usage rules and rely on the provided theme utilities for a consistent, modern, dark UI.
+</style-guide>
+
+> appendUser
+<main-layout>
+# Main Layout
+
+Primary application shell used by the top-level App component to frame all pages. It provides a responsive top navigation bar with account switching, a two-column content pattern with an optional right rail, and respects page display modes (fullscreen and no-margins).
+
+Pages must not import MainLayout directly. The App component mounts pages inside MainLayout and passes children.
+
+## Component API
+
+Props
+- children: ReactNode (required) — the page content to render inside the layout
+
+Behavior
+- Renders the global header (logo, navigation, account switcher, user menu)
+- Collapsible navigation on mobile with an expand (hamburger) button
+- Applies page display modes:
+  - Fullscreen mode hides the header/nav and shows only children
+  - No-margins mode removes page paddings while keeping the header/nav visible
+- Ensures brand usage follows the theme and style guide
+
+## Global Navigation Links
+
+Visible in the top navigation (desktop) and in the mobile menu (collapsed):
+- Dashboard → /dashboard
+- Profiles → /profiles
+- Segments → /segments
+- Messages → /messages
+- Decisioning → /decisioning
+- Settings → Account → /account
+
+Logo and avatar shortcuts
+- Logo click → /dashboard
+- User avatar → /profile
+
+Note: Accept Invite, Sign-in, Register, and other auth/utility pages are not part of the global nav links.
+
+## Responsive Behavior
+
+- Desktop and tablet (md and up)
+  - The header shows logo, nav links, account switcher, and user avatar inline
+- Mobile (sm and below)
+  - The header shows logo, an account switcher button, and a hamburger expand button
+  - The nav links and account controls collapse into a slide-down panel below the header
+  - The expand button toggles aria-expanded and aria-controls for accessibility
+- Fullscreen pages
+  - The header and any nav chrome are hidden when useFullPage is active
+
+## Structure and Classes
+
+- Use the theme’s app-header for the top bar and container-page for content width/padding
+- Use navlink and navlink active for navigation items
+- Use btn and btn-icon for actions; brand color is reserved for interactive elements
+- Use content-2col and right-rail for the main 2-column pattern (optional rail)
+- Use rail-hidden to collapse the right rail for full-width primary content
+
+## Account Switcher
+
+- Shown in the header next to navigation
+- Displays the current account name (and logo if available)
+- Clicking opens a popover or panel listing the user’s accounts
+- Selecting an account calls app().switchAccountAsync(accountId) and updates tenancy-scoped data
+- Uses useUserInfo() or useAccount() to show current account; useFileUrl() to resolve logo image path when available
+
+## Display Modes
+
+- Fullscreen
+  - useIsInFullPageMode() → true hides the header, leaving only children visible
+  - Typical for authentication or wizard-like flows that request fullscreen with useFullPage()
+- No Margins
+  - useIsNoMarginMode() → true removes page margins/paddings for edge-to-edge views
+  - Header remains visible
+
+## Active Link Highlighting
+
+- The current route should render its link with navlink active
+- On mobile, the active link remains highlighted within the expanded panel
+
+## Accessibility
+
+- Hamburger button includes aria-label, aria-expanded, and aria-controls pointing to the mobile menu panel
+- Account switcher button includes aria-haspopup="menu", aria-expanded, and proper keyboard handling
+- Focus management and rings use the theme’s focus-ring utilities
+
+## Implementation Notes
+
+- Tech stack: React, Next.js (pages directory), Tailwind CSS v4, lucide-react, Supabase
+- Static Site Generation only; do not use the Next.js App Router
+- Pages export a default function and must not import MainLayout; MainLayout is applied by the App component
+- Page root must include className "page--{PageComponentName}"
+- Respect multi-tenant scoping with account_id; switching accounts via app().switchAccountAsync
+
+## Header and Navigation Markup (JSX Example)
+
+```tsx
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Logo } from "@/components/Logo";
+import { useIsInFullPageMode, useIsNoMarginMode, useUserInfo, useFileUrl } from "@/lib/hooks";
+import { app } from "@/lib/app";
+import { cn } from "@/lib/util";
+import { ChevronDown, Menu, X } from "lucide-react";
+
+interface MainLayoutProps {
+    children: React.ReactNode;
+}
+
+export function MainLayout({ children }: MainLayoutProps) {
+    const isFullscreen = useIsInFullPageMode();
+    const noMargins = useIsNoMarginMode();
+    const userInfo = useUserInfo();
+    const account = userInfo?.account;
+    const accountLogoUrl = useFileUrl(account?.logo_image_path);
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [acctOpen, setAcctOpen] = useState(false);
+
+    useEffect(() => {
+        if (isFullscreen) {
+            setMobileOpen(false);
+            setAcctOpen(false);
+        }
+    }, [isFullscreen]);
+
+    const navLinks = useMemo(
+        () => [
+            { href: "/dashboard", label: "Dashboard" },
+            { href: "/profiles", label: "Profiles" },
+            { href: "/segments", label: "Segments" },
+            { href: "/messages", label: "Messages" },
+            { href: "/decisioning", label: "Decisioning" },
+            { href: "/account", label: "Settings" },
+        ],
+        []
+    );
+
+    return (
+        <div className={cn("min-h-screen", isFullscreen && "app-shell fullscreen")}>
+            {!isFullscreen && (
+                <header className="app-header">
+                    <div className="flex items-center gap-3">
+                        <Link href="/dashboard" className="flex items-center gap-2 no-underline">
+                            <Logo className="w-7 h-7" />
+                            <span className="font-bold">Decisioning Demo</span>
+                        </Link>
+                    </div>
+
+                    {/* Desktop nav + actions */}
+                    <div className="hidden md:flex items-center gap-3">
+                        <nav className="flex items-center gap-1">
+                            {navLinks.map((n) => (
+                                <Link key={n.href} href={n.href} className="navlink">
+                                    {n.label}
+                                </Link>
+                            ))}
+                        </nav>
+
+                        {/* Account switcher */}
+                        <div className="relative">
+                            <button
+                                className="btn btn-secondary"
+                                aria-haspopup="menu"
+                                aria-expanded={acctOpen}
+                                onClick={() => setAcctOpen((v) => !v)}
+                            \>
+                                <div className="flex items-center gap-2">
+                                    {accountLogoUrl ? (
+                                        <img
+                                            alt=""
+                                            src={accountLogoUrl}
+                                            className="w-5 h-5 rounded"
+                                        />
+                                    ) : (
+                                        <div className="w-5 h-5 rounded bg-[var(--surface-3)]" />
+                                    )}
+                                    <span className="truncate max-w-[14rem]">{account?.name ?? "Account"}</span>
+                                    <ChevronDown className="w-4 h-4" />
+                                </div>
+                            </button>
+                            {acctOpen && (
+                                <div role="menu" className="absolute right-0 mt-2 min-w-[16rem] card p-2 z-50">
+                                    {/* Example account items; wire to real data */}
+                                    <button
+                                        className="navlink w-full text-left"
+                                        onClick={async () => {
+                                            setAcctOpen(false);
+                                            // Replace with a real id from the user’s memberships
+                                            await app().switchAccountAsync("ACCOUNT_ID_EXAMPLE");
+                                        }}
+                                    \>
+                                        Switch to another account
+                                    </button>
+                                    <div className="divider my-2" />
+                                    <Link className="navlink" href="/account">
+                                        Manage account
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
+                        <Link href="/profile" className="btn btn-secondary btn-icon" aria-label="Profile">
+                            {/* avatar or icon could be placed here */}
+                        </Link>
+                    </div>
+
+                    {/* Mobile actions */}
+                    <div className="md:hidden flex items-center gap-2">
+                        {/* Account switcher (compact) */}
+                        <button
+                            className="btn btn-secondary btn-icon"
+                            aria-label="Switch account"
+                            aria-haspopup="menu"
+                            aria-expanded={acctOpen}
+                            onClick={() => setAcctOpen((v) => !v)}
+                        \>
+                            <ChevronDown className="w-5 h-5" />
+                        </button>
+
+                        <Link href="/profile" className="btn btn-secondary btn-icon" aria-label="Profile" />
+
+                        <button
+                            className="btn btn-secondary btn-icon"
+                            aria-label="Open navigation"
+                            aria-controls="mobile-nav"
+                            aria-expanded={mobileOpen}
+                            onClick={() => setMobileOpen((v) => !v)}
+                        \>
+                            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                        </button>
+
+                        {/* Account popover (mobile) */}
+                        {acctOpen && (
+                            <div role="menu" className="absolute top-[var(--header-height)] right-2 card p-2 z-50 min-w-[14rem]">
+                                <button
+                                    className="navlink w-full text-left"
+                                    onClick={async () => {
+                                        setAcctOpen(false);
+                                        await app().switchAccountAsync("ACCOUNT_ID_EXAMPLE");
+                                    }}
+                                \>
+                                    Switch to another account
+                                </button>
+                                <div className="divider my-2" />
+                                <Link className="navlink" href="/account" onClick={() => setAcctOpen(false)}>
+                                    Manage account
+                                </Link>
+                            </div>
+                        )}
+                    </div>
+                </header>
+            )}
+
+            {/* Mobile collapsed nav */}
+            {!isFullscreen && (
+                <div
+                    id="mobile-nav"
+                    className={cn(
+                        "md:hidden",
+                        mobileOpen ? "block" : "hidden"
+                    )}
+                \>
+                    <nav className="container-page py-2 card">
+                        <div className="flex flex-col gap-1">
+                            {navLinks.map((n) => (
+                                <Link key={n.href} href={n.href} className="navlink" onClick={() => setMobileOpen(false)}>
+                                    {n.label}
+                                </Link>
+                            ))}
+                        </div>
+                    </nav>
+                </div>
+            )}
+
+            <main className={cn("container-page", noMargins && "p-0", "space-y-4")}>
+                {children}
+            </main>
+        </div>
+    );
+}
+```
+
+Notes
+- Use navlink active for the current route. This example omits the active state logic; integrate with your routing to add the active className.
+- Replace ACCOUNT_ID_EXAMPLE in the switcher with real membership ids.
+- Use useFileUrl for account logos; respect signed URLs and caching.
+
+## Two-Column Content Pattern
+
+- Use content-2col for a responsive 80:20 layout with a right rail
+- Add rail-hidden to collapse into a single column
+
+Example
+```html
+<section class="content-2col">
+    <div class="space-y-3">
+        <!-- Primary content -->
+    </div>
+    <aside class="right-rail space-y-3">
+        <!-- Optional rail content -->
+    </aside>
+</section>
+```
+
+Collapse the rail
+```html
+<section class="content-2col rail-hidden">
+    <div>Full-width primary content</div>
+</section>
+```
+
+## Brand and Styling Guidance
+
+- Follow the style guide: dark palette, neutral surfaces and borders, rounded corners, pill-shaped buttons
+- Use brand color (var(--blue)) sparingly for interactive elements (buttons, links, icons)
+- Use secondary color (var(--purple)) for non-interactive emphasis (alerts, badges)
+- Use theme classes first (btn, card, navlink, highlight, container-page, content-2col) before ad-hoc utilities
+
+## Integration With Pages
+
+- Pages export default components and are mounted under MainLayout by the App component
+- Pages can request:
+  - Fullscreen via useFullPage()
+  - No margins via useNoMargins()
+- Pages should:
+  - Include root className "page--{ComponentName}"
+  - Use the theme’s components for consistency (card, tile, table, steps, etc.)
+
+## Navigation Summary (for quick reference)
+
+- Dashboard (/dashboard)
+- Profiles (/profiles)
+- Segments (/segments)
+- Messages (/messages)
+- Decisioning (/decisioning)
+- Settings → Account (/account)
+
+Shortcuts
+- Logo → /dashboard
+- Avatar → /profile
+
+This layout ensures a modern, professional, dark-themed shell with a responsive top navigation, consistent two-column page composition, and account-aware multi-tenant behavior.
+</main-layout>
+
+> appendUser
+<editor-config>
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+</editor-config>
+
+> appendUser
+<screen-description>
+# Screen Description
+
+Name: Accept Account Invite
+Route: /accept-account-invite/[invite-code]
+
+## Description
+Accept Account Invite lets a recipient review and act on an invitation to join an organization (account). The page is accessible to anyone with a valid invite link. If the visitor isn’t authenticated, the screen prompts them to sign in (or register) before proceeding.
+
+Upon loading, the screen resolves the invite code and presents a concise summary:
+- Account details: name and (if available) logo
+- Role to be granted upon acceptance (admin, standard, or guest; displayed with a non-interactive badge)
+- Invited by: inviter’s name (with link to their public profile when available)
+- Target email (if the invite was email-specific)
+- Invite status and expiration
+
+Primary flows and states:
+- Loading: brief skeleton while validating the invite code.
+- Valid invite (signed in): users can Accept or Decline. Accepting creates an AccountMembership with the role specified by the invite and switches tenancy to the joined account. Declining marks the invite declined and shows a confirmation message.
+- Valid invite (signed out): shows a Sign-In Required card with clear CTAs to sign in or register. After authentication, the page returns to the invite review state.
+- Already accepted/declined: shows a non-interactive summary with a status badge and helpful next steps.
+- Already a member: if the signed-in user already belongs to the account, shows a confirmation message and a hint to switch to or visit the account.
+- Expired/invalid invite: presents an error alert with guidance to contact the inviter for a new link.
+
+Design and interaction notes:
+- Uses a dark, professional card layout with pill-shaped CTAs. The primary Accept action uses brand color sparingly; Decline is secondary.
+- The targeted email (if present) is shown as informational text (secondary color) and, when it doesn’t match the signed-in user’s email, the page displays a warning with a small action cluster: Continue anyway or Sign out to switch accounts.
+- On accept success, the page confirms membership and suggests next steps (e.g., view profile, switch accounts, or continue to workspaces). The app handles the actual tenant switch via the controller.
+
+## Actions
+- Validate invite from URL code
+- Sign in to continue (if unauthenticated)
+- Register a new user (if unauthenticated and no account)
+- Accept invite (creates membership with the specified role and switches to the joined account)
+- Decline invite (marks the invite declined and confirms the action)
+- View inviter’s public profile (if available)
+- Acknowledge and continue on email mismatch with warning
+- Retry invite validation (e.g., after network error)
+- Copy invite information (optional helper for support requests)
+
+## Links
+- sign-in: link to Sign-in
+- register: link to Register
+- profile: link to the user’s profile
+- profile/[user-id]: link to the inviter’s public profile (when available)
+</screen-description>
+
+> appendUser
+Generate a NextJS page based on the `screen-description`.
+
+> nop
+//_END_MAKE_TARGET_INPUT_
+
+
+@time 2025-11-07T09:31:54-05:00
+@tokenUsage 24062 / 8126 / $0.04023500000000001
+@model gpt-5-2025-08-07
+> assistant
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import {
+    useCurrentUser,
+    useFileUrl,
+    useStoreItem,
+    useStoreFirstMatchingItem,
+} from "@/lib/hooks";
+import { store } from "@/lib/store";
+import { app } from "@/lib/app";
+import { supClient } from "@/lib/supabase";
+import { cn } from "@/lib/util";
+import {
+    typeDefs,
+    Account as AccountEntity,
+    User as UserEntity,
+    AccountInvite as AccountInviteEntity,
+    AccountMembership as AccountMembershipEntity,
+} from "@/lib/schema";
+import { SignInRequired } from "@/components/SignInRequired";
+import {
+    AlertTriangle,
+    Building2,
+    Check,
+    CheckCircle2,
+    Clock,
+    Copy,
+    ExternalLink,
+    LogIn,
+    Mail,
+    Shield,
+    UserCircle2,
+    XCircle,
+} from "lucide-react";
+
+function formatDate(iso?: string) {
+    if (!iso) return "";
+    try {
+        const d = new Date(iso);
+        return `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+    } catch {
+        return iso;
+    }
+}
+
+type InviteComputedStatus =
+    | "loading"
+    | "invalid"
+    | "expired"
+    | "inactive"
+    | "accepted"
+    | "declined"
+    | "valid";
+
+export default function AcceptAccountInvitePage() {
+    const router = useRouter();
+    const user = useCurrentUser();
+
+    const inviteCodeParam = router.query["invite-code"];
+    const inviteCode =
+        typeof inviteCodeParam === "string"
+            ? inviteCodeParam
+            : Array.isArray(inviteCodeParam)
+            ? inviteCodeParam[0]
+            : undefined;
+
+    const invite = useStoreFirstMatchingItem<AccountInviteEntity>(
+        typeDefs.AccountInvite,
+        inviteCode ? { invite_code: inviteCode } : null,
+        { resetOnChange: true }
+    );
+
+    const account = useStoreItem<AccountEntity>(
+        typeDefs.Account,
+        invite && invite !== null ? invite.account_id : undefined,
+        { resetOnChange: true }
+    );
+
+    const inviter = useStoreItem<UserEntity>(
+        typeDefs.User,
+        invite && invite !== null ? invite.invited_by_user_id : undefined,
+        { resetOnChange: true }
+    );
+
+    const accountLogoUrl = useFileUrl(account?.logo_image_path);
+
+    const [actionError, setActionError] = useState<string | null>(null);
+    const [accepting, setAccepting] = useState(false);
+    const [declining, setDeclining] = useState(false);
+    const [mismatchAcknowledged, setMismatchAcknowledged] = useState(false);
+
+    // Determine membership only when we have both user and invite
+    const membershipMatch =
+        user && invite && invite !== null
+            ? { user_id: user.id, account_id: invite.account_id }
+            : null;
+
+    const existingMembership = useStoreFirstMatchingItem<AccountMembershipEntity>(
+        typeDefs.AccountMembership,
+        membershipMatch,
+        { resetOnChange: true }
+    );
+
+    const computedStatus: InviteComputedStatus = useMemo(() => {
+        if (invite === null) return "loading";
+        if (invite === undefined) return "invalid";
+        const isAccepted = !!invite.accepted_at;
+        const isDeclined = !!invite.declined_at;
+        const expired =
+            !!invite.expires_at && new Date(invite.expires_at).getTime() < Date.now();
+
+        if (isAccepted) return "accepted";
+        if (isDeclined) return "declined";
+        if (expired) return "expired";
+        if (!invite.is_active) return "inactive";
+        return "valid";
+    }, [invite]);
+
+    const targetEmail = invite && invite !== null ? invite.email : undefined;
+    const userEmail = user?.email;
+    const emailMismatch =
+        !!targetEmail && !!userEmail && targetEmail.toLowerCase() !== userEmail.toLowerCase();
+
+    useEffect(() => {
+        // Reset mismatch acknowledgement when invite or user changes
+        setMismatchAcknowledged(false);
+    }, [invite?.id, user?.id]);
+
+    async function handleAccept() {
+        setActionError(null);
+        if (!invite || invite === null) return;
+        if (!user) {
+            setActionError("You must be signed in to accept this invite.");
+            return;
+        }
+        if (emailMismatch && !mismatchAcknowledged) {
+            setActionError(
+                "This invite targets a different email. Confirm 'Continue anyway' or sign out to switch accounts."
+            );
+            return;
+        }
+        setAccepting(true);
+        try {
+            // Ensure membership exists (idempotent)
+            const existing = await store().selectFirstMatchesAsync<AccountMembershipEntity>(
+                typeDefs.AccountMembership,
+                { user_id: user.id, account_id: invite.account_id }
+            );
+
+            if (!existing) {
+                await store().insertAsync(typeDefs.AccountMembership, {
+                    user_id: user.id,
+                    account_id: invite.account_id,
+                    role: invite.role || "standard",
+                } as Partial<AccountMembershipEntity> as any);
+            }
+
+            // Mark invite accepted
+            await store().updateAsync<AccountInviteEntity>(typeDefs.AccountInvite, invite.id, {
+                accepted_at: new Date().toISOString(),
+                is_active: false,
+            });
+
+            // Switch tenancy
+            await app().switchAccountAsync(invite.account_id);
+        } catch (err: any) {
+            setActionError(
+                err?.message || "Something went wrong while accepting the invite. Please try again."
+            );
+        } finally {
+            setAccepting(false);
+        }
+    }
+
+    async function handleDecline() {
+        setActionError(null);
+        if (!invite || invite === null) return;
+        setDeclining(true);
+        try {
+            await store().updateAsync<AccountInviteEntity>(typeDefs.AccountInvite, invite.id, {
+                declined_at: new Date().toISOString(),
+                is_active: false,
+            });
+        } catch (err: any) {
+            setActionError(
+                err?.message || "Unable to decline the invite at this time. Please try again."
+            );
+        } finally {
+            setDeclining(false);
+        }
+    }
+
+    async function handleSignOutToSwitch() {
+        try {
+            await supClient().auth.signOut();
+            const redirectUrl = router.asPath || `/accept-account-invite/${inviteCode ?? ""}`;
+            router.push(`/sign-in?redirect=${encodeURIComponent(redirectUrl)}`);
+        } catch {
+            router.push("/sign-in");
+        }
+    }
+
+    async function handleSwitchToAccount() {
+        if (!invite || invite === null) return;
+        try {
+            await app().switchAccountAsync(invite.account_id);
+            router.push("/dashboard");
+        } catch (err: any) {
+            setActionError(
+                err?.message || "Unable to switch accounts right now. Please try again."
+            );
+        }
+    }
+
+    function copyInviteInfo() {
+        const info = {
+            invite_code: inviteCode,
+            status: computedStatus,
+            account_id: invite && invite !== null ? invite.account_id : undefined,
+            target_email: targetEmail,
+            role: invite && invite !== null ? invite.role : undefined,
+            expires_at: invite && invite !== null ? invite.expires_at : undefined,
+        };
+        navigator.clipboard.writeText(JSON.stringify(info, null, 2)).catch(() => {});
+    }
+
+    const canAccept =
+        computedStatus === "valid" &&
+        !!user &&
+        (!emailMismatch || mismatchAcknowledged) &&
+        !accepting;
+
+    const showSignInPrompt = user === undefined && computedStatus === "valid";
+
+    return (
+        <div className="page--AcceptAccountInvitePage container-page space-y-4">
+            <header className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <Shield className="w-6 h-6 text-[var(--text-2)]" />
+                    <h1 className="section-title text-xl">Accept Account Invite</h1>
+                </div>
+                <div className="flex items-center gap-2">
+                    <button
+                        className="btn btn-secondary btn-icon"
+                        aria-label="Copy invite info"
+                        onClick={copyInviteInfo}
+                        title="Copy invite details (for support)"
+                    \>
+                        <Copy className="w-4 h-4" />
+                    </button>
+                    <Link href="/dashboard" className="btn btn-secondary">
+                        Back to Dashboard
+                    </Link>
+                </div>
+            </header>
+
+            {/* Invite summary card */}
+            <section className="card">
+                <div className="card-header">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded bg-[var(--surface-3)] overflow-hidden flex items-center justify-center">
+                            {accountLogoUrl ? (
+                                <img
+                                    src={accountLogoUrl}
+                                    alt=""
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <Building2 className="w-5 h-5 text-[var(--text-3)]" />
+                            )}
+                        </div>
+                        <div className="flex flex-col">
+                            <div className="flex items-center gap-2">
+                                <div className="card-title">
+                                    {account?.name ?? "Account"}
+                                </div>
+                                {/* Role badge */}
+                                {invite && invite !== null && invite.role && (
+                                    <span className="badge accent uppercase">
+                                        {invite.role}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="card-subtitle text-[var(--text-3)]">
+                                Invitation to join this account
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Status badge */}
+                    <div className="flex items-center gap-2">
+                        <span
+                            className={cn(
+                                "badge",
+                                computedStatus === "valid" && "brand",
+                                computedStatus === "accepted" && "success",
+                                computedStatus === "declined" && "danger",
+                                (computedStatus === "expired" || computedStatus === "inactive") &&
+                                    "warning"
+                            )}
+                        \>
+                            {computedStatus === "valid" && "Pending"}
+                            {computedStatus === "accepted" && "Accepted"}
+                            {computedStatus === "declined" && "Declined"}
+                            {computedStatus === "expired" && "Expired"}
+                            {computedStatus === "inactive" && "Inactive"}
+                            {computedStatus === "invalid" && "Invalid"}
+                            {computedStatus === "loading" && "Loading"}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Loading skeleton */}
+                {invite === null && (
+                    <div className="space-y-3">
+                        <div className="skeleton h-6 w-1/2" />
+                        <div className="skeleton h-4 w-2/3" />
+                        <div className="skeleton h-4 w-1/3" />
+                    </div>
+                )}
+
+                {/* Invalid invite */}
+                {computedStatus === "invalid" && (
+                    <div className="space-y-3">
+                        <div className="alert danger">
+                            <div className="flex items-center gap-2 font-semibold">
+                                <XCircle className="w-4 h-4" />
+                                Invalid invite
+                            </div>
+                            <div className="text-[var(--text-2)]">
+                                We couldn’t find an invite for this link. Contact the inviter for a
+                                new link or ask them to generate a fresh invite.
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button className="btn btn-secondary" onClick={() => location.reload()}>
+                                Retry
+                            </button>
+                            <Link className="btn btn-primary" href="/account">
+                                Visit Account Settings
+                            </Link>
+                        </div>
+                    </div>
+                )}
+
+                {/* Expired or inactive */}
+                {(computedStatus === "expired" || computedStatus === "inactive") &&
+                    invite &&
+                    invite !== null && (
+                        <div className="space-y-3">
+                            <div className="alert warning">
+                                <div className="flex items-center gap-2 font-semibold">
+                                    <Clock className="w-4 h-4" />
+                                    {computedStatus === "expired" ? "Invite expired" : "Invite inactive"}
+                                </div>
+                                <div className="text-[var(--text-2)]">
+                                    {computedStatus === "expired" ? (
+                                        <>
+                                            This invite expired on{" "}
+                                            <span className="font-medium">
+                                                {formatDate(invite.expires_at)}
+                                            </span>
+                                            . Ask the inviter to send a new link.
+                                        </>
+                                    ) : (
+                                        <>This invite is no longer active.</>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button className="btn btn-secondary" onClick={() => location.reload()}>
+                                    Retry
+                                </button>
+                                <Link className="btn btn-primary" href="/sign-in">
+                                    <LogIn className="w-4 h-4 mr-1" />
+                                    Sign in
+                                </Link>
+                            </div>
+                        </div>
+                    )}
+
+                {/* Accepted summary */}
+                {computedStatus === "accepted" && (
+                    <div className="space-y-3">
+                        <div className="alert success">
+                            <div className="flex items-center gap-2 font-semibold">
+                                <CheckCircle2 className="w-4 h-4" />
+                                You’ve joined this account
+                            </div>
+                            <div className="text-[var(--text-2)]">
+                                Head to the dashboard or account page to get started.
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            <Link className="btn btn-primary" href="/dashboard">
+                                Go to Dashboard
+                            </Link>
+                            <Link className="btn btn-secondary" href="/account">
+                                View Account
+                            </Link>
+                        </div>
+                    </div>
+                )}
+
+                {/* Declined summary */}
+                {computedStatus === "declined" && (
+                    <div className="space-y-3">
+                        <div className="alert">
+                            <div className="flex items-center gap-2 font-semibold">
+                                <XCircle className="w-4 h-4" />
+                                Invite declined
+                            </div>
+                            <div className="text-[var(--text-2)]">
+                                If this was a mistake, ask the inviter to send a new invite.
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Link className="btn btn-secondary" href="/dashboard">
+                                Back to Dashboard
+                            </Link>
+                        </div>
+                    </div>
+                )}
+
+                {/* Valid invite summary details */}
+                {(computedStatus === "valid" || showSignInPrompt) && invite && invite !== null && (
+                    <div className="space-y-4">
+                        <div className="grid gap-3 md:grid-cols-2">
+                            <div className="p-3 rounded border border-[var(--border)]">
+                                <div className="flex items-center gap-2 text-sm text-[var(--text-2)]">
+                                    <Shield className="w-4 h-4" />
+                                    Role granted on accept
+                                </div>
+                                <div className="mt-1 font-medium uppercase">
+                                    {invite.role || "standard"}
+                                </div>
+                            </div>
+                            <div className="p-3 rounded border border-[var(--border)]">
+                                <div className="flex items-center gap-2 text-sm text-[var(--text-2)]">
+                                    <UserCircle2 className="w-4 h-4" />
+                                    Invited by
+                                </div>
+                                <div className="mt-1">
+                                    {inviter ? (
+                                        <Link
+                                            className="link inline-flex items-center gap-1"
+                                            href={`/profile/${inviter.id}`}
+                                        \>
+                                            {inviter.name}
+                                            <ExternalLink className="w-3 h-3" />
+                                        </Link>
+                                    ) : (
+                                        <span className="text-[var(--text-3)]">Unknown</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="p-3 rounded border border-[var(--border)]">
+                                <div className="flex items-center gap-2 text-sm text-[var(--text-2)]">
+                                    <Mail className="w-4 h-4" />
+                                    Target email
+                                </div>
+                                <div className="mt-1">
+                                    {targetEmail ? (
+                                        <span className="text-[var(--purple)]">{targetEmail}</span>
+                                    ) : (
+                                        <span className="text-[var(--text-3)]">Not specified</span>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="p-3 rounded border border-[var(--border)]">
+                                <div className="flex items-center gap-2 text-sm text-[var(--text-2)]">
+                                    <Clock className="w-4 h-4" />
+                                    Expires
+                                </div>
+                                <div className="mt-1">
+                                    {invite.expires_at ? (
+                                        formatDate(invite.expires_at)
+                                    ) : (
+                                        <span className="text-[var(--text-3)]">No expiration</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Email mismatch notice for signed-in users */}
+                        {user && emailMismatch && (
+                            <div className="alert warning">
+                                <div className="font-semibold flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4" />
+                                    This invite is for a different email
+                                </div>
+                                <div className="text-[var(--text-2)] mt-1">
+                                    Invite email:{" "}
+                                    <span className="font-medium">{targetEmail}</span>. You are signed in as{" "}
+                                    <span className="font-medium">{userEmail}</span>.
+                                </div>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                    <button
+                                        className={cn(
+                                            "btn",
+                                            mismatchAcknowledged ? "btn-secondary" : "btn-primary ghost"
+                                        )}
+                                        onClick={() => setMismatchAcknowledged(true)}
+                                    \>
+                                        Continue anyway
+                                    </button>
+                                    <button className="btn btn-secondary" onClick={handleSignOutToSwitch}>
+                                        <LogIn className="w-4 h-4 mr-1" />
+                                        Sign out to switch
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Already a member notice */}
+                        {user && existingMembership && existingMembership !== null && (
+                            <div className="alert info">
+                                <div className="font-semibold">You’re already a member of this account</div>
+                                <div className="text-[var(--text-2)] mt-1">
+                                    You can switch to this account now to continue.
+                                </div>
+                                <div className="mt-2">
+                                    <button className="btn btn-primary" onClick={handleSwitchToAccount}>
+                                        Switch to this account
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Action buttons (signed-in valid) */}
+                        {user && computedStatus === "valid" && (
+                            <div className="card-footer">
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        className="btn btn-primary"
+                                        disabled={!canAccept}
+                                        onClick={handleAccept}
+                                    \>
+                                        {accepting ? (
+                                            <>
+                                                <span className="spinner mr-2" />
+                                                Accepting...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Check className="w-4 h-4 mr-1" />
+                                                Accept
+                                            </>
+                                        )}
+                                    </button>
+                                    <button
+                                        className="btn btn-secondary"
+                                        disabled={declining}
+                                        onClick={handleDecline}
+                                    \>
+                                        {declining ? "Declining..." : "Decline"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Sign-in required state for valid invite */}
+                        {!user && showSignInPrompt && (
+                            <div className="mt-2">
+                                <SignInRequired message="Sign in to accept or decline this invite." />
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Action error */}
+                {actionError && (
+                    <div className="mt-3 alert danger">
+                        <div className="font-semibold">Action failed</div>
+                        <div className="text-[var(--text-2)]">{actionError}</div>
+                        <div className="mt-2">
+                            <button className="btn btn-secondary" onClick={() => setActionError(null)}>
+                                Dismiss
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </section>
+
+            {/* Helpful tips / right-rail style section collapsed to full width */}
+            <section className="card">
+                <div className="card-title">About roles</div>
+                <div className="text-[var(--text-2)]">
+                    - Admin: full control including roles and billing
+                    <br />
+                    - Standard: edit content and configure agents
+                    <br />
+                    - Guest: view-only access
+                </div>
+            </section>
+        </div>
+    );
+}
+
+
+
+> user

@@ -1,0 +1,19 @@
+- While signed out, visit /profile/[user-id] and verify SignInRequired appears.
+- Sign in and load the page; avatar, name, and email are visible.
+- If a hero image exists, a preview appears; if not, no empty placeholder is shown.
+- Metadata shows the user ID and created date.
+- When the user has membership in the current account, “Last accessed” is shown.
+- Use the copy action to copy the user ID and verify the clipboard value.
+- Use the copy action to copy the email address and verify the clipboard value.
+- Use the copy action to copy the permalink; verify it matches /profile/[user-id].
+- As a non-admin, confirm the Role card is not visible.
+- As an admin, confirm the Role card appears in the right rail.
+- As an admin viewing your own profile, the role selector is disabled with a helpful message.
+- The role selector lists Admin, Standard, and Guest with the current role preselected.
+- Changing the role enables the Save button and shows a Cancel option.
+- Click Save; verify a success toast appears and the role updates.
+- Refresh the page; verify the new role persists.
+- Change the role but click Cancel; verify the original role is restored and Save is disabled.
+- If the viewed user is not a member of the current account, see a muted notice and no role controls.
+- Observe skeleton/loading states while data loads; they disappear once content renders.
+- Click the link to your personal profile (/profile) and verify navigation.

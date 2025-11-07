@@ -1,0 +1,17 @@
+- Open /decisioning and confirm the dark-themed list of agents is visible with an optional right rail.
+- (If no agents exist) Verify the empty state card explains agents and shows a primary “Create your first agent” CTA.
+- Click “New Agent” and confirm it navigates to /create-agent; return to /decisioning.
+- For a visible agent, verify the item shows: name, status badge, segment link, message category link, frequency, day chips, time window chips, holdout %, created date, and (if present) last decisioned timestamp.
+- Click the segment name and confirm navigation to /segment-detail for that segment; go back.
+- Click the message category and confirm navigation to /message-category; go back.
+- Open the agent’s detail (by clicking its name or a details control) and confirm /agent-detail loads; go back.
+- Use the status filter to show Active only; verify the list updates; clear the filter.
+- Use the search box to find an agent by partial name; clear search to restore the full list.
+- Sort by Created date and confirm the order changes as expected.
+- Toggle an agent from Active to Inactive; verify the status badge updates; refresh the page to confirm it persists; toggle back to Active.
+- Open the delete action for an agent and verify a confirmation modal appears; choose Cancel to keep the agent.
+- (Optional) If you have a disposable agent, confirm deletion and verify it is removed from the list.
+- Hover an agent row/tile and confirm a subtle hover state and the presence of icon buttons for actions.
+- Verify the right rail shows a governance reminder that messages are imported from GardenIQ (authoring disabled) and links to learn about outcomes/attribution.
+- (Optional) Switch to another account and confirm the agent list reflects only that account’s agents; switch back.
+- (Optional) Sign in as a guest user (or impersonate) and verify New Agent, activate/deactivate, and delete actions are disabled, while links (agent detail, segment, category) remain navigable.

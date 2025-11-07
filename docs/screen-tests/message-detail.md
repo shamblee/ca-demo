@@ -1,0 +1,23 @@
+- Open Message Detail and verify the Email tab loads by default with a branded frame showing subject, from, and preheader if present.
+- Click the SMS tab and Push tab to switch, and verify each preview renders or a Missing Variant info alert appears.
+- Use keyboard shortcuts E, S, and P to switch tabs and confirm the active tab changes.
+- In Email, toggle desktop and mobile widths via the UI and with 1 and 2 keys; confirm the preview adjusts.
+- In Email, use scale controls to zoom in, zoom out, and reset to 100%.
+- In Email, switch between HTML and plain-text, and open raw HTML in a new window; verify the content loads accordingly.
+- If Email preview or HTML is unavailable, verify an info alert explains managing content in GardenIQ.
+- In SMS, confirm the character counter and estimated segments are displayed for the text.
+- Copy the SMS text to the clipboard and verify the pasted value matches.
+- Download the SMS as a .txt file and verify the filename and contents.
+- In Push, toggle OS style between iOS and Android and confirm the visual style changes.
+- In Push, toggle collapsed and expanded states and verify the title and body display correctly.
+- Copy the Push title and body to the clipboard and verify the pasted value matches.
+- Download the Push payload as JSON and verify it includes title and body fields.
+- In the right rail, verify metadata shows message name, category, created date, source (GardenIQ), and tags.
+- Verify per-channel variant status badges show Available or Missing consistent with the previews.
+- Use quick actions to copy the message ID and a variant ID and verify clipboard contents.
+- Enter fullscreen preview via button or F key, confirm surrounding chrome hides, then exit fullscreen.
+- Click Next and Previous to navigate within the category and confirm the message and previews update.
+- Use the parent category link to open message-category?id={categoryId} and verify the folder opens.
+- From the Manage menu, duplicate the message and move it to another category via modal; confirm results in both categories.
+- Confirm authoring is disabled: no in-app editing of content, only preview, copy, and download actions.
+- Validate permissions: guest cannot see manage actions; standard, manager, and admin can perform duplicate and move.

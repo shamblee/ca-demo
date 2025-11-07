@@ -1,0 +1,1823 @@
+[
+    {
+        "name": "Account",
+        "description": "An account (tenant)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "account",
+        "type": "type",
+        "props": [
+            {
+                "name": "created_at",
+                "description": "When the account was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "hero_image_path",
+                "description": "Optional hero/cover image path for the account in the 'accounts' bucket",
+                "optional": true,
+                "sqlDef": "hero_image_path text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the account",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "logo_image_path",
+                "description": "Path to the logo image in the 'accounts' bucket",
+                "optional": true,
+                "sqlDef": "logo_image_path text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "name",
+                "description": "Display name of the account",
+                "sqlDef": "name text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "AccountInvite",
+        "description": "An invitation to join an account",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "account_invite",
+        "type": "type",
+        "props": [
+            {
+                "name": "accepted_at",
+                "description": "When the invite was accepted",
+                "optional": true,
+                "sqlDef": "accepted_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "account_id",
+                "description": "The account this invite is for",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the invite was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "declined_at",
+                "description": "When the invite was declined",
+                "optional": true,
+                "sqlDef": "declined_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "email",
+                "description": "Optional email address the invite targets",
+                "optional": true,
+                "sqlDef": "email text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "expires_at",
+                "description": "When the invite expires",
+                "optional": true,
+                "sqlDef": "expires_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the invite",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "invite_code",
+                "description": "The unique invite code part used in the invite URL",
+                "sqlDef": "invite_code text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "invited_by_user_id",
+                "description": "The user who created the invite",
+                "optional": true,
+                "sqlDef": "invited_by_user_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "is_active",
+                "description": "If true, the invite is currently active/valid",
+                "hasDefault": true,
+                "sqlDef": "is_active boolean not null default true",
+                "type": {
+                    "name": "boolean",
+                    "sql": "bool",
+                    "ts": "boolean"
+                }
+            },
+            {
+                "name": "role",
+                "description": "The role granted if the invite is accepted",
+                "hasDefault": true,
+                "sqlDef": "role public.user_role not null default 'standard'",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "AccountMembership",
+        "description": "A membership linking a user to an account with a role",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "account_membership",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this membership belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the membership was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the membership",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "last_accessed_at",
+                "description": "When the member last accessed the account",
+                "optional": true,
+                "sqlDef": "last_accessed_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "role",
+                "description": "The role of the user within this account",
+                "hasDefault": true,
+                "sqlDef": "role public.user_role not null default 'standard'",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "user_id",
+                "description": "The user this membership is for",
+                "sqlDef": "user_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Agent",
+        "description": "An AI decisioning agent configuration",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "agent",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this agent belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "activated_at",
+                "description": "When the agent was activated",
+                "optional": true,
+                "sqlDef": "activated_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the agent was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "deactivated_at",
+                "description": "When the agent was deactivated",
+                "optional": true,
+                "sqlDef": "deactivated_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "default_email_from",
+                "description": "Default email address for sending (from)",
+                "optional": true,
+                "sqlDef": "default_email_from text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "default_sms_from",
+                "description": "Default SMS phone number for sending (from)",
+                "optional": true,
+                "sqlDef": "default_sms_from text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "desired_outcome_description",
+                "description": "Optional description of desired outcomes/goals",
+                "optional": true,
+                "sqlDef": "desired_outcome_description text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "holdout_percentage",
+                "description": "The holdout percentage for control group (0-100)",
+                "hasDefault": true,
+                "sqlDef": "holdout_percentage numeric(5,2) not null default 0",
+                "type": {
+                    "name": "number",
+                    "sql": "numeric",
+                    "ts": "number"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the agent",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "is_active",
+                "description": "If true, the agent is active",
+                "hasDefault": true,
+                "sqlDef": "is_active boolean not null default false",
+                "type": {
+                    "name": "boolean",
+                    "sql": "bool",
+                    "ts": "boolean"
+                }
+            },
+            {
+                "name": "message_category_id",
+                "description": "The message category (content library) assigned to this agent",
+                "sqlDef": "message_category_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "name",
+                "description": "Display name of the agent",
+                "sqlDef": "name text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "segment_id",
+                "description": "The segment targeted by this agent",
+                "sqlDef": "segment_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "send_days",
+                "arrayDimensions": 1,
+                "description": "Days of week allowed (0=Mon ... 6=Sun)",
+                "hasDefault": true,
+                "isArray": true,
+                "sqlDef": "send_days smallint[] not null default '{}'",
+                "type": {
+                    "name": "number",
+                    "sql": "int2",
+                    "ts": "number",
+                    "zod": "z.number().int()"
+                }
+            },
+            {
+                "name": "send_frequency",
+                "description": "Sending frequency",
+                "sqlDef": "send_frequency public.send_frequency not null",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "send_time_windows",
+                "arrayDimensions": 1,
+                "description": "Time windows allowed for sending",
+                "hasDefault": true,
+                "isArray": true,
+                "sqlDef": "send_time_windows public.send_time_window[] not null default '{}'",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "AgentDecision",
+        "description": "A recorded decision made by an agent",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "agent_decision",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this decision belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "agent_id",
+                "description": "The agent that made the decision",
+                "sqlDef": "agent_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "channel",
+                "description": "The chosen channel for sending",
+                "optional": true,
+                "sqlDef": "channel public.channel",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the decision was recorded",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "decisioned_at",
+                "description": "When the decision was made",
+                "hasDefault": true,
+                "sqlDef": "decisioned_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the decision",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "is_holdout",
+                "description": "True if the profile was in the holdout group and no send should occur",
+                "hasDefault": true,
+                "sqlDef": "is_holdout boolean not null default false",
+                "type": {
+                    "name": "boolean",
+                    "sql": "bool",
+                    "ts": "boolean"
+                }
+            },
+            {
+                "name": "message_id",
+                "description": "The selected message (if any)",
+                "optional": true,
+                "sqlDef": "message_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "message_variant_id",
+                "description": "The selected message variant (if any)",
+                "optional": true,
+                "sqlDef": "message_variant_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "profile_id",
+                "description": "The profile targeted by the decision",
+                "sqlDef": "profile_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "reasoning",
+                "description": "Concise reasoning for the decision",
+                "optional": true,
+                "sqlDef": "reasoning text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "scheduled_send_at",
+                "description": "The chosen scheduled send time",
+                "optional": true,
+                "sqlDef": "scheduled_send_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "send_error",
+                "description": "Optional error information if sending failed",
+                "optional": true,
+                "sqlDef": "send_error text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "sent_at",
+                "description": "When the send occurred (if sent)",
+                "optional": true,
+                "sqlDef": "sent_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "was_sent",
+                "description": "True if a send occurred for this decision",
+                "optional": true,
+                "sqlDef": "was_sent boolean",
+                "type": {
+                    "name": "boolean",
+                    "sql": "bool",
+                    "ts": "boolean"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Channel",
+        "description": "Communication channel enumeration",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "ChannelSubscription",
+        "description": "Channel subscription per profile and channel",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "channel_subscription",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this subscription belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "address",
+                "description": "Target address/identifier for the channel (email address, phone, or device token)",
+                "optional": true,
+                "sqlDef": "address text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "channel",
+                "description": "The channel for the subscription",
+                "sqlDef": "channel public.channel not null",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the subscription record was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the subscription",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "is_primary",
+                "description": "If true, this is the primary subscription for the channel",
+                "hasDefault": true,
+                "sqlDef": "is_primary boolean not null default true",
+                "type": {
+                    "name": "boolean",
+                    "sql": "bool",
+                    "ts": "boolean"
+                }
+            },
+            {
+                "name": "last_bounced_at",
+                "description": "When the last bounce occurred (if any)",
+                "optional": true,
+                "sqlDef": "last_bounced_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "profile_id",
+                "description": "The profile this subscription belongs to",
+                "sqlDef": "profile_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "status",
+                "description": "Status of the subscription",
+                "hasDefault": true,
+                "sqlDef": "status public.subscription_status not null default 'subscribed'",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "subscribed_at",
+                "description": "When the subscription was established",
+                "optional": true,
+                "sqlDef": "subscribed_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "unsubscribed_at",
+                "description": "When the subscription was terminated",
+                "optional": true,
+                "sqlDef": "unsubscribed_at timestamptz",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Event",
+        "description": "An analytics/event record used for web, messaging, ecommerce, and attribution",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "event",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this event belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "agent_id",
+                "description": "Agent associated with the event (if applicable)",
+                "optional": true,
+                "sqlDef": "agent_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "channel",
+                "description": "Channel associated with the event (if applicable)",
+                "optional": true,
+                "sqlDef": "channel public.channel",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the event row was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "currency",
+                "description": "Currency code (ISO 4217)",
+                "optional": true,
+                "sqlDef": "currency char(3)",
+                "type": {
+                    "name": "string",
+                    "sql": "bpchar",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "event_type",
+                "description": "Type of event",
+                "sqlDef": "event_type public.event_type not null",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the event",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "message_id",
+                "description": "Message associated with the event (if applicable)",
+                "optional": true,
+                "sqlDef": "message_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "occurred_at",
+                "description": "When the event occurred",
+                "sqlDef": "occurred_at timestamptz not null",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "order_id",
+                "description": "Order identifier for purchase/checkout events",
+                "optional": true,
+                "sqlDef": "order_id text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "page_url",
+                "description": "Page URL for page-related events",
+                "optional": true,
+                "sqlDef": "page_url text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "product_id",
+                "description": "Product identifier for ecommerce events",
+                "optional": true,
+                "sqlDef": "product_id text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "profile_id",
+                "description": "The profile associated with the event (if known)",
+                "optional": true,
+                "sqlDef": "profile_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "properties",
+                "description": "Additional event properties and metadata",
+                "hasDefault": true,
+                "sqlDef": "properties jsonb not null default '{}'::jsonb",
+                "type": {
+                    "name": "json",
+                    "convo": "map",
+                    "sql": "jsonb",
+                    "ts": "Record<string,any>",
+                    "zod": "z.record(z.string(),z.any())"
+                }
+            },
+            {
+                "name": "revenue",
+                "description": "Monetary revenue amount for purchase/attribution",
+                "optional": true,
+                "sqlDef": "revenue numeric(12,2)",
+                "type": {
+                    "name": "number",
+                    "sql": "numeric",
+                    "ts": "number"
+                }
+            },
+            {
+                "name": "session_id",
+                "description": "Session identifier for web analytics",
+                "optional": true,
+                "sqlDef": "session_id text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "EventType",
+        "description": "Event type enumeration for analytics and attribution",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "Message",
+        "description": "A marketing message imported from an external source (e.g., GardenIQ)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "message",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this message belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "category_id",
+                "description": "The category this message belongs to",
+                "optional": true,
+                "sqlDef": "category_id uuid",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the message was created (imported)",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "external_id",
+                "description": "External id for cross-system mapping",
+                "optional": true,
+                "sqlDef": "external_id text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "external_source",
+                "description": "External source name, e.g., 'gardeniq'",
+                "hasDefault": true,
+                "sqlDef": "external_source text not null default 'gardeniq'",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the message",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "name",
+                "description": "Human-readable name of the message",
+                "sqlDef": "name text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "tags",
+                "arrayDimensions": 1,
+                "description": "Optional tags for organization",
+                "hasDefault": true,
+                "isArray": true,
+                "sqlDef": "tags text[] not null default '{}'",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "MessageCategory",
+        "description": "A message category (content library/folder)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "message_category",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this category belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the category was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "description",
+                "description": "Optional description of the category",
+                "optional": true,
+                "sqlDef": "description text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the message category",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "name",
+                "description": "Name of the category",
+                "sqlDef": "name text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "thumbnail_image_path",
+                "description": "Optional preview/thumbnail image path in the 'accounts' bucket",
+                "optional": true,
+                "sqlDef": "thumbnail_image_path text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "MessageVariant",
+        "description": "A message variant per channel (email, sms, push)",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "message_variant",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this variant belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "channel",
+                "description": "Channel for this variant",
+                "sqlDef": "channel public.channel not null",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the variant was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "email_html",
+                "description": "Email HTML content (email channel)",
+                "optional": true,
+                "sqlDef": "email_html text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "email_subject",
+                "description": "Email subject (email channel)",
+                "optional": true,
+                "sqlDef": "email_subject text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "email_text",
+                "description": "Email plain text content (email channel)",
+                "optional": true,
+                "sqlDef": "email_text text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the message variant",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "message_id",
+                "description": "The parent message",
+                "sqlDef": "message_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "preview_image_path",
+                "description": "Optional preview image path in the 'accounts' bucket",
+                "optional": true,
+                "sqlDef": "preview_image_path text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "push_body",
+                "description": "Push notification body (push channel)",
+                "optional": true,
+                "sqlDef": "push_body text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "push_title",
+                "description": "Push notification title (push channel)",
+                "optional": true,
+                "sqlDef": "push_title text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "sms_text",
+                "description": "SMS text (sms channel)",
+                "optional": true,
+                "sqlDef": "sms_text text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "OutcomeMapping",
+        "description": "Mapping from events to desired outcome ranks for an agent",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "outcome_mapping",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this mapping belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "agent_id",
+                "description": "The agent this mapping belongs to",
+                "sqlDef": "agent_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the mapping was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "event_type",
+                "description": "The event type being mapped",
+                "sqlDef": "event_type public.event_type not null",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the outcome mapping",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "outcome",
+                "description": "The outcome rank associated with the event",
+                "sqlDef": "outcome public.outcome_rank not null",
+                "type": {
+                    "name": "string",
+                    "sql": "public",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "weight",
+                "description": "Optional weight or score for optimization",
+                "optional": true,
+                "sqlDef": "weight numeric(10,2)",
+                "type": {
+                    "name": "number",
+                    "sql": "numeric",
+                    "ts": "number"
+                }
+            }
+        ]
+    },
+    {
+        "name": "OutcomeRank",
+        "description": "Outcome ranking enumeration",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "Profile",
+        "description": "A stored customer profile",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "profile",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this profile belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "address_city",
+                "description": "City",
+                "optional": true,
+                "sqlDef": "address_city text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "address_country",
+                "description": "Country",
+                "optional": true,
+                "sqlDef": "address_country text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "address_state",
+                "description": "State or region",
+                "optional": true,
+                "sqlDef": "address_state text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "address_street",
+                "description": "Street address",
+                "optional": true,
+                "sqlDef": "address_street text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "address_zip",
+                "description": "Postal or ZIP code",
+                "optional": true,
+                "sqlDef": "address_zip text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "attributes",
+                "description": "Arbitrary attributes for CRM-like properties and enrichment payloads",
+                "hasDefault": true,
+                "sqlDef": "attributes jsonb not null default '{}'::jsonb",
+                "type": {
+                    "name": "json",
+                    "convo": "map",
+                    "sql": "jsonb",
+                    "ts": "Record<string,any>",
+                    "zod": "z.record(z.string(),z.any())"
+                }
+            },
+            {
+                "name": "company",
+                "description": "Optional company name",
+                "optional": true,
+                "sqlDef": "company text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the profile was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "department",
+                "description": "Optional department",
+                "optional": true,
+                "sqlDef": "department text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "device_id",
+                "description": "Device identifier (for push/SDK correlation)",
+                "optional": true,
+                "sqlDef": "device_id text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "email",
+                "description": "Email address",
+                "optional": true,
+                "sqlDef": "email text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "external_id",
+                "description": "External system identifier (e.g., CRM ID)",
+                "optional": true,
+                "sqlDef": "external_id text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "first_name",
+                "description": "First name",
+                "optional": true,
+                "sqlDef": "first_name text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the profile",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "job_title",
+                "description": "Optional job title",
+                "optional": true,
+                "sqlDef": "job_title text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "last_name",
+                "description": "Last name",
+                "optional": true,
+                "sqlDef": "last_name text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "phone",
+                "description": "Phone number (E.164 suggested)",
+                "optional": true,
+                "sqlDef": "phone text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "Segment",
+        "description": "A segment of profiles",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "segment",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this segment belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "created_at",
+                "description": "When the segment was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "criteria",
+                "description": "Criteria used to define segment membership (demographics, behavior, etc.)",
+                "hasDefault": true,
+                "sqlDef": "criteria jsonb not null default '{}'::jsonb",
+                "type": {
+                    "name": "json",
+                    "convo": "map",
+                    "sql": "jsonb",
+                    "ts": "Record<string,any>",
+                    "zod": "z.record(z.string(),z.any())"
+                }
+            },
+            {
+                "name": "description",
+                "description": "Description of the segment",
+                "optional": true,
+                "sqlDef": "description text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the segment",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "is_dynamic",
+                "description": "If true, membership is dynamically evaluated; otherwise uses explicit membership",
+                "hasDefault": true,
+                "sqlDef": "is_dynamic boolean not null default true",
+                "type": {
+                    "name": "boolean",
+                    "sql": "bool",
+                    "ts": "boolean"
+                }
+            },
+            {
+                "name": "name",
+                "description": "Name of the segment",
+                "sqlDef": "name text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "SegmentProfile",
+        "description": "Membership join between segment and profile",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "segment_profile",
+        "type": "type",
+        "props": [
+            {
+                "name": "account_id",
+                "description": "The account this membership belongs to",
+                "sqlDef": "account_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "added_at",
+                "description": "When the profile was added to the segment",
+                "hasDefault": true,
+                "sqlDef": "added_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the segment-profile membership",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "profile_id",
+                "description": "The profile id",
+                "sqlDef": "profile_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "segment_id",
+                "description": "The segment id",
+                "sqlDef": "segment_id uuid not null",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "SendFrequency",
+        "description": "Sending frequency enumeration for agents",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "SendTimeWindow",
+        "description": "Time window enumeration for agents",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "SubscriptionStatus",
+        "description": "Channel subscription status enumeration",
+        "type": "enum",
+        "props": []
+    },
+    {
+        "name": "User",
+        "description": "A user",
+        "primaryKey": "id",
+        "sqlSchema": "public",
+        "sqlTable": "user",
+        "type": "type",
+        "props": [
+            {
+                "name": "created_at",
+                "description": "When the user row was created",
+                "hasDefault": true,
+                "sqlDef": "created_at timestamptz not null default now()",
+                "type": {
+                    "name": "string",
+                    "sql": "timestamptz",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "email",
+                "description": "Email of the user (used for identification within the app; auth handled by Supabase)",
+                "sqlDef": "email text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "hero_image_path",
+                "description": "Optional hero/cover image path in the 'accounts' bucket",
+                "optional": true,
+                "sqlDef": "hero_image_path text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "id",
+                "description": "Unique id of the user",
+                "hasDefault": true,
+                "primary": true,
+                "sqlDef": "id uuid not null default gen_random_uuid ()",
+                "type": {
+                    "name": "string",
+                    "sql": "uuid",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "name",
+                "description": "Name of the user",
+                "sqlDef": "name text not null",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            },
+            {
+                "name": "profile_image_path",
+                "description": "Path of the profile picture in the 'accounts' bucket using the pattern {account_id}/users/{user_id}/...",
+                "optional": true,
+                "sqlDef": "profile_image_path text",
+                "type": {
+                    "name": "string",
+                    "sql": "text",
+                    "ts": "string"
+                }
+            }
+        ]
+    },
+    {
+        "name": "UserRole",
+        "description": "Role enumeration for account membership",
+        "type": "enum",
+        "props": []
+    }
+]
