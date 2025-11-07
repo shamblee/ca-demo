@@ -1,16 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useAccount, useCurrentUser, useStoreMatchingItems } from "@/lib/hooks";
-import { cn } from "@/lib/util";
-import {
-    typeDefs,
-    Event as DbEvent,
-    Agent as DbAgent,
-    Message as DbMessage,
-    Segment as DbSegment,
-    MessageCategory as DbMessageCategory,
-} from "@/lib/schema";
 import { SignInRequired } from "@/components/SignInRequired";
+import { useAccount, useCurrentUser, useStoreMatchingItems } from "@/lib/hooks";
+import {
+    Agent as DbAgent,
+    Event as DbEvent,
+    Message as DbMessage,
+    MessageCategory as DbMessageCategory,
+    Segment as DbSegment,
+    typeDefs,
+} from "@/lib/schema";
+import { cn } from "@/lib/util";
 import {
     Activity,
     ArrowUpRight,
@@ -24,6 +22,8 @@ import {
     RefreshCw,
     SlidersHorizontal,
 } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 type TabKey = "web" | "messaging" | "ecommerce" | "attribution";
 type DatePreset = "7d" | "30d" | "90d" | "custom";
@@ -463,49 +463,6 @@ export default function DashboardPage() {
         );
     }
 
-    if (loading) {
-        return (
-            <div className="page--DashboardPage container-page space-y-4">
-                <header className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <LineChart className="w-5 h-5 text-[var(--text-3)]" />
-                        <h1 className="section-title text-xl">Dashboard</h1>
-                    </div>
-                </header>
-
-                <section className="card p-3">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                            <div key={i} className="kpi">
-                                <div className="kpi-label skeleton h-4 w-24 rounded" />
-                                <div className="kpi-value skeleton h-6 w-32 rounded mt-2" />
-                                <div className="kpi-delta skeleton h-3 w-16 rounded mt-1" />
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <section className="content-2col">
-                    <div className="space-y-3">
-                        <div className="card p-3">
-                            <div className="skeleton h-8 w-64 rounded mb-4" />
-                            <div className="skeleton h-40 w-full rounded" />
-                        </div>
-                    </div>
-                    <aside className="right-rail space-y-3">
-                        <div className="card p-3">
-                            <div className="skeleton h-6 w-36 rounded mb-2" />
-                            <div className="flex gap-2">
-                                <div className="skeleton h-9 w-28 rounded" />
-                                <div className="skeleton h-9 w-28 rounded" />
-                            </div>
-                        </div>
-                    </aside>
-                </section>
-            </div>
-        );
-    }
-
     // Helper: top pages/messages/products
     const topPages = useMemo(() => {
         const counts = new Map<string, number>();
@@ -659,6 +616,49 @@ export default function DashboardPage() {
     const msgSent = filteredEvents.filter((e) => e.event_type === "message_sent").length;
     const msgBounced = filteredEvents.filter((e) => e.event_type === "message_bounce").length;
     const deliverability = msgSent ? 1 - msgBounced / msgSent : 0;
+
+    if (loading) {
+        return (
+            <div className="page--DashboardPage container-page space-y-4">
+                <header className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <LineChart className="w-5 h-5 text-[var(--text-3)]" />
+                        <h1 className="section-title text-xl">Dashboard</h1>
+                    </div>
+                </header>
+
+                <section className="card p-3">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="kpi">
+                                <div className="kpi-label skeleton h-4 w-24 rounded" />
+                                <div className="kpi-value skeleton h-6 w-32 rounded mt-2" />
+                                <div className="kpi-delta skeleton h-3 w-16 rounded mt-1" />
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
+                <section className="content-2col">
+                    <div className="space-y-3">
+                        <div className="card p-3">
+                            <div className="skeleton h-8 w-64 rounded mb-4" />
+                            <div className="skeleton h-40 w-full rounded" />
+                        </div>
+                    </div>
+                    <aside className="right-rail space-y-3">
+                        <div className="card p-3">
+                            <div className="skeleton h-6 w-36 rounded mb-2" />
+                            <div className="flex gap-2">
+                                <div className="skeleton h-9 w-28 rounded" />
+                                <div className="skeleton h-9 w-28 rounded" />
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+            </div>
+        );
+    }
 
     return (
         <div className="page--DashboardPage container-page space-y-4">
