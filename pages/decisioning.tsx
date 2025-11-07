@@ -1,11 +1,11 @@
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { Plus, Search, Eye, Trash2, Play, Pause, Filter } from "lucide-react";
-import { useUserInfo, useStoreMatchingItems } from "@/lib/hooks";
+import { SignInRequired } from "@/components/SignInRequired";
+import { useStoreMatchingItems, useUserInfo } from "@/lib/hooks";
+import { Agent, MessageCategory, Segment, typeDefs } from "@/lib/schema";
 import { store } from "@/lib/store";
 import { cn } from "@/lib/util";
-import { SignInRequired } from "@/components/SignInRequired";
-import { typeDefs, Agent, Segment, MessageCategory } from "@/lib/schema";
+import { Eye, Filter, Pause, Play, Plus, Search, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
 type StatusFilter = "all" | "active" | "inactive";
 type SortKey = "created_desc" | "created_asc" | "name_asc" | "name_desc";
@@ -398,7 +398,7 @@ export default function DecisioningPage() {
                                     </tbody>
                                 </table>
                             </div>
-                        ))}
+                        )}
                     </div>
 
                     <aside className="right-rail space-y-3">

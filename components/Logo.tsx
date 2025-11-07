@@ -1,5 +1,5 @@
-import React from "react";
 import { cn } from "@/lib/util";
+import React from "react";
 
 export interface LogoProps extends React.SVGProps<SVGSVGElement> {
     color?: string;

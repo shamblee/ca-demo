@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { Eye, EyeOff, CheckCircle2, MailCheck } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { useFullPage, useCurrentUser } from "@/lib/hooks";
+import { useCurrentUser, useFullPage } from "@/lib/hooks";
 import { supClient } from "@/lib/supabase";
 import { cn } from "@/lib/util";
+import { CheckCircle2, Eye, EyeOff, MailCheck } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
 
 interface RegisterForm {
     name: string;
@@ -40,6 +40,12 @@ export default function RegisterPage() {
     const [success, setSuccess] = useState<"pending" | "email-confirm" | "signed-in">("pending");
     const [inviteOpen, setInviteOpen] = useState(false);
     const [inviteCode, setInviteCode] = useState("");
+
+    // Default: registration form
+    const emailErrorId = useMemo(() => (errors.email ? "register-email-error" : undefined), [errors.email]);
+    const nameErrorId = useMemo(() => (errors.name ? "register-name-error" : undefined), [errors.name]);
+    const orgErrorId = useMemo(() => (errors.accountName ? "register-org-error" : undefined), [errors.accountName]);
+    const passErrorId = useMemo(() => (errors.password ? "register-pass-error" : undefined), [errors.password]);
 
     useEffect(() => {
         // If a query param pre-fills email or invite code
@@ -215,12 +221,6 @@ export default function RegisterPage() {
             </div>
         );
     }
-
-    // Default: registration form
-    const emailErrorId = useMemo(() => (errors.email ? "register-email-error" : undefined), [errors.email]);
-    const nameErrorId = useMemo(() => (errors.name ? "register-name-error" : undefined), [errors.name]);
-    const orgErrorId = useMemo(() => (errors.accountName ? "register-org-error" : undefined), [errors.accountName]);
-    const passErrorId = useMemo(() => (errors.password ? "register-pass-error" : undefined), [errors.password]);
 
     return (
         <div className="page--RegisterPage min-h-screen flex items-center justify-center">
