@@ -3669,12 +3669,9 @@ Generate a React component based on the `component-description`.
 //_END_MAKE_TARGET_INPUT_
 
 
-@time 2025-11-07T09:30:38-05:00
-@tokenUsage 25216 / 2680 / $0.03487
-@model gpt-5-2025-08-07
 > assistant
-import React from "react";
 import { cn } from "@/lib/util";
+import React from "react";
 
 export interface LogoProps extends React.SVGProps<SVGSVGElement> {
     color?: string;
@@ -3736,7 +3733,3 @@ export function Logo({ color, className = "w-8 h-8", size, style, ...rest }: Log
         </svg>
     );
 }
-
-
-
-> user

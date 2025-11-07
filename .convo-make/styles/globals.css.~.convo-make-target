@@ -1266,9 +1266,6 @@ Generate a Tailwinds v4 theme.
 //_END_MAKE_TARGET_INPUT_
 
 
-@time 2025-11-06T17:39:50-05:00
-@tokenUsage 9539 / 9641 / $0.023975000000000003
-@model gpt-5-2025-08-07
 > assistant
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Public+Sans:wght@300..800&display=swap");
 @import "tailwindcss";
@@ -1545,7 +1542,7 @@ input, textarea, select{
 
 @utility btn-primary{
     background: var(--blue);
-    color: #0b1020;
+    color: #0b1020 !important;
     border-color: color-mix(in oklab, var(--blue) 70%, #000 0%);
 }
 @utility btn-primary-ghost{
@@ -2295,7 +2292,3 @@ input, textarea, select{
     border-radius: 12px;
     padding: .75rem;
 }
-
-
-
-> user

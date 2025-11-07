@@ -2339,27 +2339,18 @@ Generate a list of components based on the `component` tags.
 //_END_MAKE_TARGET_INPUT_
 
 
-@time 2025-11-07T09:27:40-05:00
-@tokenUsage 14329 / 1037 / $0.0192075
-@model gpt-5-2025-08-07
 > assistant
-{
-    "values": [
-        {
-            "name": "Logo",
-            "description": "An SVG logo component with a default size of 1rem.",
-            "propsInterface": "export interface LogoProps {\n    color?: string;\n    className?: string;\n    size?: string | number;\n}",
-            "import": "import { Logo } from \"@/components/Logo\""
-        },
-        {
-            "name": "SignInRequired",
-            "description": "A card shown when a user lacks access to a screen, with links to sign-in or register.",
-            "propsInterface": "export interface SignInRequiredProps {\n    /**\n     * A message to display to the user\n     */\n    message?: string;\n    className?: string;\n}",
-            "import": "import { SignInRequired } from \"@/components/SignInRequired\""
-        }
-    ]
-}
-
-
-
-> user
+[
+    {
+        "name": "Logo",
+        "description": "An SVG logo component with a default size of 1rem.",
+        "propsInterface": "export interface LogoProps {\n    color?: string;\n    className?: string;\n    size?: string | number;\n}",
+        "import": "import { Logo } from \"@/components/Logo\""
+    },
+    {
+        "name": "SignInRequired",
+        "description": "A card shown when a user lacks access to a screen, with links to sign-in or register.",
+        "propsInterface": "export interface SignInRequiredProps {\n    /**\n     * A message to display to the user\n     */\n    message?: string;\n    className?: string;\n}",
+        "import": "import { SignInRequired } from \"@/components/SignInRequired\""
+    }
+]

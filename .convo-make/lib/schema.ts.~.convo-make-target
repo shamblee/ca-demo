@@ -545,5 +545,8 @@ create index event_message_idx on public.event (message_id);
 //_END_MAKE_TARGET_INPUT_
 
 
-
-> user
+> assistant
+export * from "./schema/type-defs";
+export * from "./schema/type-table-map-ts";
+export * from "./schema/types-ts";
+export * from "./schema/types-zod";

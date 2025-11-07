@@ -1536,7 +1536,7 @@ input, textarea, select{
 
 @utility btn-primary{
     background: var(--blue);
-    color: #0b1020;
+    color: #0b1020 !important;
     border-color: color-mix(in oklab, var(--blue) 70%, #000 0%);
 }
 @utility btn-primary-ghost{
