@@ -2354,3 +2354,5 @@ Generate a list of components based on the `component` tags.
         "import": "import { SignInRequired } from \"@/components/SignInRequired\""
     }
 ]
+
+> user

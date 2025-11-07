@@ -1411,8 +1411,8 @@ a:hover{
 }
 
 button{
-    background: none;
-    border: 0;
+    /* background: none;
+    border: 0; */
     color: inherit;
     font: inherit;
     cursor: pointer;
@@ -2292,3 +2292,5 @@ input, textarea, select{
     border-radius: 12px;
     padding: .75rem;
 }
+
+> user

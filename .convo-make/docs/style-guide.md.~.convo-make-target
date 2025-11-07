@@ -1405,8 +1405,8 @@ a:hover{
 }
 
 button{
-    background: none;
-    border: 0;
+    /* background: none;
+    border: 0; */
     color: inherit;
     font: inherit;
     cursor: pointer;
